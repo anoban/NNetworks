@@ -1,20 +1,23 @@
+#pragma once
 #ifndef __IDX3_H__
-#define __IDX3_H__
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#define _AMD64_
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_MEAN
-#include <errhandlingapi.h>
-#include <fileapi.h>
-#include <handleapi.h>
-#include <windef.h>
+    #define __IDX3_H__
+    #include <stdbool.h>
+    #include <stdint.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #define _AMD64_
+    #define WIN32_LEAN_AND_MEAN
+    #define WIN32_EXTRA_MEAN
+    #include <errhandlingapi.h>
+    #include <fileapi.h>
+    #include <handleapi.h>
+    #include <windef.h>
+    #include <winsock.h> // ntohl (net to host long) ntohl() converts a u_long from TCP/IP network order to host byte order
+// (which is little-endian on Intel processors). It just reverses the bytes of the input 32 bit value. It is not Endian aware.
 
 /*
     IO ROUTINES TO HANDLE IDX3 FILES
-    IDX3 FILES ARE JUST PLAIN BINARY FILES WITH A FEW PADDED BYTES UPSTREAM OF THE DATA SECTION THAT STORES METADATA
+    IDX FILES ARE JUST PLAIN BINARY FILES WITH A FEW PADDED BYTES UPSTREAM OF THE DATA SECTION THAT STORES METADATA
 
     In idx3 pixel files (images), the pixel data is stored in the following format,
 
@@ -26,7 +29,7 @@
     0016     unsigned byte   ??               pixel
     0017     unsigned byte   ??               pixel
 
-    In idx3 label files, the label data is stored in the following format,
+    In idx1 label files, the label data is stored in the following format,
 
     [offset] [type]          [value]          [description]
     0000     32 bit integer  0x00000801(2049) magic number (MSB first)
@@ -39,7 +42,24 @@
 
 */
 
-static inline uint8_t* open_idx3(_In_ const wchar_t* restrict file_name, _Out_ uint64_t* const nread_bytes) {
+// IDX FILES USE BIG ENDIAN BYTE ORDERING FOR MULTIBYTE VALUES
+
+// to store metadata of idx3 files
+typedef struct idx3meta {
+        uint32_t magic;
+        uint32_t nimages;
+        uint32_t nrows;
+        uint32_t ncolumns;
+} idx3meta_t;
+
+// to store metadata of idx1 files
+typedef struct idx1meta {
+        uint32_t magic;
+        uint32_t nlabels;
+} idx1meta_t;
+
+// expects an unzipped file
+static inline uint8_t* open_idx(_In_ const wchar_t* const restrict file_name, _Out_ uint64_t* const nread_bytes) {
     *nread_bytes    = 0;
     HANDLE   handle = NULL;
     void*    buffer = NULL;
