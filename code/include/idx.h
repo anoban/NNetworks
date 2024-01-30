@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __IDX3_H__
-    #define __IDX3_H__
+#ifndef __IDX_H__
+    #define __IDX_H__
     #include <stdbool.h>
     #include <stdint.h>
     #include <stdio.h>
@@ -13,7 +13,8 @@
     #include <handleapi.h>
     #include <windef.h>
     #include <winsock.h> // ntohl (net to host long) ntohl() converts a u_long from TCP/IP network order to host byte order
-// (which is little-endian on Intel processors). It just reverses the bytes of the input 32 bit value. It is not Endian aware.
+// (which is little-endian on Intel processors). It just reverses the bytes of the 32 bit input.
+// It is not Endian aware.
 
 /*
     IO ROUTINES TO HANDLE IDX3 FILES
@@ -100,4 +101,4 @@ static inline uint8_t* open_idx(_In_ const wchar_t* const restrict file_name, _O
     }
 }
 
-#endif //!__IDX3_H__
+#endif //!__IDX_H__
