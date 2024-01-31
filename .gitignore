@@ -388,13 +388,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# Images
-*.bmp
-*.png
-*.jpeg
-*.jpg
-
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
