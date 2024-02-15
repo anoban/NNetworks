@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\idxio.hpp">
+    <ClInclude Include="include\idxio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\matrix.hpp">
+    <ClInclude Include="include\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
