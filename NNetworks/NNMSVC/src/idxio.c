@@ -8,85 +8,108 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windef.h>
-#include <winsock.h>
+#include <winsock.h>               // htonl
+
+#pragma comment(lib, "Ws2_32.lib") // htonl
 
 idx1_t openidx1(_In_ const wchar_t* const restrict file_name) {
-    HANDLE64*     hFile   = NULL;
-    void*         buffer  = NULL;
+    uint8_t *     buffer = NULL, *labels = NULL;
     DWORD         nbytes  = 0;
     LARGE_INTEGER liFsize = { .QuadPart = 0LLU };
+    idx1_t        result  = { .magic = 0U, .nlabels = 0U, .data = NULL };
 
-    hFile                 = CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+    const HANDLE64 hFile  = CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
 
-    if (hFile != INVALID_HANDLE_VALUE) {
-        // if not able to decide the size of the file, exit the routine.
-        if (!GetFileSizeEx(hFile, &liFsize)) {
-            fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
-            return (idx1_t) { .magic = 0U, .nlabels = 0, .data = NULL };
-        }
-
-        buffer = malloc(liFsize.QuadPart);
-        if (buffer) {
-            if (ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, NULL)) {
-                // implement idx1 parsing
-                idx1_t temp = { 0 };
-                temp.magic  = htonl(*(int32_t*) (buffer));
-
-                return temp;
-            } else {
-                fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
-                CloseHandle(hFile);
-                free(buffer);
-                return (idx1_t) { .magic = 0U, .nlabels = 0, .data = NULL };
-            }
-        } else {
-            fputws(L"Memory allocation error: malloc returned NULL", stderr);
-            CloseHandle(hFile);
-            return (idx1_t) { .magic = 0U, .nlabels = 0, .data = NULL };
-        }
-    } else {
+    if (hFile == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in CreateFileW\n", GetLastError());
-        return (idx1_t) { .magic = 0U, .nlabels = 0, .data = NULL };
+        goto INVHANDLE_ERR;
     }
+
+    if (!GetFileSizeEx(hFile, &liFsize)) {
+        fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
+        goto GETFSIZE_ERR;
+    }
+
+    if (!(buffer = malloc(liFsize.QuadPart))) {
+        fputws(L"Memory allocation error: malloc returned NULL", stderr);
+        goto GETFSIZE_ERR;
+    }
+
+    if (!ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, NULL)) {
+        fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
+        goto READFILE_ERR;
+    }
+
+    const uint32_t magic   = htonl(*((uint32_t*) (buffer)));     // first 4 bytes
+    const uint32_t nlabels = htonl(*((uint32_t*) (buffer + 4))); // next 4 bytes
+
+    if (!(labels = malloc(liFsize.QuadPart - 8))) {
+        fputws(L"Memory allocation error: malloc returned NULL", stderr);
+        goto READFILE_ERR;
+    }
+
+    memcpy_s(labels, liFsize.QuadPart - 8, buffer + 8, liFsize.QuadPart - 8);
+    result.data    = labels;
+    result.magic   = magic;
+    result.nlabels = nlabels;
+
+READFILE_ERR:
+    free(buffer);
+GETFSIZE_ERR:
+    CloseHandle(hFile);
+INVHANDLE_ERR:
+    return result;
 }
 
 idx3_t openidx3(_In_ const wchar_t* const restrict file_name) {
-    *nread_bytes    = 0;
-    HANDLE64 hFile  = NULL;
-    void*    buffer = NULL;
-    uint32_t nbytes = 0;
+    uint8_t *     buffer = NULL, *labels = NULL;
+    DWORD         nbytes  = 0;
+    LARGE_INTEGER liFsize = { .QuadPart = 0LLU };
+    idx3_t        result  = { .magic = 0U, .nimages = 0U, .nrows_img = 0U, .ncols_img = 0U, .data = NULL };
 
-    hFile           = CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+    const HANDLE64 hFile  = CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
 
-    if (hFile != INVALID_HANDLE_VALUE) {
-        LARGE_INTEGER liFsize;
-        if (!GetFileSizeEx(hFile, &liFsize)) {
-            fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
-            return NULL;
-        }
-
-        // add an extra megabyte to the buffer, for safety.
-        size_t buffsize = liFsize.QuadPart + (1024U * 1024);
-
-        // caller is responsible for freeing this buffer.
-        buffer          = malloc(buffsize);
-        if (buffer) {
-            if (ReadFile(hFile, buffer, buffsize, &nbytes, NULL)) {
-                *nread_bytes = nbytes;
-                return buffer;
-            } else {
-                fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
-                CloseHandle(hFile);
-                free(buffer);
-                return NULL;
-            }
-        } else {
-            fputws(L"Memory allocation error: malloc returned NULL", stderr);
-            CloseHandle(hFile);
-            return NULL;
-        }
-    } else {
+    if (hFile == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in CreateFileW\n", GetLastError());
-        return NULL;
+        goto INVHANDLE_ERR;
     }
+
+    if (!GetFileSizeEx(hFile, &liFsize)) {
+        fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
+        goto GETFSIZE_ERR;
+    }
+
+    if (!(buffer = malloc(liFsize.QuadPart))) {
+        fputws(L"Memory allocation error: malloc returned NULL", stderr);
+        goto GETFSIZE_ERR;
+    }
+
+    if (!ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, NULL)) {
+        fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
+        goto READFILE_ERR;
+    }
+
+    const uint32_t magic   = htonl(*((uint32_t*) (buffer)));      // first 4 bytes
+    const uint32_t nimages = htonl(*((uint32_t*) (buffer + 4)));  // second 4 bytes
+    const uint32_t nrows   = htonl(*((uint32_t*) (buffer + 8)));  // third 4 bytes
+    const uint32_t ncols   = htonl(*((uint32_t*) (buffer + 12))); // fourth 4 bytes
+
+    if (!(labels = malloc(liFsize.QuadPart - 16))) {
+        fputws(L"Memory allocation error: malloc returned NULL", stderr);
+        goto READFILE_ERR;
+    }
+
+    memcpy_s(labels, liFsize.QuadPart - 16, buffer + 16, liFsize.QuadPart - 16);
+    result.data      = labels;
+    result.magic     = magic;
+    result.nimages   = nimages;
+    result.nrows_img = nrows;
+    result.ncols_img = ncols;
+
+READFILE_ERR:
+    free(buffer);
+GETFSIZE_ERR:
+    CloseHandle(hFile);
+INVHANDLE_ERR:
+    return result;
 }

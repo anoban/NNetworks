@@ -1,7 +1,6 @@
 #pragma once
 #ifndef __IDXIO_H_
     #define __IDXIO_H_
-
     #include <stdint.h>
 
 /*
@@ -54,7 +53,7 @@ typedef struct idx3 {
            Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
         */
         uint32_t magic;
-        uint32_t nitems;
+        uint32_t nimages;
         uint32_t nrows_img;
         uint32_t ncols_img;
         uint8_t* data;
