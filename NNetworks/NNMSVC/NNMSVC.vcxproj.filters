@@ -21,6 +21,9 @@
     <ClInclude Include="include\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\activation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">

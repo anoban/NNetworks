@@ -8,10 +8,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windef.h>
-#include <winsock.h>               // htonl
+#include <winsock.h> // ntohl()
 
-#pragma comment(lib, "Ws2_32.lib") // htonl
+// it seems ntohl() and htonl() can be used interchangeably, they seem to do just a crude indian unaware bytes reversal
 
+#pragma comment(lib, "Ws2_32.lib") // ntohl()
+
+// tested, works great :)
 idx1_t openidx1(_In_ const wchar_t* const restrict file_name) {
     uint8_t *     buffer = NULL, *labels = NULL;
     DWORD         nbytes  = 0;
@@ -40,8 +43,8 @@ idx1_t openidx1(_In_ const wchar_t* const restrict file_name) {
         goto READFILE_ERR;
     }
 
-    const uint32_t magic   = htonl(*((uint32_t*) (buffer)));     // first 4 bytes
-    const uint32_t nlabels = htonl(*((uint32_t*) (buffer + 4))); // next 4 bytes
+    const uint32_t magic   = ntohl(*((uint32_t*) (buffer)));     // first 4 bytes
+    const uint32_t nlabels = ntohl(*((uint32_t*) (buffer + 4))); // next 4 bytes
 
     if (!(labels = malloc(liFsize.QuadPart - 8))) {
         fputws(L"Memory allocation error: malloc returned NULL", stderr);
@@ -61,6 +64,7 @@ INVHANDLE_ERR:
     return result;
 }
 
+// tested, works great :)
 idx3_t openidx3(_In_ const wchar_t* const restrict file_name) {
     uint8_t *     buffer = NULL, *labels = NULL;
     DWORD         nbytes  = 0;
@@ -89,10 +93,10 @@ idx3_t openidx3(_In_ const wchar_t* const restrict file_name) {
         goto READFILE_ERR;
     }
 
-    const uint32_t magic   = htonl(*((uint32_t*) (buffer)));      // first 4 bytes
-    const uint32_t nimages = htonl(*((uint32_t*) (buffer + 4)));  // second 4 bytes
-    const uint32_t nrows   = htonl(*((uint32_t*) (buffer + 8)));  // third 4 bytes
-    const uint32_t ncols   = htonl(*((uint32_t*) (buffer + 12))); // fourth 4 bytes
+    const uint32_t magic   = ntohl(*((uint32_t*) (buffer)));      // first 4 bytes
+    const uint32_t nimages = ntohl(*((uint32_t*) (buffer + 4)));  // second 4 bytes
+    const uint32_t nrows   = ntohl(*((uint32_t*) (buffer + 8)));  // third 4 bytes
+    const uint32_t ncols   = ntohl(*((uint32_t*) (buffer + 12))); // fourth 4 bytes
 
     if (!(labels = malloc(liFsize.QuadPart - 16))) {
         fputws(L"Memory allocation error: malloc returned NULL", stderr);
