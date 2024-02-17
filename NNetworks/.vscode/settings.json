@@ -3,6 +3,7 @@
         "*.clang-format": "yaml",
         "*.clang-tidy": "yaml",
         "winbase.h": "c",
-        "windef.h": "c"
+        "windef.h": "c",
+        "fileapi.h": "c"
     }
 }

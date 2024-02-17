@@ -1,17 +1,9 @@
 #pragma once
 #ifndef __IDXIO_H_
     #define __IDXIO_H_
-    #define _AMD64_
-    #define WIN32_LEAN_AND_MEAN
-    #define WIN32_EXTRA_MEAN
-// clang-format off
-    #include <windef.h>        // needs to be the first include
-    #include <errhandlingapi.h>
-    #include <fileapi.h>
-    #include <memory.h>
+
     #include <stdint.h>
-    #include <stdio.h>
-// clang-format on
+
 /*
     Idx magic number decoding:
     The magic number is an integer (MSB first). The first 2 bytes are always 0.
@@ -26,7 +18,10 @@
     The sizes in each dimension are 4-byte integers (MSB first BE, like in most non-Intel processors). 
 */
 
-typedef enum { UBYTE = 0x08, BYTE, SHORT = 0x0B, INT, FLOAT, DOUBLE } IDX_DTYPE;
+// data type stored in the idx file
+typedef enum { UINTEGER8 = 0x08, SINTEGER8, SINTEGER16 = 0x0B, SINTEGER32, REAL32, REAL64 } IDX_DTYPE;
+
+// layout of the data elements inside the idx files
 typedef enum { VECTOR = 1U, METRIX, TENSOR } IDX_CONTENT_TYPE;
 
 typedef struct idx1 {
