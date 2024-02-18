@@ -10,7 +10,7 @@
 #include <windef.h>
 #include <winsock.h> // ntohl()
 
-// it seems ntohl() and htonl() can be used interchangeably, they seem to do just a crude indian unaware bytes reversal
+// it seems ntohl() and htonl() can be used interchangeably, they seem to do just a crude Endian unaware bytes reversal
 
 #pragma comment(lib, "Ws2_32.lib") // ntohl()
 
