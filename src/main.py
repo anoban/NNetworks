@@ -1,4 +1,5 @@
-from NNetwork import Idx1, Idx3, NNetworkMinimal
+from NNetwork import NNetworkMinimal
+from IdxUtils import Idx1, Idx3
 
 def main() -> None:
     train_images = Idx3(r"../MNIST/train-images.idx3-ubyte")
