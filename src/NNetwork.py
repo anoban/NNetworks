@@ -257,7 +257,7 @@ class NNetworkMinimal:
         """
         
         """
-        H: NDArray[np.float64] = self.__W.dot(data) + self.__B    # implicit type promotion from uint8 to float64
+        H: NDArray[np.float64] = self.__W.dot(data) + self.__B
         H_hat: NDArray[np.float64] = ReLU(H)
         O: NDArray[np.float64] = self.__w.dot(H_hat) + self.__b
         O_hat: NDArray[np.float64] = softmax(O)
