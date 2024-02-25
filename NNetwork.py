@@ -36,7 +36,7 @@ class Idx1:
         assert self.count == self.__data.size - 8, "There seems to be a parsing error or the binary file is corrupted!"
         # the actual data
         # type casting the data from np.uint8 to np.float64 since np.exp() raises FloatingPointError with np.uint8 arrays
-        self.data: NDArray[np.uint8] = self.__data[8:].astype(np.float64)
+        self.data: NDArray[np.float64] = self.__data[8:].astype(np.float64)
         # get rid of the original data
         del self.__data
 
@@ -266,7 +266,7 @@ class NNetworkMinimal:
     def trainset_accuracy() -> np.float64:
         """
         """
-        
+        pass
     
     def coefs() -> None:
         """
