@@ -10,7 +10,7 @@ def main() -> None:
     test_labels = Idx1(r"../t10k-labels.idx1-ubyte")
     
     # 2,500 iterations is a little extreme, but who cares
-    model = NNetworkMinimal(nodes_in = 784, nodes_hid = 10, nodes_out = 10, alpha = 0.15, maxiterations = 2500)
+    model = NNetworkMinimal(nodes_in = 784, nodes_hid = 10, nodes_out = 10, alpha = 0.15, maxiterations = 200)
     model.gradient_descent(train_images.data, train_labels.data)
     
     predictions_train = model.predict(train_images.data)
@@ -18,6 +18,7 @@ def main() -> None:
     
     print(f"Train-set accuracy: {accuracy_score(train_labels.data, predictions_train):.4f}")
     print(f"Test-set accuracy: {accuracy_score(test_labels.data, predictions_test):.4f}")
+    model.save("model")
     
 if __name__ == "__main__":
     main()

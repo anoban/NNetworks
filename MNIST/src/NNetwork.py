@@ -8,7 +8,6 @@ class NNetworkMinimal:
     A class representing a bare minimum neural network with one input layer, one hidden layer and an output layer
     """
 
-    
     def __init__(self, nodes_in: int, nodes_hid: int, nodes_out: int, alpha: float = 0.1, maxiterations: int = 500) -> None:
         """
         The constructor that takes in arguments for:
@@ -160,12 +159,47 @@ class NNetworkMinimal:
     
     def save(self, filepath: str) -> None:
         """
-        Serializes the model to disk, preserving the current state of the model (weights and biases)
+        Serializes the model to disk, preserving the current state of the model (weights and biases).
+        filepath: the path to serialize the <NNetworkMinimal> model object. 
+        Warning:: DO NOT SPECIFY AN EXTENSION!
+        .save() internally uses .nnm extension to serialize <NNetworkMinimal> model objects.
         """
+        # self.__W, self.__B, self.__w, self.__b
+        # first 64 bytes (8 64 bit floats) are the dimensions of the weights and biases, in the above mentioned order.
+        # dimensions are stored row numbers first.
+        coeffs: NDArray[np.float64] = np.concatenate([self.__W.shape, self.__B.shape, self.__w.shape, self.__b.shape,
+                                                       self.__W.flatten(), self.__B.flatten(), self.__w.flatten(), self.__b.flatten()], dtype = np.float64)
+        with open(file = f"{filepath}.nnm", mode =  "wb") as fp:
+            np.save(fp, coeffs, allow_pickle = False)
+        
         
     def load(self, filepath: str) -> None:
         """
         Loads in a serialized model from disk and creates a NNetworkMinimal object, 
         restoring the state of the saved model. Convenient in reusing models with similar natured new test data.
+        The stored model is expected to have a .nnm extension. Else, a exception will be raised.
+        filepath: str - path to the serialized model object, including the extension.
         """
-    
+        if not filepath.endswith(".nnm"):
+            TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
+        
+        with open(file = filepath, mode = "rb") as fp:
+            coeffs: NDArray[np.float64] = np.load(fp)   # np.load() is used to load in binary files serialized with np.save() method.
+        # np.fromfile() assumes that the binary file contains only raw bytes. But np.save() encodes metadata in the .npy file format.
+        # .npy format is the file format used by np.save() to serialize Numpy array objects.
+        caret: int = 0  # use this as a moving caret that points to the  offset where the next subscriting should begin.
+        # extract the dimensions of the weights and biases.
+        Wrows, Wcols, Brows, Bcols, wrows, wcols, brows, bcols = coeffs[:8].astype(np.uint64)
+        print(coeffs[:8].astype(np.uint64))
+        caret += 8  
+        self.__W = coeffs[caret:(caret + Wrows * Wcols)].reshape(Wrows, Wcols)
+        caret += (Wrows * Wcols)
+        self.__B = coeffs[caret: caret + Brows * Bcols].reshape(Brows, Bcols)
+        caret += (Brows * Bcols)
+        self.__w = coeffs[caret: caret + wrows * wcols].reshape(wrows, wcols)
+        caret += (wrows * wcols)
+        self.__b = coeffs[caret: caret + brows * bcols].reshape(brows, bcols)
+        
+        # mark the model as trained.
+        self.__is_trained = True
+        del coeffs

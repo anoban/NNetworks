@@ -1,22 +1,15 @@
 # ***Neural Networks From Scratch***
 ------------------
 
-
 ```python
 # tutorial following https://www.youtube.com/watch?v=w8yWXqWQYmU
 # using both MNIST and Fashion-MNIST datasets
-```
-
-
-```python
-
 ```
 
 # ***Digit classification using MNIST***
 -------------------
 
 ![MNIST](./MNIST/MnistExamplesModified.png)
-
 
 ```python
 # each image is a black and white 28 x 28 pixels array of 8 bit unsigned integers (8 bit pixel depth)
@@ -25,7 +18,6 @@
 # pixels per image
 # 28 x 28 = 784
 ```
-
 
 ```python
 # we could visualize the images as a matrix with N rows for each image with PPIMAGE number of columns
@@ -52,7 +44,6 @@ X_{784} & X_{1568} & \dots & X_{n}\\
 \end{bmatrix}}_{784 \times N}
 $$
 
-
 ```python
 # our predictions will be the digit class (0..9)!
 # we'll start with a simple neural network with just 3 layers.
@@ -62,7 +53,6 @@ $$
 # and an output layer with 10 nodes (2nd layer)
 ```
 
-
 ```python
 # the input layer does not really have any parameters.
 # it's just the inputs.
@@ -70,18 +60,11 @@ $$
 # similarly, the output layer corresponds to each of the 10 digits that could be recognized, hence 10 nodes.
 ```
 
-
-```python
-
-```
-
-
 ```python
 # Neural network with just one hidden layer
 ```
 
 # $$I \Longrightarrow H \Longrightarrow O$$
-
 
 ```python
 # In a neural network nodes hold results and connections hold weights
@@ -92,14 +75,12 @@ $$
 
 # $\underbrace{M}_{R \times C}$
 
-
 ```python
 # matrix dimension notation:
 
 # R = |rows|
 # C = |columns|
 ```
-
 
 ```python
 # forward propagation
@@ -110,7 +91,6 @@ $$
 ```
 
 ## $\underbrace{I}_{784 \times N} = |pixels| \times |images|$
-
 
 ```python
 # H is the hidden layer
@@ -124,7 +104,6 @@ $$
 
 ## $\underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1}$
 
-
 ```python
 # H hat is the activated hidden layer
 
@@ -132,7 +111,6 @@ $$
 ```
 
 ## $\underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N}$
-
 
 ```python
 # there are multiple activation functions available
@@ -149,14 +127,12 @@ $$
 # ReLu is a very simple function, it returns x when x > 0 and returns 0 when x <= 0
 ```
 
-
 ```python
 # without an activation function, a neural network won't be able to do anything extraordinary
 # if all we did was to add layers with weights and biases, we'll end up with a fancy liner combination of weights and biases
 # i.e a glorified linear regression model
 # the activation function is what makes neural networks stand out.
 ```
-
 
 ```python
 # O is our unactivated output layer
@@ -167,7 +143,6 @@ $$
 ```
 
 ## $\underbrace{O}_{10 \times N} = \underbrace{w}_{10 \times 10} \cdot \underbrace{\hat{H}}_{10 \times N} + \underbrace{b}_{10 \times 1}$
-
 
 ```python
 # O hat is the activated output layer
@@ -180,7 +155,6 @@ $$
 ```
 
 ## $\underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N}$
-
 
 ```python
 # values of each node in the output layer gets transformed into probabilities for each label
@@ -205,29 +179,20 @@ $$
 0.01 \\
 \end{bmatrix}}_{10 \times 1}$$
 
-
 ```python
 # in the above example, we'll pick 7 as the label for the given image
 ```
 
-
 ```python
 # softmax activation function:
 ```
-
 # $$softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O}$$
-
 
 ```python
 # K is the dimension of the softmax activated layer
 # in our case K = 10
 # softmax result is equal to e^(node of choice) / sum of e^(node) for all nodes in the softmax activated layer
 # after the softmax activation, each output will be in the range of 0 and 1.
-```
-
-
-```python
-
 ```
 
 # ***Math: Back propagation***
@@ -274,7 +239,6 @@ $$
 0 \\
 \end{bmatrix}}_{10 \times 1}$$
 
-
 ```python
 # to detrmine the error of the output layer,
 # error = predicted probabilities - one hot encoded probabilities of the correct label
@@ -300,12 +264,6 @@ $$
 0 \\
 \end{bmatrix}$$
 
-
-```python
-
-```
-
-
 ```python
 # now the next part is deciding how much w and b (weight and biase from the output layer O) contributed to the deviation from 
 # correct probabilities and predicted probabilities
@@ -317,12 +275,6 @@ $$
 
 # $$\underbrace{\mathrm{d}{w}}_{10 \times 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10 \times N} \cdot   \overbrace{\hat{H}^T}^{N \times 10}}{N}$$
 
-
-```python
-
-```
-
-
 ```python
 # then, determination of b's (biases from the output layer) contribution to the error,
 # this is just the average of absolute error 
@@ -330,12 +282,6 @@ $$
 ```
 
 # $$\underbrace{\mathrm{d}{b}}_{10 \times 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10 \times 1}}}{N}$$
-
-
-```python
-
-```
-
 
 ```python
 # now, we'll calculate how much the hidden layer was off by,
@@ -350,12 +296,6 @@ $$
 # after the matrix multiplications, dH's dimension will be 10 x N
 ```
 
-
-```python
-
-```
-
-
 ```python
 # next, we calculate how much the weights and biases of the hidden layer contributed to the error!
 # I is the input layer (784 x N)
@@ -364,12 +304,7 @@ $$
 # $$\underbrace{\mathrm{d}{W}}_{10 \times 784} = \frac{\overbrace{\mathrm{d}{H}}^{10 \times N} \cdot \overbrace{I^T}^{N \times 784}}{N}$$
 
 
-```python
-
-```
-
 # $$\underbrace{\mathrm{d}{B}}_{10 \times 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10 \times 1}}}{N}$$
-
 
 ```python
 # for biases, we compute the average of dH for all images
@@ -377,28 +312,19 @@ $$
 # DIMENSION OF dH_i is 10 x 1
 ```
 
-
-```python
-
-```
-
-
 ```python
 # after all these computations in back propagation, we update the weights and biases as below,
 ```
-
 # $W = W - \alpha \cdot \mathrm{d}{W}$
 # $B = B - \alpha \cdot \mathrm{d}{B}$
 # $w = w - \alpha \cdot \mathrm{d}{w}$
 # $b = b - \alpha \cdot \mathrm{d}{b}$
-
 
 ```python
 # the alpha here is the learning rate
 # it's what's called a HYPER PARAMETER
 # IT ISN'T LEARNED BY THE MODEL, IT IS SPECIFIED BY THE PROGRAMMER
 ```
-
 
 ```python
 # ONCE THE PARANMETERS HAVE BEEN UPDATED, WE RINSE AND REPEAT THE FORWARD AND BACK PROPAGATIONS
