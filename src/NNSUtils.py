@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 np.seterr(all = "raise")
+from numba import jit
 
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
@@ -12,6 +13,7 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     return np.maximum(data, 0.000)  
 
+@jit(nopython = True, fastmath = False, parallel = False)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """ 
     Softmax(X) =:
@@ -19,7 +21,10 @@ def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
         division by the sum of exponentiated values.
     """
     exp: NDArray[np.float64] = np.exp(data) 
-    return exp / exp.sum(axis = 0)
+    # video by Samson Zhang uses .sum() to divide by the total sum, but division by column sums is more appropriate here,
+    # as we do not need to normalize globally, we just need normalize the exponentiation results for each column (image), so we get a 
+    # valid set of probabilities for each label for each image
+    return exp / exp.sum(axis = 0) 
 
 def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     """
@@ -36,7 +41,8 @@ def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     tmp[labels.astype(np.uint64), np.arange(start = 0, stop = labels.size, dtype = np.uint64)] = 1.0000  # array subscript with two arrays won't work if Numba is used
     return tmp
 
-
+# spinning parallel threads inside a loop is terrible
+@jit(nopython = True, parallel = False, fastmath = True)     # we can afford to use fastmath here since the only possible results are 0s and 1s
 def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Returns the derivative of ReLU activation results.

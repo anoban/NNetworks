@@ -32,7 +32,7 @@ class NNetworkMinimal:
 
     
     def __repr__(self) -> str:
-        return f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}" if not self.__is_trained else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
+        return f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_out}" if not self.__is_trained else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
 
     
     def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
@@ -45,7 +45,7 @@ class NNetworkMinimal:
         This function returns None but realizes the inferences by altering the internal state of the `NNetworkMinimal` class instance.
         i.e updates the weights and biases internally
 
-        TODO: consider creating jitted class independent implementations (free functions) that can be wrapped by class methods.
+        TODO: consider creating jitted, class independent implementations (free functions) that can be wrapped by class methods.
         Would boost the perofrmance exponentially.
 
         (comments inside are MNIST tailored)
@@ -53,20 +53,24 @@ class NNetworkMinimal:
         if self.__is_trained:
             print(self)
             raise PermissionError("class <NNetworkMinimal> doesn't allow retraining!")
-            
+        
+        # this will modify the array in-place (not a local copy, but the reference), when we ask the model to predict the labels for
+        # training data, predict method will re downscale this data and we'll ultimately have garbage as predictions!
+        data_normed: NDArray[np.float64] = data / 255.00  # normalize the data, so we don't end up with FloatingPointErrors in np.exp()
+         
         # one-hot encode the true labels
         self.__onehot_true_labels: NDArray[np.float64] = onehot(labels = labels)
         
         # Following annotations assume that the inputs have the same structure as MNIST datasets.
 
         for i in range(self.__maxiter):
-            if not (i % 50):
+            if not (i % 200):
                 print(f"Iteration: {i:4d}")
             
             # FORWARD PROPAGATION
             # computing H 
             #    10 x N                         10 x 784  784 x N     10 x 1
-            self.__H: NDArray[np.float64] = self.__W.dot(data) + self.__B    # implicit type promotion from uint8 to float64
+            self.__H: NDArray[np.float64] = self.__W.dot(data_normed) + self.__B    # implicit type promotion from uint8 to float64
                 
             # activating H layer -> H_hat
             #    10 x N                                  10 x N
@@ -103,7 +107,7 @@ class NNetworkMinimal:
 
             # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
             #    10 x 784                         10 x N    N x 784
-            self.__dW: NDArray[np.float64] = self.__dH.dot(data.T) / labels.size
+            self.__dW: NDArray[np.float64] = self.__dH.dot(data_normed.T) / labels.size
 
             # compute how much the biases of nodes in the hidden layer contributed to this.
             #    10 x 1                           10 x 1       
@@ -123,15 +127,21 @@ class NNetworkMinimal:
         # print(f"H: {self.__H.shape}, H_hat: {self.__H_hat.shape}, O: {self.__O.shape}, O_hat: {self.__O_hat.shape}")
         # print(f"dO: {self.__dO.shape}, dw: {self.__dw.shape}, db: {self.__db.shape}, dH: {self.__dH.shape}, dW: {self.__dW.shape}, dB: {self.__dB.shape}")
     
-    def predict(self, data: NDArray[np.uint8]) -> NDArray[np.int64]:
+    def predict(self, data: NDArray[np.float64]) -> NDArray[np.int64]:
         """
-        
+        Does a forward propagation with the input data, using learned weights and biases and returns the predictions.
+        Calling this method on an untrained model will raise NotImplementedError.
+        The input data will remain untouched, as the method works only with a local normalized copy of it.
         """
-        H: NDArray[np.float64] = self.__W.dot(data) + self.__B
+        if not self.__is_trained:
+            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
+        data_normed: NDArray[np.float64] = data / 255.00      # normalize the incoming data, to prevent FloatingPointErrors with np.exp()
+        # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
+        H: NDArray[np.float64] = self.__W.dot(data_normed) + self.__B
         H_hat: NDArray[np.float64] = ReLU(H)
         O: NDArray[np.float64] = self.__w.dot(H_hat) + self.__b
         O_hat: NDArray[np.float64] = softmax(O)
-        return np.argmax(O_hat, axis = 0)
+        return np.argmax(O_hat, axis = 0)   # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
     
     def trainset_accuracy() -> np.float64:
         """
