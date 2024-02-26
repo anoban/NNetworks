@@ -403,18 +403,3 @@ $$
 ```python
 # ONCE THE PARANMETERS HAVE BEEN UPDATED, WE RINSE AND REPEAT THE FORWARD AND BACK PROPAGATIONS
 ```
-
-
-```python
-
-```
-
-# ***Fashion MNIST***
--------------------
-
-![FASHION-MNIST](./Fashion-MNIST/fashion-mnist-sprite.png)
-
-
-```python
-
-```

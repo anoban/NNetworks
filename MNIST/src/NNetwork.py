@@ -38,31 +38,31 @@ class NNetworkMinimal:
     def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
         """
         A rather complex routine that does the forward propagation and back propagation iteratively.
+        This function returns None but realizes the inferences by altering the internal state of the `NNetworkMinimal` class instance.
+        i.e updates the weights and biases internally
+        
         Input arguments are:
         data: np.NDArray[np.float64] - training dataset
         labels: np.NDArray[np.float64] - training labels
 
-        This function returns None but realizes the inferences by altering the internal state of the `NNetworkMinimal` class instance.
-        i.e updates the weights and biases internally
-
         TODO: consider creating jitted, class independent implementations (free functions) that can be wrapped by class methods.
         Would boost the perofrmance exponentially.
 
-        (comments inside are MNIST tailored)
+        Warning:: comments below inside are MNIST tailored
         """
         if self.__is_trained:
             print(self)
             raise PermissionError("class <NNetworkMinimal> doesn't allow retraining!")
         
-        # this will modify the array in-place (not a local copy, but the reference), when we ask the model to predict the labels for
-        # training data, predict method will re downscale this data and we'll ultimately have garbage as predictions!
-        data_normed: NDArray[np.float64] = data / 255.00  # normalize the data, so we don't end up with FloatingPointErrors in np.exp()
+        # this will modify the array in-place (not a local copy, but the referenced input), when we ask the model to predict the labels for
+        # training data, predict() method will again scale this data down and we'll ultimately have garbage as predictions!
+        # i.e. we'll end up with a pixels data where each pixel have been divided by (255 * 255)
+        data_normed: NDArray[np.float64] = data / 255.00  # normalization needed to svoid FloatingPointError s in np.exp() (inside softmax())
          
         # one-hot encode the true labels
         self.__onehot_true_labels: NDArray[np.float64] = onehot(labels = labels)
         
-        # Following annotations assume that the inputs have the same structure as MNIST datasets.
-
+        # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
             if not (i % 200):
                 print(f"Iteration: {i:4d}")
@@ -143,13 +143,29 @@ class NNetworkMinimal:
         O_hat: NDArray[np.float64] = softmax(O)
         return np.argmax(O_hat, axis = 0)   # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
     
-    def trainset_accuracy() -> np.float64:
+    def accuracy(self, data: NDArray[np.float64] , true_labels: NDArray[np.float64]) -> np.float64:
         """
+        Does a simple forward propagation with the passed data, using the current state of the model, then the predictions are 
+        compared with the true labels. Accuracy is computed based on raw idenitity checks against true labels and predictions.
+        This mechanism disregards how close the predictions are to the true labels!
         """
-        pass
+        if not self.__is_trained:
+            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
     
-    def coefs() -> None:
+    def coefficients(self) -> list[NDArray[np.float64]]:
         """
         
         """
         pass
+    
+    def save(self, filepath: str) -> None:
+        """
+        Serializes the model to disk, preserving the current state of the model (weights and biases)
+        """
+        
+    def load(self, filepath: str) -> None:
+        """
+        Loads in a serialized model from disk and creates a NNetworkMinimal object, 
+        restoring the state of the saved model. Convenient in reusing models with similar natured new test data.
+        """
+    
