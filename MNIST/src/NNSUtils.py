@@ -32,14 +32,14 @@ def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     Returned array will be of the shape (labels.max() - labels.min() + 1) x labels.size, where each label will be one-hot encoded as separate columns.
     Labels are assumed to comprise only of non-negative 64 bit floats, with minimum always at 0.0 (the range is assumed to be 0 to labels.max()).
     """
-    
+    # if the data type of label elelemnts aren't floating point numbers, raise an error.
     assert issubclass(labels.dtype.type, np.floating)
     
     labels_range: np.int64 = np.int64(labels.max() - labels.min() + 1)  # defines the number of elements that should be in a column (number of rows)
     
-    tmp: NDArray[np.float64] = np.zeros(shape = (labels_range, labels.size), dtype = np.float64)  
-    tmp[labels.astype(np.uint64), np.arange(start = 0, stop = labels.size, dtype = np.uint64)] = 1.0000  # array subscript with two arrays won't work if Numba is used
-    return tmp
+    zeromat: NDArray[np.float64] = np.zeros(shape = (labels_range, labels.size), dtype = np.float64)  
+    zeromat[labels.astype(np.uint64), np.arange(start = 0, stop = labels.size, dtype = np.uint64)] = 1.0000  # array subscript with two arrays doesn't work with Numba
+    return zeromat
 
 # spinning parallel threads inside a loop is terrible
 @jit(nopython = True, parallel = False, fastmath = True)     # we can afford to use fastmath here since the only possible results are 0s and 1s
