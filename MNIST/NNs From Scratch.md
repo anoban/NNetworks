@@ -9,7 +9,7 @@
 # ***Digit classification using MNIST***
 -------------------
 
-![MNIST](./MNIST/MnistExamplesModified.png)
+![MNIST](./MnistExamplesModified.png)
 
 ```python
 # each image is a black and white 28 x 28 pixels array of 8 bit unsigned integers (8 bit pixel depth)

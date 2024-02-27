@@ -9,13 +9,14 @@ class NNetworkMinimal:
     A class representing a bare minimum neural network with one input layer, one hidden layer and an output layer
     """
 
-    def __init__(self, nodes_in: int, nodes_hid: int, nodes_out: int, alpha: float = 0.1, maxiterations: int = 500) -> None:
+    def __init__(self, nodes_in: int, nodes_hid: int, nodes_out: int, alpha: float = 0.1, maxiterations: int = 2500) -> None:
         """
         Parameters:
         nodes_in: np.uint64 - number of nodes in the input layer
         nodes_hid: np.uint64 - number of nodes in the hidden layer
         nodes_out: np.uint64 - number of nodes in the output layer
         alpha: float - learning rate, default value is 0.001
+        maxiterations - the maximum number of iterations gradient descent is allowed to make
         
         Returns:
         None
@@ -179,8 +180,8 @@ class NNetworkMinimal:
         compared with the true labels.
         
         Parameters:
-        data: NDArray[np.float64] - 
-        true_labels: NDArray[np.float64] - 
+        data: NDArray[np.float64] - a matrix of image pixels to make predictions on
+        true_labels: NDArray[np.float64] - true labels for the image pixels array
         
         Returns:
         float - fraction of predictions that were correct. (in the range of 0 to 1)
@@ -229,6 +230,7 @@ class NNetworkMinimal:
         .save() internally uses `.nnm` extension to serialize <NNetworkMinimal> model objects. This extension is leveraged to validate inputs
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
         """
+        
         # self.__W, self.__B, self.__w, self.__b
         # first 64 bytes (8 64 bit floats) are the dimensions of the weights and biases, in the above mentioned order.
         # dimensions are stored row numbers first.
@@ -251,6 +253,7 @@ class NNetworkMinimal:
         Returns:
         None
         """
+        
         if not filepath.endswith(".nnm"):
             TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
         
@@ -263,17 +266,19 @@ class NNetworkMinimal:
         
         # prefixes W, B are for the hidden layer & prefixes w, b are for the output layer.
         Wrows, Wcols, Brows, Bcols, wrows, wcols, brows, bcols = coeffs[:8].astype(np.uint64)
-        print(coeffs[:8].astype(np.uint64))
+        # print(coeffs[:8].astype(np.uint64))
         
         caret += 8  
-        self.__winhid = coeffs[caret:(caret + Wrows * Wcols)].reshape(Wrows, Wcols)
-        caret += (Wrows * Wcols)
-        self.__bhid = coeffs[caret: caret + Brows * Bcols].reshape(Brows, Bcols)
-        caret += (Brows * Bcols)
-        self.__whidout = coeffs[caret: caret + wrows * wcols].reshape(wrows, wcols)
-        caret += (wrows * wcols)
-        self.__bout = coeffs[caret: caret + brows * bcols].reshape(brows, bcols)
+        self.__winhid = coeffs[caret: int(caret + Wrows * Wcols)].reshape(Wrows, Wcols)
+        caret += int(Wrows * Wcols)
+        self.__bhid = coeffs[caret: int(caret + Brows * Bcols)].reshape(Brows, Bcols)
+        caret += int(Brows * Bcols)
+        self.__whidout = coeffs[caret: int(caret + wrows * wcols)].reshape(wrows, wcols)
+        caret += int(wrows * wcols)
+        self.__bout = coeffs[caret: int(caret + brows * bcols)].reshape(brows, bcols)
+        caret += int(brows * bcols)
         
+        assert(caret == coeffs.size)
         # mark the model as trained.
         self.__is_trained = True
         del coeffs
