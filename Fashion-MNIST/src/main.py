@@ -1,4 +1,4 @@
-from NNetwork import NNetworkExtended
+from NNMinimal import NNetworkExtended
 from IdxUtils import Idx1, Idx3
 
 def main() -> None:
