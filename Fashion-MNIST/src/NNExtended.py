@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
 np.seterr(all = "raise")
@@ -9,7 +10,7 @@ class NNetworkExtended:
     A class representing an extended variant of NNetworkMinimal, with one input layer, one output layer and customizeable number of hidden layers
     """
 
-    def __init__(self, nodes_in: int, nlayers_hidden: int, nodes_hid: list[int], nodes_out: int, alpha: float = 0.1, maxiterations: int = 2500) -> None:
+    def __init__(self, nodes_in: int = 784, nlayers_hidden: int = 5, nodes_hid: list[int] = [784, 588, 392, 286, 196], nodes_out: int = 10, alpha: float = 0.1, maxiterations: int = 2500) -> None:
         """
         Parameters:
         nodes_in: np.uint64 - number of nodes in the input layer
@@ -23,28 +24,36 @@ class NNetworkExtended:
         None
         """
         
+        assert(nlayers_hidden == len(nodes_hid))   # make sure each hidden layer has a node count specified.
+        if max(nodes_hid) >= 1000:
+            warnings.warn("Using large number of nodes in hidden layers can severely handicap performance", RuntimeWarning)
+        
         self.__is_trained: bool = False
         self.__learning_rate: float = alpha
         self.__maxiter: int = maxiterations
-        self.__nodes_in: int = nodes_in
-        self.__nodes_hid: int = nodes_hid
-        self.__nodes_out: int = nodes_out
+        # this stores the number of nodes in all layers of the NNetworkExtended object, including the input and output layers.
+        self.__nnodes: tuple[int, ...] = tuple([nodes_in] + nodes_hid + [nodes_out]) 
         
-        assert(nlayers_hidden == len(nodes_hid))   # make sure each hidden layer has a node count specified.
+        # if there are N layers in total (counting the input and output layers), there'll be N - 1 group of connections.
+        # we needs weights for these N - 1 group of connections and biases for N layers of neurons.
         
-        # weights of connections between input layer and hidden layer.
-        self.__winhid: NDArray[np.float64] = np.random.rand(nodes_hid, nodes_in) - 0.5      # 10 x 784 matrix for MNIST
-        # biases of nodes in the hidden layer.
-        self.__bhid: NDArray[np.float64] = np.random.rand(nodes_hid, 1) - 0.5               # 10 x 1 column vector for MNIST
-        # weights of connections between hidden layer and the output layer.
-        self.__whidout: NDArray[np.float64] = np.random.rand(nodes_hid, nodes_out) - 0.5    # 10 x 10 matrix for MNIST
-        # biases of nodes in the output layer.
-        self.__bout: NDArray[np.float64] = np.random.rand(nodes_out, 1) - 0.5               # 10 x 1 column vector for MNIST
+        # store the shapes of weight matrices, deliberately using tuples to make the shapes immutable.
+        self.__wshapes: tuple[tuple[int, int], ...] = tuple(zip(self.__nnodes[1:], self.__nnodes[:len(self.__nnodes)-1]))
+        assert(len(self.__wshapes) == len(self.__nnodes) - 1)
+        
+        # store the weights of connections in a list (including the connections that directly involve the input and output layers)
+        self.__weights: list[NDArray[np.float64]] = [np.random.rand(r, c) - 0.5 for (r, c) in self.__wshapes]
+        
+        # store the biases of nodes in all layers of the NNetworkExtended object. (excluding the input layer)
+        # baises are only considered for layers following the input layer.
+        # biases need to be column vectors
+        self.__biases: list[NDArray[np.float64]] = [np.random.rand(n, 1) - 0.5 for n in self.__nnodes[1:]]
+        assert(len(self.__biases) == len(self.__nnodes) - 1)    # leaving the input layer out.
+        
 
-    
     def __repr__(self) -> str:
-        return f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_out}" if not self.__is_trained else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
-
+        # return f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_out}" if not self.__is_trained else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
+        pass
     
     def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
         """
