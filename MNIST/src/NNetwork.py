@@ -58,6 +58,7 @@ class NNetworkMinimal:
         Notes:
         Comments below inside are MNIST tailored
         """
+        
         if self.__is_trained:   # if the model has already been trained, raise an error.
             raise NotImplementedError("class <NNetworkMinimal> doesn't allow retraining!")
         
@@ -68,12 +69,9 @@ class NNetworkMinimal:
         # this normalization is needed to avoid FloatingPointError s in np.exp() (inside softmax())
         data_normed: NDArray[np.float64] = data / 255.00  
          
-        ##########  Storing the onehot encoded labels, hidden and output layers, their post-activation state, the differences computed in
-        # CAVEAT #  back propagation as instance attributes makes the model object gratuitously bloated!. If the model objects is to stay
-        ##########  in memory for long, consider storing these as temporaries scoped to the gradient_descent() method.
         
         # one-hot encode the true labels
-        self.__onehot_true_labels: NDArray[np.float64] = onehot(labels = labels)
+        onehot_true_labels: NDArray[np.float64] = onehot(labels = labels)
         
         # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
@@ -86,20 +84,20 @@ class NNetworkMinimal:
                 
             # computing H 
             #    10 x N                         10 x 784  784 x N     10 x 1
-            self.__H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
+            hidden: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
                 
             # activating H layer -> H_hat
             #    10 x N                                  10 x N
-            self.__H_hat: NDArray[np.float64] = ReLU(self.__H)
+            hidden_hat: NDArray[np.float64] = ReLU(hidden)
                 
             # then, we compute the output layer
             #    10 x N                          10 x 10       10 x N         10 x 1
-            self.__O: NDArray[np.float64] = self.__whidout.dot(self.__H_hat) + self.__bout
+            out: NDArray[np.float64] = self.__whidout.dot(hidden_hat) + self.__bout
             
             # activation of O layer
             #    10 x N                                      10 x N
-            # print(self.__O.mean())
-            self.__O_hat: NDArray[np.float64] = softmax(self.__O)      # WARNING :: NAN HOSTSPOT (if the pixel data is not normalized)
+            # print(out.mean())
+            out_hat: NDArray[np.float64] = softmax(out)      # WARNING :: NAN HOSTSPOT (if the pixel data is not normalized)
             
             ####################
             # BACK PROPAGATION #
@@ -107,47 +105,47 @@ class NNetworkMinimal:
             
             # compute the difference between the outputs and the one-hot encoded true labels
             #    10 x N                          10 x N         10 x N
-            self.__dO: NDArray[np.float64] = self.__O_hat - self.__onehot_true_labels
+            d_out: NDArray[np.float64] = out_hat - onehot_true_labels
                 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
-            self.__dw: NDArray[np.float64] = self.__dO.dot(self.__H_hat.T) / labels.size
+            dw_outhid: NDArray[np.float64] = d_out.dot(hidden_hat.T) / labels.size
                 
             # how much the biases of nodes in the output layer contributed to this difference (dO)
             #    10 x 1                           10 x N
-            self.__db: NDArray[np.float64] = (self.__dO.sum(axis = 1) / labels.size).reshape(10, 1) 
+            db_out: NDArray[np.float64] = (d_out.sum(axis = 1) / labels.size).reshape(10, 1) 
             # array.sum(axis = 1) gives row sums as a 1 x 10 row vector
             # we need a 10 x 1 column vector as the result, hence the reshaping
                 
             # now we move on to transformation from the hidden layer to the input layer
             # first the ReLU activation needs to be undone
             #    10 x N                           10 x 10        10 x N
-            self.__dH: NDArray[np.float64] = self.__whidout.T.dot(self.__dO) * undoReLU(self.__H)
+            d_hidden: NDArray[np.float64] = self.__whidout.T.dot(d_out) * undoReLU(hidden)
 
             # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
             #    10 x 784                         10 x N    N x 784
-            self.__dW: NDArray[np.float64] = self.__dH.dot(data_normed.T) / labels.size
+            dw_hidin: NDArray[np.float64] = d_hidden.dot(data_normed.T) / labels.size
 
             # compute how much the biases of nodes in the hidden layer contributed to this.
             #    10 x 1                           10 x 1       
-            self.__dB: NDArray[np.float64] = self.__dH.sum(axis = 1).reshape(10, 1) / labels.size
+            db_hid: NDArray[np.float64] = d_hidden.sum(axis = 1).reshape(10, 1) / labels.size
             
             #####################    
             # PARAMETER UPDATES #
             #####################
             
-            self.__winhid -= (self.__dW * self.__learning_rate)
-            self.__bhid -= (self.__dB * self.__learning_rate)
-            self.__whidout -= (self.__dw * self.__learning_rate)
-            self.__bout -= (self.__db * self.__learning_rate)
+            self.__winhid -= (dw_hidin * self.__learning_rate)
+            self.__bhid -= (db_hid * self.__learning_rate)
+            self.__whidout -= (dw_outhid * self.__learning_rate)
+            self.__bout -= (db_out * self.__learning_rate)
             
         # register that the model instance has been trained.
         self.__is_trained = True
 
         # perfect, none of the matrices are out of shape :)
         # print(f"W: {self.__W.shape}, B: {self.__B.shape}, w: {self.__w.shape}, b: {self.__b.shape}")
-        # print(f"H: {self.__H.shape}, H_hat: {self.__H_hat.shape}, O: {self.__O.shape}, O_hat: {self.__O_hat.shape}")
-        # print(f"dO: {self.__dO.shape}, dw: {self.__dw.shape}, db: {self.__db.shape}, dH: {self.__dH.shape}, dW: {self.__dW.shape}, dB: {self.__dB.shape}")
+        # print(f"H: {hidden.shape}, H_hat: {hidden_hat.shape}, O: {out.shape}, O_hat: {out_hat.shape}")
+        # print(f"dO: {d_out.shape}, dw: {dw_outhid.shape}, db: {db_out.shape}, dH: {d_hidden.shape}, dW: {dw_hidin.shape}, dB: {db_hid.shape}")
     
     def predict(self, data: NDArray[np.float64]) -> NDArray[np.int64]:
         """
@@ -163,6 +161,7 @@ class NNetworkMinimal:
         Notes:
         The input data will remain untouched, as the method works only with a local normalized copy of it.
         """
+        
         if not self.__is_trained:
             raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
         
@@ -190,6 +189,7 @@ class NNetworkMinimal:
         Accuracy is computed based on raw idenitity checks against true labels and predictions. using sklearn.metrics.accuracy_score()
         This mechanism disregards how close the predictions are to the true labels!
         """
+        
         if not self.__is_trained:
             raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
         
@@ -211,9 +211,21 @@ class NNetworkMinimal:
         None
         
         Returns:
-        
+        dict[str, NDArray[np.float64]] (NNMinCoeffs)
+        {
+            "IHW": NDArray[np.float64], - weights of connections between the input and hidden layer
+            "HB" : NDArray[np.float64], - biases of nodes in the hidden layer
+            "HOW": NDArray[np.float64], - weights of connections between the hidden and output layer
+            "OB" : NDArray[np.float64]  - biases of the nodes in the output layer
+        }
         """
-        pass
+        
+        return {
+            "IHW": self.__winhid,
+            "HB" : self.__bhid,
+            "HOW": self.__whidout,
+            "OB" : self.__bout
+        }
     
     def save(self, filepath: str) -> None:
         """
@@ -231,7 +243,6 @@ class NNetworkMinimal:
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
         """
         
-        # self.__W, self.__B, self.__w, self.__b
         # first 64 bytes (8 64 bit floats) are the dimensions of the weights and biases, in the above mentioned order.
         # dimensions are stored row numbers first.
         coeffs: NDArray[np.float64] = np.concatenate([self.__winhid.shape, self.__bhid.shape, self.__whidout.shape, self.__bout.shape,

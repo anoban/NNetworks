@@ -15,13 +15,12 @@ def main() -> None:
     
     print(f"Train-set accuracy: {model.accuracy_score(train_images.data, train_labels.data):.6f}")
     print(f"Test-set accuracy: {model.accuracy_score(test_images.data, test_labels.data):.6f}")
-    # save the model in the parent directory, not inside /src
-    model.save("../mnist")
 
 def evaluate(filepath: str) -> None:
     """
-    
+    Evaluate the accuracy of the NNetworkMinimal model, reconstructed from a serialized .nnm file using the MNIST resources.
     """
+    
     model = NNetworkMinimal(nodes_in = 1, nodes_hid = 1, nodes_out = 1, alpha = 0.15, maxiterations = 1)
     model.load(filepath = filepath)
 
@@ -32,7 +31,7 @@ def evaluate(filepath: str) -> None:
     test_labels = Idx1(r"../t10k-labels.idx1-ubyte")
     
     print(f"Train-set accuracy: {model.accuracy_score(train_images.data, train_labels.data):.6f}")
-    print(f"Test-set accuracy: {model.accuracy_score(test_images.data, test_labels.data):.6f}")
+    print(f"Test-set accuracy:  {model.accuracy_score(test_images.data, test_labels.data):.6f}")
 
 if __name__ == "__main__":
-    evaluate(r"../mnist.nnm")
+    main()
