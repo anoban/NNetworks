@@ -1,0 +1,8 @@
+# PEP 518 defines pyproject.toml as a configuration file to store build system requirements for Python projects.
+# pyproject.toml can be used to configure the BLACK, by explicitly overriding its defaults!
+# since pyproject.toml is versatile (used by multiple tools), configuration options for BLACK should be grouped under [tool.black] section.
+
+[tool.black]
+line-length = 88
+target-version = ['py311', 'py312']
+unstable = false
