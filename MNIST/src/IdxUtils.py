@@ -36,13 +36,9 @@ class Idx1:
 
         self.type: str = "idx1"
         self.magic: int = int.from_bytes(tmp[:4], byteorder="big")  # idx magic number
-        self.count: int = int.from_bytes(
-            tmp[4:8], byteorder="big"
-        )  # count of the data elements (labels)
+        self.count: int = int.from_bytes(tmp[4:8], byteorder="big")  # count of the data elements (labels)
 
-        assert (
-            self.count == tmp.size - 8
-        ), "There seems to be a parsing error or the binary file is corrupted!"
+        assert self.count == tmp.size - 8, "There seems to be a parsing error or the binary file is corrupted!"
         # the actual data
         # type casting the data from np.uint8 to np.float64 since np.exp() raises FloatingPointError with np.uint8 arrays
         self.data: NDArray[np.float64] = tmp[8:].astype(np.float64)
@@ -61,7 +57,7 @@ class Idx1:
         np.float64 - the index th element in the labels array
 
         Notes:
-        IndexError s are left for NumPy to handle.
+        IndexErrors are left for NumPy to handle.
         """
 
         return self.data[index]
@@ -103,9 +99,7 @@ class Idx3:
 
         self.__type: str = "idx3"
         self.magic: int = int.from_bytes(tmp[:4], byteorder="big")  # idx magic number
-        self.count: int = int.from_bytes(
-            tmp[4:8], byteorder="big"
-        )  # count of the data elements (images)
+        self.count: int = int.from_bytes(tmp[4:8], byteorder="big")  # count of the data elements (images)
 
         # shape is shape of each element NOT the shape of the overall data
         self.shape: tuple[int, int] = (
@@ -114,9 +108,7 @@ class Idx3:
         )
 
         # supposed to be 28 x 28 for MNIST inspired datasets.
-        self.__ppimage: int = (
-            self.shape[0] * self.shape[1]
-        )  # pixels per image (28 x 28)
+        self.__ppimage: int = self.shape[0] * self.shape[1]  # pixels per image (28 x 28)
         assert (self.count * self.__ppimage) == (
             tmp.size - 16
         ), "There seems to be a parsing error or the binary file is corrupted!"
@@ -124,9 +116,7 @@ class Idx3:
         # the actual data
         # idx3 file stores data as bytes but we'll load in each byte as a 64 bit double
         # because np.exp() raises a FloatingPointError with np.uint8 type arrays
-        self.data: NDArray[np.float64] = (
-            tmp[16:].reshape(self.count, self.__ppimage).T.astype(np.float64)
-        )
+        self.data: NDArray[np.float64] = tmp[16:].reshape(self.count, self.__ppimage).T.astype(np.float64)
         del tmp  # don't need this anymore.
 
     def __repr__(self) -> str:
@@ -141,7 +131,7 @@ class Idx3:
         NDArray[np.float64] - all pixels of index th image, i.e returns the index th column of the transposed matrix
 
         Notes:
-        IndexError s are left for NumPy to handle.
+        IndexErrors are left for NumPy to handle.
         """
 
         return self.data[:, index]
@@ -181,9 +171,7 @@ def peek_idx(
     nrows, ncols = idx3elem_dim
     fig, axes = plt.subplots(nrows=1, ncols=15)
     fig.set_size_inches(20, 4)
-    random_indices: NDArray[np.int64] = np.random.choice(
-        np.arange(0, images.count), size=15, replace=False
-    )
+    random_indices: NDArray[np.int64] = np.random.choice(np.arange(0, images.count), size=15, replace=False)
     for ax, idx in zip(axes, random_indices):
         ax.imshow(images[idx].reshape(nrows, ncols), cmap=colormap)
         ax.set_title(f"{labels[idx]:1.0f}")  # remember the labels are now np.float64 s

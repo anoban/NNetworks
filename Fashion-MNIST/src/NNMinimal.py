@@ -36,7 +36,7 @@ class NNetworkMinimal:
         nodes_hid: np.uint64 - number of nodes in the hidden layer
         nodes_out: np.uint64 - number of nodes in the output layer
         alpha: float - learning rate, default value is 0.001
-        maxiterations: int - maximum number of iteration gradient descent is permitted to make, default is 2,500
+        maxiterations - the maximum number of iterations gradient descent is allowed to make
 
         Returns:
         None
@@ -50,21 +50,13 @@ class NNetworkMinimal:
         self.__nodes_out: int = nodes_out
 
         # weights of connections between input layer and hidden layer.
-        self.__winhid: NDArray[np.float64] = (
-            np.random.rand(nodes_hid, nodes_in) - 0.5
-        )  # 10 x 784 matrix for MNIST
+        self.__winhid: NDArray[np.float64] = np.random.rand(nodes_hid, nodes_in) - 0.5  # 10 x 784 matrix for MNIST
         # biases of nodes in the hidden layer.
-        self.__bhid: NDArray[np.float64] = (
-            np.random.rand(nodes_hid, 1) - 0.5
-        )  # 10 x 1 column vector for MNIST
+        self.__bhid: NDArray[np.float64] = np.random.rand(nodes_hid, 1) - 0.5  # 10 x 1 column vector for MNIST
         # weights of connections between hidden layer and the output layer.
-        self.__whidout: NDArray[np.float64] = (
-            np.random.rand(nodes_hid, nodes_out) - 0.5
-        )  # 10 x 10 matrix for MNIST
+        self.__whidout: NDArray[np.float64] = np.random.rand(nodes_hid, nodes_out) - 0.5  # 10 x 10 matrix for MNIST
         # biases of nodes in the output layer.
-        self.__bout: NDArray[np.float64] = (
-            np.random.rand(nodes_out, 1) - 0.5
-        )  # 10 x 1 column vector for MNIST
+        self.__bout: NDArray[np.float64] = np.random.rand(nodes_out, 1) - 0.5  # 10 x 1 column vector for MNIST
 
     def __repr__(self) -> str:
         return (
@@ -73,9 +65,7 @@ class NNetworkMinimal:
             else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
         )
 
-    def gradient_descent(
-        self, data: NDArray[np.float64], labels: NDArray[np.float64]
-    ) -> None:
+    def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
         """
         A rather complex routine that does the forward propagation and back propagation iteratively.
         Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `NNetworkMinimal` class instance.
@@ -92,9 +82,7 @@ class NNetworkMinimal:
         """
 
         if self.__is_trained:  # if the model has already been trained, raise an error.
-            raise NotImplementedError(
-                "class <NNetworkMinimal> doesn't allow retraining!"
-            )
+            raise NotImplementedError("class <NNetworkMinimal> doesn't allow retraining!")
 
         # a simple data /= 255.00 could be used here.
         # this will modify the array in-place (not a local copy, but the referenced original array), if we ask the model to predict the labels for
@@ -104,50 +92,32 @@ class NNetworkMinimal:
         data_normed: NDArray[np.float64] = data / 255.00
 
         # one-hot encode the true labels
-        self.__onehot_true_labels: NDArray[np.float64] = onehot(labels=labels)
-
-        # these do not need to be class attributes.
-        hidden: NDArray[np.float64] | int = 0
-        hidden_hat: NDArray[np.float64] | int = 0
-        out: NDArray[np.float64] | int = 0
-        out_hat: NDArray[np.float64] | int = 0
-
-        d_out: NDArray[np.float64] | int = 0
-        dw_out: NDArray[np.float64] | int = 0
-        db_out: NDArray[np.float64] | int = 0
-
-        d_hidden: NDArray[np.float64] | int = 0
-        dw_hidden: NDArray[np.float64] | int = 0
-        db_hidden: NDArray[np.float64] | int = 0
+        onehot_true_labels: NDArray[np.float64] = onehot(labels=labels)
 
         # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
-            if not (i % 10):
+            if not (i % 200):
                 print(f"Iteration: {i:4d}")
-                print("\r\r\r\r\r\r\r")
 
             #######################
             # FORWARD PROPAGATION #
             #######################
 
             # computing H
-            #    10 x N                         10 x 784  784 x N     10 x 1
-            hidden = self.__winhid.dot(data_normed) + self.__bhid
+            #    10 x N                         10 x 784       784 x N        10 x 1
+            hidden: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
 
             # activating H layer -> H_hat
             #    10 x N                                  10 x N
-            hidden_hat = ReLU(hidden)
+            hidden_hat: NDArray[np.float64] = ReLU(hidden)
 
             # then, we compute the output layer
-            #    10 x N                          10 x 10       10 x N         10 x 1
-            out = self.__whidout.dot(hidden_hat) + self.__bout
+            #    10 x N                          10 x 10       10 x N          10 x 1
+            out: NDArray[np.float64] = self.__whidout.dot(hidden_hat) + self.__bout
 
             # activation of O layer
             #    10 x N                                      10 x N
-            # print(Out.mean())
-            out_hat = softmax(
-                out
-            )  # WARNING :: NAN HOSTSPOT (if the pixel data is not normalized)
+            out_hat: NDArray[np.float64] = softmax(out)  # WARNING :: NAN HOSTSPOT (if the pixel data is not normalized)
 
             ####################
             # BACK PROPAGATION #
@@ -155,40 +125,38 @@ class NNetworkMinimal:
 
             # compute the difference between the outputs and the one-hot encoded true labels
             #    10 x N                          10 x N         10 x N
-            d_out = out_hat - self.__onehot_true_labels
+            d_out: NDArray[np.float64] = out_hat - onehot_true_labels
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
-            dw_out = d_out.dot(hidden_hat.T) / labels.size
+            dw_outhid: NDArray[np.float64] = d_out.dot(hidden_hat.T) / labels.size
 
             # how much the biases of nodes in the output layer contributed to this difference (dO)
             #    10 x 1                           10 x N
-            db_out = (d_out.sum(axis=1) / labels.size).reshape(10, 1)
+            db_out: NDArray[np.float64] = (d_out.sum(axis=1) / labels.size).reshape(10, 1)
             # array.sum(axis = 1) gives row sums as a 1 x 10 row vector
             # we need a 10 x 1 column vector as the result, hence the reshaping
 
             # now we move on to transformation from the hidden layer to the input layer
             # first the ReLU activation needs to be undone
             #    10 x N                           10 x 10        10 x N
-            d_hidden = self.__whidout.T.dot(d_out) * undoReLU(hidden)
+            d_hidden: NDArray[np.float64] = self.__whidout.T.dot(d_out) * undoReLU(hidden)
 
             # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
             #    10 x 784                         10 x N    N x 784
-            self.__dW: NDArray[np.float64] = d_hidden.dot(data_normed.T) / labels.size
+            dw_hidin: NDArray[np.float64] = d_hidden.dot(data_normed.T) / labels.size
 
             # compute how much the biases of nodes in the hidden layer contributed to this.
             #    10 x 1                           10 x 1
-            self.__dB: NDArray[np.float64] = (
-                d_hidden.sum(axis=1).reshape(10, 1) / labels.size
-            )
+            db_hid: NDArray[np.float64] = d_hidden.sum(axis=1).reshape(10, 1) / labels.size
 
             #####################
             # PARAMETER UPDATES #
             #####################
 
-            self.__winhid -= self.__dW * self.__learning_rate
-            self.__bhid -= self.__dB * self.__learning_rate
-            self.__whidout -= dw_out * self.__learning_rate
+            self.__winhid -= dw_hidin * self.__learning_rate
+            self.__bhid -= db_hid * self.__learning_rate
+            self.__whidout -= dw_outhid * self.__learning_rate
             self.__bout -= db_out * self.__learning_rate
 
         # register that the model instance has been trained.
@@ -210,13 +178,9 @@ class NNetworkMinimal:
         """
 
         if not self.__is_trained:
-            raise NotImplementedError(
-                "Untrained <NNetworkMinimal> models cannot make predictions!"
-            )
+            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
 
-        data_normed: NDArray[np.float64] = (
-            data / 255.00
-        )  # get a normalized copy of the incoming data
+        data_normed: NDArray[np.float64] = data / 255.00  # get a normalized copy of the incoming data
         # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
         H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
         H_hat: NDArray[np.float64] = ReLU(H)
@@ -226,16 +190,14 @@ class NNetworkMinimal:
             O_hat, axis=0
         )  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
 
-    def accuracy_score(
-        self, data: NDArray[np.float64], true_labels: NDArray[np.float64]
-    ) -> float:
+    def accuracy_score(self, data: NDArray[np.float64], true_labels: NDArray[np.float64]) -> float:
         """
         Does a simple forward propagation with the passed data, using the current state of the model, then the predictions are
         compared with the true labels.
 
         Parameters:
         data: NDArray[np.float64] - a matrix of image pixels to make predictions on
-        true_labels: NDArray[np.float64] - true labels of the image pixel matrices
+        true_labels: NDArray[np.float64] - true labels for the image pixels array
 
         Returns:
         float - fraction of predictions that were correct. (in the range of 0 to 1)
@@ -246,13 +208,9 @@ class NNetworkMinimal:
         """
 
         if not self.__is_trained:
-            raise NotImplementedError(
-                "Untrained <NNetworkMinimal> models cannot make predictions!"
-            )
+            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
 
-        data_normed: NDArray[np.float64] = (
-            data / 255.00
-        )  # get a normalized copy of the incoming data
+        data_normed: NDArray[np.float64] = data / 255.00  # get a normalized copy of the incoming data
         # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
         H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
         H_hat: NDArray[np.float64] = ReLU(H)
@@ -263,7 +221,7 @@ class NNetworkMinimal:
         )  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
         return accuracy_score(true_labels, predictions, normalize=True)
 
-    def coefficients(self) -> NNMinCoeffs:
+    def coefficients(self) -> dict[str, NDArray[np.float64]]:
         """
         Returns the weights and biases as a dictionary.
 
@@ -279,6 +237,7 @@ class NNetworkMinimal:
             "OB" : NDArray[np.float64]  - biases of the nodes in the output layer
         }
         """
+
         return {
             "IHW": self.__winhid,
             "HB": self.__bhid,
@@ -302,12 +261,6 @@ class NNetworkMinimal:
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
         """
 
-        if filepath.count("."):
-            raise ValueError(
-                f"Argument 'filepath' isn't allowed to contain periods! {filepath}[{filepath.find('.')}]"
-            )
-
-        # self.__W, self.__B, self.__w, self.__b
         # first 64 bytes (8 64 bit floats) are the dimensions of the weights and biases, in the above mentioned order.
         # dimensions are stored row numbers first.
         coeffs: NDArray[np.float64] = np.concatenate(
@@ -341,9 +294,7 @@ class NNetworkMinimal:
         """
 
         if not filepath.endswith(".nnm"):
-            TypeError(
-                "Only models an .nnm extension, serialized using the .save() method are supported!"
-            )
+            TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
 
         with open(file=filepath, mode="rb") as fp:
             coeffs: NDArray[np.float64] = np.load(
@@ -351,28 +302,23 @@ class NNetworkMinimal:
             )  # np.load() is used to load in binary files serialized with np.save() method.
         # np.fromfile() assumes that the binary file contains only raw bytes. But np.save() encodes metadata in the .npy file format.
         # .npy format is the file format used by np.save() to serialize Numpy array objects.
-        caret: int = (
-            0  # use this as a moving caret that points to the offset where the next subscriting should begin.
-        )
+        caret: int = 0  # use this as a moving caret that points to the offset where the next subscriting should begin.
         # extract the dimensions of the weights and biases.
 
         # prefixes W, B are for the hidden layer & prefixes w, b are for the output layer.
-        Wrows, Wcols, Brows, Bcols, wrows, wcols, brows, bcols = coeffs[:8].astype(
-            np.uint64
-        )
-        print(coeffs[:8].astype(np.uint64))
+        Wrows, Wcols, Brows, Bcols, wrows, wcols, brows, bcols = coeffs[:8].astype(np.uint64)
+        # print(coeffs[:8].astype(np.uint64))
 
         caret += 8
         self.__winhid = coeffs[caret : int(caret + Wrows * Wcols)].reshape(Wrows, Wcols)
         caret += int(Wrows * Wcols)
         self.__bhid = coeffs[caret : int(caret + Brows * Bcols)].reshape(Brows, Bcols)
         caret += int(Brows * Bcols)
-        self.__whidout = coeffs[caret : int(caret + wrows * wcols)].reshape(
-            wrows, wcols
-        )
+        self.__whidout = coeffs[caret : int(caret + wrows * wcols)].reshape(wrows, wcols)
         caret += int(wrows * wcols)
         self.__bout = coeffs[caret : int(caret + brows * bcols)].reshape(brows, bcols)
         caret += int(brows * bcols)
+
         assert caret == coeffs.size
         # mark the model as trained.
         self.__is_trained = True

@@ -68,12 +68,10 @@ def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     labels_range: np.int64 = np.int64(
         labels.max() - labels.min() + 1
     )  # defines the number of elements that should be in a column (number of rows)
-    zeromat: NDArray[np.float64] = np.zeros(
-        shape=(labels_range, labels.size), dtype=np.float64
+    zeromat: NDArray[np.float64] = np.zeros(shape=(labels_range, labels.size), dtype=np.float64)
+    zeromat[labels.astype(np.uint64), np.arange(start=0, stop=labels.size, dtype=np.uint64)] = (
+        1.0000  # array subscript with two arrays doesn't work with Numba
     )
-    zeromat[
-        labels.astype(np.uint64), np.arange(start=0, stop=labels.size, dtype=np.uint64)
-    ] = 1.0000  # array subscript with two arrays doesn't work with Numba
     return zeromat
 
 
