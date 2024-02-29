@@ -85,8 +85,7 @@ class NNetworkMinimal:
 
         # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
-            if not (i % 200):
-                print(f"Iteration: {i:4d}")
+            print(f"Iteration: {i:5d}", end="")
 
             #######################
             # FORWARD PROPAGATION #
@@ -148,8 +147,11 @@ class NNetworkMinimal:
             self.__whidout -= dw_outhid * self.__learning_rate
             self.__bout -= db_out * self.__learning_rate
 
+            print("\r\r\r\r\r", end="")
+
         # register that the model instance has been trained.
         self.__is_trained = True
+        print("")
 
     def predict(self, data: NDArray[np.float64]) -> NDArray[np.int64]:
         """

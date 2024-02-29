@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
 
@@ -9,7 +8,7 @@ from NNSUtils import onehot, softmax, ReLU, undoReLU
 
 class NNetworkExtended:
     """
-    A class representing an extended variant of NNetworkMinimal, with one input layer, one output layer and customizeable number of hidden layers
+    A class representing an extended variant of <<NNetworkMinimal>>, with one input layer, one output layer and customizeable number of hidden layers
     """
 
     def __init__(
@@ -19,7 +18,7 @@ class NNetworkExtended:
         nodes_hid: list[int] = [784, 588, 392, 286, 196],
         nodes_out: int = 10,
         alpha: float = 0.1,
-        maxiterations: int = 2500,
+        maxiterations: int = 5000,
     ) -> None:
         """
         Parameters:
@@ -34,11 +33,13 @@ class NNetworkExtended:
         None
         """
 
-        assert nlayers_hidden == len(nodes_hid)  # make sure each hidden layer has a node count specified.
+        assert nlayers_hidden == len(
+            nodes_hid
+        ), f"Each hidden layer needs a node count specified. Number of hidden layers:<{nlayers_hidden}>, Number of node counts:<{len(nodes_hid)}>"
         if max(nodes_hid) >= 1000:
-            warnings.warn(
-                "Using large number of nodes in hidden layers can severely handicap performance",
-                RuntimeWarning,
+            # don't fancy monkey patching
+            print(
+                "RuntimeWarning: Using large number of nodes in hidden layers in <<NNetworkExtended>> models can severely handicap the performance!",
             )
 
         self.__is_trained: bool = False
@@ -46,37 +47,38 @@ class NNetworkExtended:
         self.__maxiter: int = maxiterations
         # this stores the number of nodes in all layers of the NNetworkExtended object, including the input and output layers.
         self.__nnodes: tuple[int, ...] = tuple([nodes_in] + nodes_hid + [nodes_out])
+        self.__nlayers: int = len(nodes_hid) + 2
 
         # if there are N layers in total (counting the input and output layers), there'll be N - 1 group of connections.
-        # we needs weights for these N - 1 group of connections and biases for N layers of neurons.
+        # we needs weights for these N - 1 group of connections and biases for N - 1 layers of neurons (discounting the input layer).
 
-        # store the shapes of weight matrices, deliberately using tuples to make the shapes immutable.
-        self.__wshapes: tuple[tuple[int, int], ...] = tuple(
-            zip(self.__nnodes[1:], self.__nnodes[: len(self.__nnodes) - 1])
-        )
+        # store the shapes of weight matrices, deliberately using tuples to make them immutable.
+        self.__wshapes: tuple[tuple[int, int], ...] = tuple(zip(self.__nnodes[1:], self.__nnodes[:-1]))
         assert len(self.__wshapes) == len(self.__nnodes) - 1
 
         # store the weights of connections in a list (including the connections that directly involve the input and output layers)
         self.__weights: list[NDArray[np.float64]] = [np.random.rand(r, c) - 0.5 for (r, c) in self.__wshapes]
 
         # store the biases of nodes in all layers of the NNetworkExtended object. (excluding the input layer)
-        # baises are only considered for layers following the input layer.
-        # biases need to be column vectors
+        # baises are only considered for layers following the input layer (they need to be column vectors).
         self.__biases: list[NDArray[np.float64]] = [np.random.rand(n, 1) - 0.5 for n in self.__nnodes[1:]]
-        assert len(self.__biases) == len(self.__nnodes) - 1  # leaving the input layer out.
+        assert len(self.__biases) == self.__nlayers - 1  # leaving the input layer out.
 
     def __repr__(self) -> str:
-        # return f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_out}" if not self.__is_trained else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
-        pass
+        return (
+            f"Untrained <<NNetworkExtended>> model object <I>: {self.__nnodes[0]}, <H: {self.__nlayers:2d}>: {self.__nnodes[1:-1]}, <O>: {self.__nnodes[-1]}"
+            if not self.__is_trained
+            else f"Trained <<NNetworkExtended>> model object <I>: {self.__nnodes[0]}, <H: {self.__nlayers:2d}>: {self.__nnodes[1:-1]}, <O>: {self.__nnodes[-1]}"
+        )
 
-    def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
+    def gradient_descent(self, train_data: NDArray[np.float64], train_labels: NDArray[np.float64]) -> None:
         """
         A rather complex routine that does the forward propagation and back propagation iteratively.
-        Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `NNetworkMinimal` class instance.
+        Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `<<NNetworkExtended>>` class instance.
 
         Parameters:
         data: np.NDArray[np.float64] - training dataset
-        labels: np.NDArray[np.float64] - training labels
+        labels: np.NDArray[np.float64] - training (true) labels
 
         Returns:
         None
@@ -84,50 +86,36 @@ class NNetworkExtended:
         Notes:
         Comments below inside are MNIST tailored
         """
+
         if self.__is_trained:  # if the model has already been trained, raise an error.
-            raise NotImplementedError("class <NNetworkMinimal> doesn't allow retraining!")
+            raise NotImplementedError("class <<NNetworkExtended>> doesn't allow retraining!")
 
         # a simple data /= 255.00 could be used here.
         # this will modify the array in-place (not a local copy, but the referenced original array), if we ask the model to predict the labels for
         # training data, predict() method will again scale this data down (assuming the same array gets passed in again) and we'll ultimately have
         # garbage as predictions! i.e. we'll end up with a pixels array where each pixel have been scaled down by (255 * 255)
         # this normalization is needed to avoid FloatingPointError s in np.exp() (inside softmax())
-        data_normed: NDArray[np.float64] = data / 255.00
-
-        ##########  Storing the onehot encoded labels, hidden and output layers, their post-activation state, the differences computed in
-        # CAVEAT #  back propagation as instance attributes makes the model object gratuitously bloated!. If the model objects is to stay
-        ##########  in memory for long, consider storing these as temporaries scoped to the gradient_descent() method.
+        data_normed: NDArray[np.float64] = train_data / 255.00
 
         # one-hot encode the true labels
-        self.__onehot_true_labels: NDArray[np.float64] = onehot(labels=labels)
+        self.__onehot_true_labels: NDArray[np.float64] = onehot(labels=train_labels)
 
         # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
-            if not (i % 200):
-                print(f"Iteration: {i:4d}")
+            print(f"Iteration: {i:5d}", end="")
 
             #######################
             # FORWARD PROPAGATION #
             #######################
 
-            # computing H
-            #    10 x N                         10 x 784  784 x N     10 x 1
-            self.__H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
-
-            # activating H layer -> H_hat
-            #    10 x N                                  10 x N
-            self.__H_hat: NDArray[np.float64] = ReLU(self.__H)
-
-            # then, we compute the output layer
-            #    10 x N                          10 x 10       10 x N         10 x 1
-            self.__O: NDArray[np.float64] = self.__whidout.dot(self.__H_hat) + self.__bout
-
-            # activation of O layer
-            #    10 x N                                      10 x N
-            # print(self.__O.mean())
-            self.__O_hat: NDArray[np.float64] = softmax(
-                self.__O
-            )  # WARNING :: NAN HOSTSPOT (if the pixel data is not normalized)
+            for w in range(self.__nlayers - 1):  # weights
+                # self.__weights[0] will be the weights between the input and the first hidden layer
+                # self.__biases[0] will be the biases of the nodes in the first hidden layer.
+                data_normed = self.__weights[w].dot(data_normed) + self.__biases[w]
+                if w == (self.__nlayers - 2):  # for the last layer of connections,
+                    data_normed = softmax(data_normed)
+                else:  # for other connections, use ReLU (or perhaps Leaky ReLU??)
+                    data_normed = ReLU(data_normed)
 
             ####################
             # BACK PROPAGATION #
@@ -139,11 +127,11 @@ class NNetworkExtended:
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
-            self.__dw: NDArray[np.float64] = self.__dO.dot(self.__H_hat.T) / labels.size
+            self.__dw: NDArray[np.float64] = self.__dO.dot(self.__H_hat.T) / train_labels.size
 
             # how much the biases of nodes in the output layer contributed to this difference (dO)
             #    10 x 1                           10 x N
-            self.__db: NDArray[np.float64] = (self.__dO.sum(axis=1) / labels.size).reshape(10, 1)
+            self.__db: NDArray[np.float64] = (self.__dO.sum(axis=1) / train_labels.size).reshape(10, 1)
             # array.sum(axis = 1) gives row sums as a 1 x 10 row vector
             # we need a 10 x 1 column vector as the result, hence the reshaping
 
@@ -154,11 +142,11 @@ class NNetworkExtended:
 
             # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
             #    10 x 784                         10 x N    N x 784
-            self.__dW: NDArray[np.float64] = self.__dH.dot(data_normed.T) / labels.size
+            self.__dW: NDArray[np.float64] = self.__dH.dot(data_normed.T) / train_labels.size
 
             # compute how much the biases of nodes in the hidden layer contributed to this.
             #    10 x 1                           10 x 1
-            self.__dB: NDArray[np.float64] = self.__dH.sum(axis=1).reshape(10, 1) / labels.size
+            self.__dB: NDArray[np.float64] = self.__dH.sum(axis=1).reshape(10, 1) / train_labels.size
 
             #####################
             # PARAMETER UPDATES #
@@ -169,13 +157,11 @@ class NNetworkExtended:
             self.__whidout -= self.__dw * self.__learning_rate
             self.__bout -= self.__db * self.__learning_rate
 
+            print("\r\r\r\r\r", end="")
+
         # register that the model instance has been trained.
         self.__is_trained = True
-
-        # perfect, none of the matrices are out of shape :)
-        # print(f"W: {self.__W.shape}, B: {self.__B.shape}, w: {self.__w.shape}, b: {self.__b.shape}")
-        # print(f"H: {self.__H.shape}, H_hat: {self.__H_hat.shape}, O: {self.__O.shape}, O_hat: {self.__O_hat.shape}")
-        # print(f"dO: {self.__dO.shape}, dw: {self.__dw.shape}, db: {self.__db.shape}, dH: {self.__dH.shape}, dW: {self.__dW.shape}, dB: {self.__dB.shape}")
+        print("")
 
     def predict(self, data: NDArray[np.float64]) -> NDArray[np.int64]:
         """
@@ -192,14 +178,11 @@ class NNetworkExtended:
         The input data will remain untouched, as the method works only with a local normalized copy of it.
         """
         if not self.__is_trained:
-            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
+            raise NotImplementedError("Untrained <<NNetworkExtended>> models cannot make predictions!")
 
         data_normed: NDArray[np.float64] = data / 255.00  # get a normalized copy of the incoming data
         # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
-        H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
-        H_hat: NDArray[np.float64] = ReLU(H)
-        O: NDArray[np.float64] = self.__whidout.dot(H_hat) + self.__bout
-        O_hat: NDArray[np.float64] = softmax(O)
+
         return np.argmax(
             O_hat, axis=0
         )  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
@@ -221,7 +204,7 @@ class NNetworkExtended:
         This mechanism disregards how close the predictions are to the true labels!
         """
         if not self.__is_trained:
-            raise NotImplementedError("Untrained <NNetworkMinimal> models cannot make predictions!")
+            raise NotImplementedError("Untrained <<NNetworkExtended>> models cannot make predictions!")
 
         data_normed: NDArray[np.float64] = data / 255.00  # get a normalized copy of the incoming data
         # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
@@ -251,14 +234,14 @@ class NNetworkExtended:
         Serializes the model to disk, preserving the current state of the model (weights and biases).
 
         Parameters:
-        filepath: str - the path to serialize the <NNetworkMinimal> model object.
+        filepath: str - the path to serialize the <<NNetworkExtended>> model object.
 
         Returns:
         None
 
         Notes:
         DO NOT SPECIFY AN EXTENSION with the filepath.
-        .save() internally uses `.nnm` extension to serialize <NNetworkMinimal> model objects. This extension is leveraged to validate inputs
+        .save() internally uses `.nnmext` extension to serialize <<NNetworkExtended>> model objects. This extension is leveraged to validate inputs
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
         """
         # self.__W, self.__B, self.__w, self.__b
@@ -277,15 +260,15 @@ class NNetworkExtended:
             ],
             dtype=np.float64,
         )
-        with open(file=f"{filepath}.nnm", mode="wb") as fp:
+        with open(file=f"{filepath}.nnmext", mode="wb") as fp:
             np.save(fp, coeffs, allow_pickle=False)
 
     def load(self, filepath: str) -> None:
         """
-        Loads in a serialized model from disk and creates a NNetworkMinimal object,
+        Loads in a serialized <<NNetworkExtended>> model from disk and creates a NNetworkExtended object,
         restoring the state of the saved model. This method doesn't return anything but realizes the effects by altering the weights
         and biases using the data stored in the .nnm file. Convenient in reusing models for new, similarly structured test data.
-        The stored model is expected to have a `.nnm` extension. Else, a exception will be raised.
+        The stored model is expected to have a `.nnmext` extension. Else, a exception will be raised.
 
         Parameters:
         filepath: str - path to the serialized model object, including the extension (expected `.nnm`).
@@ -293,8 +276,10 @@ class NNetworkExtended:
         Returns:
         None
         """
-        if not filepath.endswith(".nnm"):
-            TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
+        if not filepath.endswith(".nnmext"):
+            TypeError(
+                "Only <<NNetworkExtended>> models serialized with .save() method with an .nnmext extension are supported!"
+            )
 
         with open(file=filepath, mode="rb") as fp:
             coeffs: NDArray[np.float64] = np.load(

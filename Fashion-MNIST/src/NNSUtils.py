@@ -5,9 +5,10 @@ np.seterr(all="raise")
 from numba import jit
 
 
+@jit(nopython=True, fastmath=False, parallel=False)
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Rectified Linear Unit: x if x > 0 else 0
+    Rectified Linear Unit: x if x >= 0 else 0
 
     Parameters:
     data: NDArray[np.float64] - a matrix of image pixels (normalized, values in the of 0 and 1, in the first iteration)
@@ -21,6 +22,31 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     If one input is a scalar, then the scalar gets broadcasted to the shape of the array, followed by the determination of elementwise maxima.
     So, this implementation scans through the array, and if the element is greater than or equal to 0, it takes that value else uses 0 to fillers.
     Implemented as a simple wrapper around np.maximum with a default value.
+    """
+
+    return np.maximum(data, 0.000)
+
+
+@jit(nopython=True, fastmath=True, parallel=True)
+def LeakyReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Leaky ReLU: x if x >= 0 else 0.01x
+
+    Parameters:
+    data: NDArray[np.float64] - a matrix of image pixels (normalized, values in the of 0 and 1, in the first iteration)
+    that are tobe updated in subsequent iterations. (could breach the above specified range!)
+
+    Returns:
+    NDArray[np.float64] - ReLUed pixel values.
+
+    Notes:
+    Addresses the primary drawback of vanilla ReLU, the dying neuron problem, where a neuron with a negative bias will
+    never be activated. i.e when the bias is added to the input's curent state, with a negative bias, input values of that neuron's row
+    will likely end up with negative values (granted that the bias is larger than the matrix element). This will lead to zeros filling the
+    input matrix that is being iteratively processed in forward propagation.
+
+    Instead of zeroing negative matrix elements Leaky ReLU reduces their magnitude, by scaling them down by a factor of 100, thereby
+    reducing their chances of
     """
 
     return np.maximum(data, 0.000)
