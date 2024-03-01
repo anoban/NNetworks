@@ -28,16 +28,17 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
 
 
 @jit(nopython=True, fastmath=True, parallel=True)
-def LeakyReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
+def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.01) -> NDArray[np.float64]:
     """
-    Leaky ReLU: x if x >= 0 else 0.01x
+    Leaky ReLU: x if x >= 0 else alpha
 
     Parameters:
-    data: NDArray[np.float64] - a matrix of image pixels (normalized, values in the of 0 and 1, in the first iteration)
-    that are tobe updated in subsequent iterations. (could breach the above specified range!)
+    data: NDArray[np.float64] - a matrix of image pixels (regularized values in the range of 0 and 1) (only in the first iteration)
+    that are to be updated in subsequent iterations. (could breach the above specified range then)
+    alpha: float - the value to use in case of a negative input.
 
     Returns:
-    NDArray[np.float64] - ReLUed pixel values.
+    NDArray[np.float64] - Leaky ReLU ed pixel values.
 
     Notes:
     Addresses the primary drawback of vanilla ReLU, the dying neuron problem, where a neuron with a negative bias will
@@ -49,7 +50,7 @@ def LeakyReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     reducing their chances of
     """
 
-    return np.maximum(data, 0.000)
+    return np.maximum(data, alpha)
 
 
 @jit(nopython=True, fastmath=False, parallel=False)

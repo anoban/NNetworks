@@ -36,6 +36,7 @@ class NNetworkExtended:
         assert nlayers_hidden == len(
             nodes_hid
         ), f"Each hidden layer needs a node count specified. Number of hidden layers:<{nlayers_hidden}>, Number of node counts:<{len(nodes_hid)}>"
+
         if max(nodes_hid) >= 1000:
             # don't fancy monkey patching
             print(
@@ -108,12 +109,14 @@ class NNetworkExtended:
             # FORWARD PROPAGATION #
             #######################
 
-            for w in range(self.__nlayers - 1):  # weights
+            for f in range(self.__nlayers - 1):  # f for forward.
                 # self.__weights[0] will be the weights between the input and the first hidden layer
                 # self.__biases[0] will be the biases of the nodes in the first hidden layer.
-                data_normed = self.__weights[w].dot(data_normed) + self.__biases[w]
-                if w == (self.__nlayers - 2):  # for the last layer of connections,
-                    data_normed = softmax(data_normed)
+                data_normed = self.__weights[f].dot(data_normed) + self.__biases[f]
+                if f == (self.__nlayers - 2):  # for the last layer of connections,
+                    data_normed = softmax(
+                        data_normed
+                    )  # this will be our class predictions for all images in the train data.
                 else:  # for other connections, use ReLU (or perhaps Leaky ReLU??)
                     data_normed = ReLU(data_normed)
 
@@ -124,7 +127,7 @@ class NNetworkExtended:
             # compute the difference between the outputs and the one-hot encoded true labels
             diff: NDArray[np.float64] = data_normed - self.__onehot_true_labels
 
-            for i in range(self.__nlayers, 0, -1):
+            for r in range(self.__nlayers, 0, -1):  # r for reverse
                 diff.dot(data_normed.T) / train_labels.size
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
@@ -210,14 +213,8 @@ class NNetworkExtended:
             raise NotImplementedError("Untrained <<NNetworkExtended>> models cannot make predictions!")
 
         data_normed: NDArray[np.float64] = data / 255.00  # get a normalized copy of the incoming data
-        # then we repeat the steps in forward propagation with learned weights and biases, to finally make the prediction
-        H: NDArray[np.float64] = self.__winhid.dot(data_normed) + self.__bhid
-        H_hat: NDArray[np.float64] = ReLU(H)
-        O: NDArray[np.float64] = self.__whidout.dot(H_hat) + self.__bout
-        O_hat: NDArray[np.float64] = softmax(O)
-        predictions: NDArray[np.float64] = np.argmax(
-            O_hat, axis=0
-        )  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
+
+        # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
         return accuracy_score(true_labels, predictions, normalize=True)
 
     def coefficients(self) -> dict[str, NDArray[np.float64]]:
@@ -275,7 +272,7 @@ class NNetworkExtended:
         The stored model is expected to have a `.nnmext` extension. Else, a exception will be raised.
 
         Parameters:
-        filepath: str - path to the serialized model object, including the extension (expected `.nnm`).
+        filepath: str - path to the serialized model object, including the extension (expected `.nnmext`).
 
         Returns:
         None
