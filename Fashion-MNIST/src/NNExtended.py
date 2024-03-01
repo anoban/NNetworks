@@ -122,8 +122,10 @@ class NNetworkExtended:
             ####################
 
             # compute the difference between the outputs and the one-hot encoded true labels
-            #    10 x N                          10 x N         10 x N
-            self.__dO: NDArray[np.float64] = self.__O_hat - self.__onehot_true_labels
+            diff: NDArray[np.float64] = data_normed - self.__onehot_true_labels
+
+            for i in range(self.__nlayers, 0, -1):
+                diff.dot(data_normed.T) / train_labels.size
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
@@ -203,6 +205,7 @@ class NNetworkExtended:
         Accuracy is computed based on raw idenitity checks against true labels and predictions. using sklearn.metrics.accuracy_score()
         This mechanism disregards how close the predictions are to the true labels!
         """
+
         if not self.__is_trained:
             raise NotImplementedError("Untrained <<NNetworkExtended>> models cannot make predictions!")
 
@@ -244,9 +247,10 @@ class NNetworkExtended:
         .save() internally uses `.nnmext` extension to serialize <<NNetworkExtended>> model objects. This extension is leveraged to validate inputs
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
         """
-        # self.__W, self.__B, self.__w, self.__b
-        # first 64 bytes (8 64 bit floats) are the dimensions of the weights and biases, in the above mentioned order.
-        # dimensions are stored row numbers first.
+
+        # first 16N bytes (2N 64 bit floats) store the dimensions of the weights and biases, in the above mentioned order. (weights and biases)
+        # where N denotes the number of connection interfaces with weights and the number of node layers with biases.
+        # dimensions are stored row numbers first. (R, C)
         coeffs: NDArray[np.float64] = np.concatenate(
             [
                 self.__winhid.shape,
@@ -276,6 +280,7 @@ class NNetworkExtended:
         Returns:
         None
         """
+
         if not filepath.endswith(".nnmext"):
             TypeError(
                 "Only <<NNetworkExtended>> models serialized with .save() method with an .nnmext extension are supported!"
