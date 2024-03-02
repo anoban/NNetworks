@@ -89,10 +89,10 @@ def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
 
     Notes:
     Considering the ReLU's derivative function, slope is 0 (m = 0) as long as x <= 0
-    Slope becomes 1 (m = 1) where x > 1
+    Slope becomes 1 (m = 1) where x > 0
     If the ReLU result is 0, the original input must have been a negative value, which will give us a slope of 0.
     If the ReLU result is greater than 0, then the original input must have been greater than 0, which will give us a slope of 1.
     Using fastmath as the only possible results are 0s and 1s, accuracy doesn't matter much here.
     """
 
-    return (activated_layer > 1).astype(np.float64)
+    return (activated_layer > 0).astype(np.float64)

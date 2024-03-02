@@ -128,11 +128,11 @@ __$\alpha$ is the learning rate! (A user specified constant)__
 
 <br>
 
-___After 2,500 iterations, the accuracy scores for `MNIST` datasets were:___
+___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
 
 -------------
-- `Training dataset` - 0.8937 (89.37%)
-- `Test dataset` - 0.8938 (89.38%)
+- `Training dataset` - 0.935367 (93.54%)
+- `Test dataset` - 0.928800 (92.88%)
 
 # ___Fashion MNIST___
 ---------------

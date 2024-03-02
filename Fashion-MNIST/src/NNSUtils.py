@@ -5,10 +5,10 @@ np.seterr(all="raise")
 from numba import jit
 
 
-@jit(nopython=True, fastmath=False, parallel=False)
+@jit(nopython=True, parallel=True, fastmath=False)
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Rectified Linear Unit: x if x >= 0 else 0
+    Rectified Linear Unit: x if x > 0 else 0
 
     Parameters:
     data: NDArray[np.float64] - a matrix of image pixels (normalized, values in the of 0 and 1, in the first iteration)
@@ -27,36 +27,43 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     return np.maximum(data, 0.000)
 
 
-@jit(nopython=True, fastmath=True, parallel=True)
-def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.01) -> NDArray[np.float64]:
+@jit(nopython=True, parallel=True, fastmath=False)
+def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float64]:
     """
-    Leaky ReLU: x if x >= 0 else alpha
+    Leaky ReLU: x if x > 0 else (alpha * x)
+    For good activation results, alpha better be in the range of 0.01 - 0.3
 
     Parameters:
     data: NDArray[np.float64] - a matrix of image pixels (regularized values in the range of 0 and 1) (only in the first iteration)
-    that are to be updated in subsequent iterations. (could breach the above specified range then)
-    alpha: float - the value to use in case of a negative input.
+    that are to be updated in subsequent iterations. (could breach the above specified range in the subsequent iterations)
+    alpha: float - the factor to downscale the inputs in case of a negative value.
 
     Returns:
     NDArray[np.float64] - Leaky ReLU ed pixel values.
 
     Notes:
-    Addresses the primary drawback of vanilla ReLU, the dying neuron problem, where a neuron with a negative bias will
-    never be activated. i.e when the bias is added to the input's curent state, with a negative bias, input values of that neuron's row
-    will likely end up with negative values (granted that the bias is larger than the matrix element). This will lead to zeros filling the
-    input matrix that is being iteratively processed in forward propagation.
+    Addresses the primary drawback of vanilla ReLU, the dying neuron problem, where a neuron with a negative bias won't likely
+    be activated by ReLU. When the bias is added to the dot product of first connection group's weights and the input matrix,
+    if the bias is a negative value, values in resultant matrix, for the given neuron's row, will likely end up with negative values
+    (granted that the bias is larger than the dot product's cognate elements).
+    This will lead to zeros filling the matrices in forward propagation, post-ReLU.
 
-    Instead of zeroing negative matrix elements Leaky ReLU reduces their magnitude, by scaling them down by a factor of 100, thereby
-    reducing their chances of
+    Instead of zeroing negative matrix elements, Leaky ReLU scales them down by small positive constant, the alpha parameter,
+    thereby reducing their chances of neuron deaths. (This doesn't make the values positive, merely reduces the magnitude of the negative
+    values)
+    e.g. with -34.63562 as input and 0.02 as alpha, leaky ReLU will turn the input into -0.6927124, a far smaller value compared to the
+    original input.
     """
 
-    return np.maximum(data, alpha)
+    return np.maximum(
+        data, alpha * data
+    )  # this is really elegant :) max(100, 100 * 0.01) is 100, max(-100, -100 * 0.01) is is -1
 
 
-@jit(nopython=True, fastmath=False, parallel=False)
+@jit(nopython=True, parallel=False, fastmath=False)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Softmax(X) =:
+    Softmax(X) :=
         e is exponentiated to the elements of column vector (X), followed by an element-wise
         division by the sum of exponentiated values.
 
@@ -116,8 +123,28 @@ def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
 
     Notes:
     Considering the ReLU's derivative function, slope is 0 (m = 0) as long as x <= 0
-    Slope becomes 1 (m = 1) where x > 1
+    Slope becomes 1 (m = 1) where x > 0
     If the ReLU result is 0, the original input must have been a negative value, which will give us a slope of 0.
+    If the ReLU result is greater than 0, then the original input must have been greater than 0, which will give us a slope of 1.
+    Using fastmath as the only possible results are 0s and 1s, accuracy doesn't matter much here.
+    """
+
+    return (activated_layer > 0).astype(np.float64)
+
+
+@jit(nopython=True, parallel=False, fastmath=True)
+def undoLeakyReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Parameters:
+    activated_layer: NDArray[np.float64] - post LeakyReLU activation, hidden layers (in back propagation)
+
+    Returns:
+    NDArray[np.float64] - activation reversed hidden layer (LeakyReLU undone)
+
+    Notes:
+    Considering the LeakyReLU's derivative function, slope is alpha (m = alpha) as long as x <= 0
+    Slope becomes 1 (m = 1) where x > 0
+    If the ReLU result is alpha * input, the original input must have been a negative value, which will give us a slope of alpha.
     If the ReLU result is greater than 0, then the original input must have been greater than 0, which will give us a slope of 1.
     Using fastmath as the only possible results are 0s and 1s, accuracy doesn't matter much here.
     """
