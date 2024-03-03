@@ -32,19 +32,26 @@ I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
 
 ```math
 \underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1} \\
-
+```
+```math
 \underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N} \\
-
+```
+```math
 \underbrace{\hat{H}}_{10 \times N} = \underbrace{ReLU(H)}_{10 \times N} \\      
-
+```
+```math
 ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0 \\        
-
+```
+```math
 \underbrace{O}_{10 \times N} = \underbrace{w}_{10 \times 10} \cdot \underbrace{\hat{H}}_{10 \times N} + \underbrace{b}_{10 \times 1} \\
-
+```
+```math
 \underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N} \\                 
-
+```
+```math
 softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O} \\         
-
+```
+```math
 softmax(\underbrace{\begin{bmatrix}
 0.9 \\
 1.7 \\
@@ -78,8 +85,8 @@ prediction = \underbrace{\begin{bmatrix}
 0.10 \\
 0.07 \\
 \end{bmatrix}}_{10 \times 1} \\
-
-
+```
+```math
 \text{one hot encoded label} = \underbrace{\begin{bmatrix}
 0 \\
 0 \\
@@ -89,9 +96,11 @@ prediction = \underbrace{\begin{bmatrix}
 0 \\
 0 \\
 \end{bmatrix}}_{10 \times 1} \\
-
+```
+```math
 \underbrace{\mathrm{d}O}_{10 \times N} = \underbrace{\hat{O}}_{10 \times N} - \underbrace{L_{True}}_{10 \times N} \\
-
+```
+```math
 \mathrm{d}O_i = \begin{bmatrix}
 0.01 \\
 0.05 \\
@@ -109,30 +118,36 @@ prediction = \underbrace{\begin{bmatrix}
 0 \\
 0 \\
 \end{bmatrix} \\
-
+```
+```math
 \underbrace{\mathrm{d}{w}}_{10 \times 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10 \times N} \cdot   \overbrace{\hat{H}^T}^{N \times 10}}{N} \\
-
+```
+```math
 \underbrace{\mathrm{d}{b}}_{10 \times 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10 \times 1}}}{N} \\
-
+```
+```math
 \underbrace{\mathrm{d}{H}}_{10 \times N} = \underbrace{w^T}_{10 \times 10} \cdot \underbrace{\mathrm{d}{O}}_{10 \times N} \times \underbrace{f^{\prime}(H)}_{10 \times N} \\
-
+```
+```math
 \underbrace{\mathrm{d}{W}}_{10 \times 784} = \frac{\overbrace{\mathrm{d}{H}}^{10 \times N} \cdot \overbrace{I^T}^{N \times 784}}{N} \\
-
+```
+```math
 \underbrace{\mathrm{d}{B}}_{10 \times 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10 \times 1}}}{N} \\
 ```
 
-<br>
 
 ### ___Paramater updates___
 ---------------------
-## $W = W - \alpha \cdot \mathrm{d}{W}$
-## $B = B - \alpha \cdot \mathrm{d}{B}$
-## $w = w - \alpha \cdot \mathrm{d}{w}$
-## $b = b - \alpha \cdot \mathrm{d}{b}$
 
+```math
+W = W - \alpha \cdot \mathrm{d}{W}
+B = B - \alpha \cdot \mathrm{d}{B}
+w = w - \alpha \cdot \mathrm{d}{w}
+b = b - \alpha \cdot \mathrm{d}{b}
+```
+```math
 __$\alpha$ is the learning rate! (A user specified constant)__
-
-<br>
+```
 
 ___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
 
