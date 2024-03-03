@@ -21,7 +21,7 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 ---------------------
 
 ```math
-I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}         
+I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}     <br>    
 \underbrace{I}_{784 \times N} = |pixels~in~image| \times |images|
 ```
                 
