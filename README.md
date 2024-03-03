@@ -4,9 +4,6 @@
 
 -------------
 
-_If interested in the implementation details, please download the markdown source and experiment locally on your machine, because GitHub renders Markdown mathmode and some parts of vanilla Markdown horrendously._
-
-
 ___Implementation is quite different from the one in [his Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that:___
 
 --------------
@@ -140,10 +137,16 @@ prediction = \underbrace{\begin{bmatrix}
 ---------------------
 
 ```math
-W = W - \alpha \cdot \mathrm{d}{W}\\
-B = B - \alpha \cdot \mathrm{d}{B}\\
-w = w - \alpha \cdot \mathrm{d}{w}\\
-b = b - \alpha \cdot \mathrm{d}{b}\\
+W = W - \alpha \cdot \mathrm{d}{W}
+```
+```math
+B = B - \alpha \cdot \mathrm{d}{B}
+```
+```math
+w = w - \alpha \cdot \mathrm{d}{w}
+```
+```math
+b = b - \alpha \cdot \mathrm{d}{b}
 ```
 ```math
 __\alpha is the learning rate! (A user specified constant)__
