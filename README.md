@@ -148,9 +148,7 @@ w = w - \alpha \cdot \mathrm{d}{w}
 ```math
 b = b - \alpha \cdot \mathrm{d}{b}
 ```
-```math
-__\alpha is the learning rate! (A user specified constant)__
-```
+$\alpha$ is the learning rate! (A user specified constant)
 
 ___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
 
