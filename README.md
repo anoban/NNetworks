@@ -66,7 +66,8 @@ softmax(\underbrace{\begin{bmatrix}
 ### ___Backward propagation___
 ---------------
 
-## $prediction = \underbrace{\begin{bmatrix}
+```math
+prediction = \underbrace{\begin{bmatrix}
 0.01 \\
 0.05 \\
 0.69 \\
@@ -75,9 +76,9 @@ softmax(\underbrace{\begin{bmatrix}
 0.10 \\
 0.07 \\
 \end{bmatrix}}_{10 \times 1}
-$
 
-## $\text{one hot encoded label} = \underbrace{\begin{bmatrix}
+
+\text{one hot encoded label} = \underbrace{\begin{bmatrix}
 0 \\
 0 \\
 1 \\
@@ -85,11 +86,11 @@ $
 0 \\
 0 \\
 0 \\
-\end{bmatrix}}_{10 \times 1}$
+\end{bmatrix}}_{10 \times 1}
 
-# $\underbrace{\mathrm{d}O}_{10 \times N} = \underbrace{\hat{O}}_{10 \times N} - \underbrace{L_{True}}_{10 \times N}$
+\underbrace{\mathrm{d}O}_{10 \times N} = \underbrace{\hat{O}}_{10 \times N} - \underbrace{L_{True}}_{10 \times N}
 
-## $\mathrm{d}O_i = \begin{bmatrix}
+\mathrm{d}O_i = \begin{bmatrix}
 0.01 \\
 0.05 \\
 0.69 \\
@@ -105,17 +106,17 @@ $
 0 \\
 0 \\
 0 \\
-\end{bmatrix}$
+\end{bmatrix}
 
-## $\underbrace{\mathrm{d}{w}}_{10 \times 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10 \times N} \cdot   \overbrace{\hat{H}^T}^{N \times 10}}{N}$
+\underbrace{\mathrm{d}{w}}_{10 \times 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10 \times N} \cdot   \overbrace{\hat{H}^T}^{N \times 10}}{N}
 
-## $\underbrace{\mathrm{d}{b}}_{10 \times 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10 \times 1}}}{N}$
+\underbrace{\mathrm{d}{b}}_{10 \times 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10 \times 1}}}{N}
 
-## $\underbrace{\mathrm{d}{H}}_{10 \times N} = \underbrace{w^T}_{10 \times 10} \cdot \underbrace{\mathrm{d}{O}}_{10 \times N} \times \underbrace{f^{\prime}(H)}_{10 \times N}$
+\underbrace{\mathrm{d}{H}}_{10 \times N} = \underbrace{w^T}_{10 \times 10} \cdot \underbrace{\mathrm{d}{O}}_{10 \times N} \times \underbrace{f^{\prime}(H)}_{10 \times N}
 
-## $\underbrace{\mathrm{d}{W}}_{10 \times 784} = \frac{\overbrace{\mathrm{d}{H}}^{10 \times N} \cdot \overbrace{I^T}^{N \times 784}}{N}$
+\underbrace{\mathrm{d}{W}}_{10 \times 784} = \frac{\overbrace{\mathrm{d}{H}}^{10 \times N} \cdot \overbrace{I^T}^{N \times 784}}{N}
 
-## $\underbrace{\mathrm{d}{B}}_{10 \times 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10 \times 1}}}{N}$
+\underbrace{\mathrm{d}{B}}_{10 \times 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10 \times 1}}}{N}
 
 <br>
 
