@@ -22,6 +22,7 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 
 ```math
 I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N} \\
+
 \underbrace{I}_{784 \times N} = |pixels~in~image| \times |images| \\
 ```
                 
@@ -29,7 +30,7 @@ I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
 ---------------------
 
 ```math
-\underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1} \\        
+\underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1} \\
 
 \underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N} \\
 
