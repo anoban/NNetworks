@@ -135,6 +135,8 @@ def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
 @jit(nopython=True, parallel=False, fastmath=True)
 def undoLeakyReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
+    Derivative of the LeakyReLU activation function.
+
     Parameters:
     activated_layer: NDArray[np.float64] - post LeakyReLU activation, hidden layers (in back propagation)
 

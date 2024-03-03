@@ -97,6 +97,8 @@ class NNetworkExtended:
         # garbage as predictions! i.e. we'll end up with a pixels array where each pixel have been scaled down by (255 * 255)
         # this normalization is needed to avoid FloatingPointError s in np.exp() (inside softmax())
         data_normed: NDArray[np.float64] = train_data / 255.00
+        # preds will be modified in-place during forward propagation.
+        preds: NDArray[np.float64] = data_normed.copy()
 
         # one-hot encode the true labels
         self.__onehot_true_labels: NDArray[np.float64] = onehot(labels=train_labels)
@@ -112,23 +114,25 @@ class NNetworkExtended:
             for f in range(self.__nlayers - 1):  # f for forward.
                 # self.__weights[0] will be the weights between the input and the first hidden layer
                 # self.__biases[0] will be the biases of the nodes in the first hidden layer.
-                data_normed = self.__weights[f].dot(data_normed) + self.__biases[f]
-                if f == (self.__nlayers - 2):  # for the last layer of connections,
-                    data_normed = softmax(
-                        data_normed
-                    )  # this will be our class predictions for all images in the train data.
+                preds = self.__weights[f].dot(preds) + self.__biases[f]
+                if f == (self.__nlayers - 2):  # for the last layer of connections, use the softmax activation.
+                    preds = softmax(
+                        preds
+                    )  # this will be our final class probabilities for all images in the train data.
                 else:  # for other connections, use ReLU (or perhaps Leaky ReLU??)
-                    data_normed = ReLU(data_normed)
+                    preds = ReLU(preds)
 
-            ####################
-            # BACK PROPAGATION #
-            ####################
+            ########################################
+            # BACK PROPAGATION & PARAMETER UPDATES #
+            ########################################
 
             # compute the difference between the outputs and the one-hot encoded true labels
-            diff: NDArray[np.float64] = data_normed - self.__onehot_true_labels
+            d_preds: NDArray[np.float64] = preds - self.__onehot_true_labels
+            NIMAGES: int = train_labels.size
 
             for r in range(self.__nlayers, 0, -1):  # r for reverse
-                diff.dot(data_normed.T) / train_labels.size
+                delta_w: NDArray[np.float64] = d_preds.dot(preds.T) / NIMAGES
+                delta_b: NDArray[np.float64] = d_preds.sum(axis=0) / NIMAGES
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
@@ -152,15 +156,6 @@ class NNetworkExtended:
             # compute how much the biases of nodes in the hidden layer contributed to this.
             #    10 x 1                           10 x 1
             self.__dB: NDArray[np.float64] = self.__dH.sum(axis=1).reshape(10, 1) / train_labels.size
-
-            #####################
-            # PARAMETER UPDATES #
-            #####################
-
-            self.__winhid -= self.__dW * self.__learning_rate
-            self.__bhid -= self.__dB * self.__learning_rate
-            self.__whidout -= self.__dw * self.__learning_rate
-            self.__bout -= self.__db * self.__learning_rate
 
             print("\r\r\r\r\r", end="")
 

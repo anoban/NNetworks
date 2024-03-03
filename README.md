@@ -19,28 +19,30 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 
 ### ___Conceptual framework of the `NNetworkMinimal` training process:___
 ---------------------
-## $I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}$
-## $\underbrace{I}_{784 \times N} = |pixels~in~image| \times |images|$
 
-<br>
+```math
+I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
+\underbrace{I}_{784 \times N} = |pixels~in~image| \times |images|
+```
                 
 ### ___Forward propagation___
 ---------------------
-## $\underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1}$
+```math
+\underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1}
 
-## $\underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N}$
+\underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N}
 
-## $\underbrace{\hat{H}}_{10 \times N} = \underbrace{ReLU(H)}_{10 \times N}$
+\underbrace{\hat{H}}_{10 \times N} = \underbrace{ReLU(H)}_{10 \times N}
 
-## $ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0$
+ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0
 
-## $\underbrace{O}_{10 \times N} = \underbrace{w}_{10 \times 10} \cdot \underbrace{\hat{H}}_{10 \times N} + \underbrace{b}_{10 \times 1}$
+\underbrace{O}_{10 \times N} = \underbrace{w}_{10 \times 10} \cdot \underbrace{\hat{H}}_{10 \times N} + \underbrace{b}_{10 \times 1}
 
-## $\underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N}$
+\underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N}
 
-## $softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O}$
+softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O}
 
-## $softmax(\underbrace{\begin{bmatrix}
+softmax(\underbrace{\begin{bmatrix}
 0.9 \\
 1.7 \\
 8.4 \\
@@ -57,9 +59,9 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 0.74 \\
 0.01 \\
 0.01 \\
-\end{bmatrix}}_{10 \times 1}$
+\end{bmatrix}}_{10 \times 1}
 
-<br>
+```
 
 ### ___Backward propagation___
 ---------------
