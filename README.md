@@ -140,13 +140,13 @@ prediction = \underbrace{\begin{bmatrix}
 ---------------------
 
 ```math
-W = W - \alpha \cdot \mathrm{d}{W}
-B = B - \alpha \cdot \mathrm{d}{B}
-w = w - \alpha \cdot \mathrm{d}{w}
-b = b - \alpha \cdot \mathrm{d}{b}
+W = W - \alpha \cdot \mathrm{d}{W}\\
+B = B - \alpha \cdot \mathrm{d}{B}\\
+w = w - \alpha \cdot \mathrm{d}{w}\\
+b = b - \alpha \cdot \mathrm{d}{b}\\
 ```
 ```math
-__$\alpha$ is the learning rate! (A user specified constant)__
+__\alpha is the learning rate! (A user specified constant)__
 ```
 
 ___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
