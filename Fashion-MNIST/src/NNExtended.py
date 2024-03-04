@@ -141,6 +141,12 @@ class NNetworkExtended:
             # BACK PROPAGATION & PARAMETER UPDATES #
             ########################################
 
+            print("\nUnactivated: ", [ul.shape for ul in pre_activation_layers])
+            print("Activated: ", [al.shape for al in post_activation_layers])
+
+            print("Weights: ", [w.shape for w in self.__weights])
+            print("Biases: ", [b.shape for b in self.__biases])
+
             # compute the difference between the outputs and the one-hot encoded true labels
             # this will be used to compute the contributions of weights of all connections and biases of all layers of nodes
             delta_preds: NDArray[np.float64] = post_activation_layers[-1] - onehot_true_labels
