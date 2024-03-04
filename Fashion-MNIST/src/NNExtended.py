@@ -284,7 +284,7 @@ class NNetworkExtended:
         """
 
         if not filepath.endswith(".nnmext"):
-            TypeError(
+            raise TypeError(
                 "Only <<NNetworkExtended>> models serialized with .save() method with an .nnmext extension are supported!"
             )
 

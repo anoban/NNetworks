@@ -294,7 +294,7 @@ class NNetworkMinimal:
         """
 
         if not filepath.endswith(".nnm"):
-            TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
+            raise TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
 
         with open(file=filepath, mode="rb") as fp:
             coeffs: NDArray[np.float64] = np.load(

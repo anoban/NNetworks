@@ -11,7 +11,7 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 - Uses OOP to modularize code.
 - Uses the real `MNIST` Idx data sets, instead of Kaggle provided `csv`s.
 - Includes classes for handling `Idx1`, `Idx3` IO.
-- class `<<NNetworkMinimal>>` enables saving model states and restoring the trained state from serialized models.
+- classes `<<NNetworkMinimal>>` and `<<NNetworkExtended>>` enable saving model states and restoring the trained state from serialized models.
 
 
 ### ___Conceptual framework of the `NNetworkMinimal` training process:___
@@ -156,9 +156,11 @@ ___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
 - `Training dataset` - 0.935367 (93.54%)
 - `Test dataset` - 0.928800 (92.88%)
 
+___For a thorough, step by atep walkthrough, read the source code. It's comprehensively annotated.___
+
 # ___Fashion MNIST___
 ---------------
 
 ![Fashion-MNIST](./images/fashion-mnist-sprite.png)
 
-Implementation of class `<<NNetworkExtended>>` is fundamentally same as class `<<NNetworkMinimal>>` except for the fact it allows customization of hidden layer attributes (number of hidden layers, number of nodes in layers). See the source for more information.
+___Implementation of class `<<NNetworkExtended>>` is fundamentally same as class `<<NNetworkMinimal>>` except for the fact it allows customization of hidden layer attributes (number of hidden layers, number of nodes in layers). See the source for detailed information.___
