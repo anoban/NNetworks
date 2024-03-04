@@ -140,7 +140,7 @@ class NNetworkMinimal:
             # now we move on to transformation from the hidden layer to the input layer
             # first the ReLU activation needs to be undone
             #    10 x N                           10 x 10        10 x N
-            d_hidden: NDArray[np.float64] = self.__whidout.T.dot(d_out) * undoReLU(hidden)
+            d_hidden: NDArray[np.float64] = self.__whidout.T.dot(d_out) * undoReLU(hidden_hat)
 
             # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
             #    10 x 784                         10 x N    N x 784

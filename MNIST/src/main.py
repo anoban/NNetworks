@@ -11,7 +11,7 @@ def main() -> None:
     test_images = Idx3(r"../idx/t10k-images.idx3-ubyte")
     test_labels = Idx1(r"../idx/t10k-labels.idx1-ubyte")
 
-    model = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.15, maxiterations=5000)
+    model = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.125, maxiterations=5000)
     model.gradient_descent(train_images.data, train_labels.data)
 
     print(f"Train-set accuracy: {model.accuracy_score(train_images.data, train_labels.data):.6f}")

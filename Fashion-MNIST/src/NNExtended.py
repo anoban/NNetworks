@@ -142,37 +142,32 @@ class NNetworkExtended:
             ########################################
 
             # compute the difference between the outputs and the one-hot encoded true labels
+            # this will be used to compute the contributions of weights of all connections and biases of all layers of nodes
             delta_preds: NDArray[np.float64] = post_activation_layers[-1] - onehot_true_labels
 
             # total number of images whose pixels and labels are provided in the training data
             NIMAGES: int = train_labels.size
 
-            for r in range(self.__nlayers, 0, -1):  # r for reverse
-                delta_w: NDArray[np.float64] = delta_preds.dot(preds.T) / NIMAGES
-                delta_b: NDArray[np.float64] = delta_preds.sum(axis=0) / NIMAGES
+            # processing the weights of connections between the output layer and last hidden layer and the biases of the
+            # output layer outside a loop, as these require special treatment
+            delta_w: NDArray[np.float64] = delta_preds.dot(post_activation_layers[-1].T) / NIMAGES
 
-            # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
-            #    10 x 10                          10 x N        N x 10
-            self.__dw: NDArray[np.float64] = self.__dO.dot(self.__H_hat.T) / train_labels.size
-
-            # how much the biases of nodes in the output layer contributed to this difference (dO)
-            #    10 x 1                           10 x N
-            self.__db: NDArray[np.float64] = (self.__dO.sum(axis=1) / train_labels.size).reshape(10, 1)
             # array.sum(axis = 1) gives row sums as a 1 x 10 row vector
-            # we need a 10 x 1 column vector as the result, hence the reshaping
+            # delta_b will be a flat array, we want a column vector with rows equal to the number of nodes in the output layer
+            delta_b: NDArray[np.float64] = (delta_preds.sum(axis=1) / NIMAGES).reshape(self.__wshapes[-1][0], 1)
 
-            # now we move on to transformation from the hidden layer to the input layer
-            # first the ReLU activation needs to be undone
-            #    10 x N                           10 x 10        10 x N
-            self.__dH: NDArray[np.float64] = self.__whidout.T.dot(self.__dO) * undoReLU(self.__H)
+            # update the weights for connections between the output and last hidden layer and the biases associated with the nodes of output layer.
+            self.__weights[-1] -= delta_w * self.__learning_rate
+            self.__biases[-1] -= delta_b * self.__learning_rate
 
-            # then compute how much the weights of the connexions between the input and hidden layers contributed to this.
-            #    10 x 784                         10 x N    N x 784
-            self.__dW: NDArray[np.float64] = self.__dH.dot(data_normed.T) / train_labels.size
+            # as we've already processed the output layer, start from the last hidden layer i.e 5 th layer (self.__nlayers - 2)
+            # we'll process the hidden layers inside this loop.
+            for j in range(self.__nlayers - 2, -1, -1):
+                # compute the difference between the expected state of a hidden layer and the actual state of it
 
-            # compute how much the biases of nodes in the hidden layer contributed to this.
-            #    10 x 1                           10 x 1
-            self.__dB: NDArray[np.float64] = self.__dH.sum(axis=1).reshape(10, 1) / train_labels.size
+                # compute the discrepancy in predictions caused by the weights of connections between the j th activated layer and the
+                delta_w = self.__weights[j].T.dot(delta_preds) * undoReLU(post_activation_layers[j])
+                delta_b = self.__biases[j].sum(axis=1).reshape()
 
             print("\r\r\r\r\r", end="")
 
