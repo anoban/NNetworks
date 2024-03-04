@@ -21,7 +21,7 @@ class NNetworkExtended:
         maxiterations: int = 5000,
     ) -> None:
         """
-        Parameters:
+        `Parameters`:
         nodes_in: np.uint64 - number of nodes in the input layer
         nlayers_hidden: int - number of hidden layers to use in the network
         nodes_hid: list[int] - number of nodes to include in each hidden layer
@@ -29,7 +29,7 @@ class NNetworkExtended:
         alpha: float - learning rate, default value is 0.001
         maxiterations: int - the maximum number of iteration gradient descent is allowed to make
 
-        Returns:
+        `Returns`:
         None
         """
 
@@ -38,7 +38,7 @@ class NNetworkExtended:
         ), f"Each hidden layer needs a node count specified. Number of hidden layers:<{nlayers_hidden}>, Number of node counts:<{len(nodes_hid)}>"
 
         if max(nodes_hid) >= 1000:
-            # don't fancy monkey patching
+            # don't fancy monkey patching warnings.warn() here (would have to)
             print(
                 "RuntimeWarning: Using large number of nodes in hidden layers in <<NNetworkExtended>> models can severely handicap the performance!",
             )
@@ -77,14 +77,14 @@ class NNetworkExtended:
         A rather complex routine that does the forward propagation and back propagation iteratively.
         Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `<<NNetworkExtended>>` class instance.
 
-        Parameters:
+        `Parameters`:
         data: np.NDArray[np.float64] - training dataset
         labels: np.NDArray[np.float64] - training (true) labels
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         Comments below inside are MNIST tailored
         """
 
@@ -97,11 +97,17 @@ class NNetworkExtended:
         # garbage as predictions! i.e. we'll end up with a pixels array where each pixel have been scaled down by (255 * 255)
         # this normalization is needed to avoid FloatingPointError s in np.exp() (inside softmax())
         data_normed: NDArray[np.float64] = train_data / 255.00
-        # preds will be modified in-place during forward propagation.
-        preds: NDArray[np.float64] = data_normed.copy()
 
         # one-hot encode the true labels
-        self.__onehot_true_labels: NDArray[np.float64] = onehot(labels=train_labels)
+        onehot_true_labels: NDArray[np.float64] = onehot(labels=train_labels)
+
+        # a list that holds the states of input data, before activation (in every iteration of gradient descent)
+        # except the input layer
+        pre_activation_layers: list[NDArray[np.float64]] = []
+
+        # a list to store the states of the input data after being processed by each neural layer. (in every iteration of gradient descent)
+        # except the input layer
+        post_activation_layers: list[NDArray[np.float64]] = []
 
         # Warning:: Following annotations assume that the inputs have the same structure as MNIST datasets.
         for i in range(self.__maxiter):
@@ -111,28 +117,39 @@ class NNetworkExtended:
             # FORWARD PROPAGATION #
             #######################
 
-            for f in range(self.__nlayers - 1):  # f for forward.
+            for j in range(self.__nlayers - 1):  # loop over |layers| - 1 times
                 # self.__weights[0] will be the weights between the input and the first hidden layer
                 # self.__biases[0] will be the biases of the nodes in the first hidden layer.
-                preds = self.__weights[f].dot(preds) + self.__biases[f]
-                if f == (self.__nlayers - 2):  # for the last layer of connections, use the softmax activation.
-                    preds = softmax(
-                        preds
+
+                if not j:  # for the raw pixel data (j == 0)
+                    pre_activation_layers.append(self.__weights[0].dot(data_normed) + self.__biases[0])
+                    post_activation_layers.append(ReLU(pre_activation_layers[0]))
+                    continue
+
+                # otherwise, create the next unactivated matrix
+                pre_activation_layers.append(self.__weights[j].dot(post_activation_layers[-1]) + self.__biases[j])
+
+                # for the activation of the newly created matrix
+                if j == (self.__nlayers - 2):  # for the last layer of connections, use the softmax activation.
+                    post_activation_layers.append(
+                        softmax(pre_activation_layers[-1])
                     )  # this will be our final class probabilities for all images in the train data.
-                else:  # for other connections, use ReLU (or perhaps Leaky ReLU??)
-                    preds = ReLU(preds)
+                else:  # for other layers of connections, use ReLU (or perhaps Leaky ReLU??)
+                    post_activation_layers.append(ReLU(pre_activation_layers[-1]))
 
             ########################################
             # BACK PROPAGATION & PARAMETER UPDATES #
             ########################################
 
             # compute the difference between the outputs and the one-hot encoded true labels
-            d_preds: NDArray[np.float64] = preds - self.__onehot_true_labels
+            delta_preds: NDArray[np.float64] = post_activation_layers[-1] - onehot_true_labels
+
+            # total number of images whose pixels and labels are provided in the training data
             NIMAGES: int = train_labels.size
 
             for r in range(self.__nlayers, 0, -1):  # r for reverse
-                delta_w: NDArray[np.float64] = d_preds.dot(preds.T) / NIMAGES
-                delta_b: NDArray[np.float64] = d_preds.sum(axis=0) / NIMAGES
+                delta_w: NDArray[np.float64] = delta_preds.dot(preds.T) / NIMAGES
+                delta_b: NDArray[np.float64] = delta_preds.sum(axis=0) / NIMAGES
 
             # see how much the weights of connections between the output and hidden layer contributed to this difference (dO)
             #    10 x 10                          10 x N        N x 10
@@ -168,15 +185,16 @@ class NNetworkExtended:
         Does a forward propagation with the input data, using learned weights and biases and returns the predictions.
         Calling this method on an untrained model will raise NotImplementedError.
 
-        Parameters:
+        `Parameters`:
         data: NDArray[np.float64] - a matrix of image pixels to make predictions on
 
-        Returns:
+        `Returns`:
         NDArray[np.int64] - predictions
 
-        Notes:
+        `Notes`:
         The input data will remain untouched, as the method works only with a local normalized copy of it.
         """
+
         if not self.__is_trained:
             raise NotImplementedError("Untrained <<NNetworkExtended>> models cannot make predictions!")
 
@@ -192,14 +210,14 @@ class NNetworkExtended:
         Does a simple forward propagation with the passed data, using the current state of the model, then the predictions are
         compared with the true labels.
 
-        Parameters:
+        `Parameters`:
         data: NDArray[np.float64] -
         true_labels: NDArray[np.float64] -
 
-        Returns:
+        `Returns`:
         float - fraction of predictions that were correct. (in the range of 0 to 1)
 
-        Notes:
+        `Notes`:
         Accuracy is computed based on raw idenitity checks against true labels and predictions. using sklearn.metrics.accuracy_score()
         This mechanism disregards how close the predictions are to the true labels!
         """
@@ -216,25 +234,26 @@ class NNetworkExtended:
         """
         Returns the weights and biases as a dictionary.
 
-        Parameters:
+        `Parameters`:
         None
 
-        Returns:
+        `Returns`:
 
         """
+
         pass
 
     def save(self, filepath: str) -> None:
         """
         Serializes the model to disk, preserving the current state of the model (weights and biases).
 
-        Parameters:
+        `Parameters`:
         filepath: str - the path to serialize the <<NNetworkExtended>> model object.
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         DO NOT SPECIFY AN EXTENSION with the filepath.
         .save() internally uses `.nnmext` extension to serialize <<NNetworkExtended>> model objects. This extension is leveraged to validate inputs
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
@@ -244,16 +263,7 @@ class NNetworkExtended:
         # where N denotes the number of connection interfaces with weights and the number of node layers with biases.
         # dimensions are stored row numbers first. (R, C)
         coeffs: NDArray[np.float64] = np.concatenate(
-            [
-                self.__winhid.shape,
-                self.__bhid.shape,
-                self.__whidout.shape,
-                self.__bout.shape,
-                self.__winhid.flatten(),
-                self.__bhid.flatten(),
-                self.__whidout.flatten(),
-                self.__bout.flatten(),
-            ],
+            [],
             dtype=np.float64,
         )
         with open(file=f"{filepath}.nnmext", mode="wb") as fp:
@@ -266,10 +276,10 @@ class NNetworkExtended:
         and biases using the data stored in the .nnm file. Convenient in reusing models for new, similarly structured test data.
         The stored model is expected to have a `.nnmext` extension. Else, a exception will be raised.
 
-        Parameters:
+        `Parameters`:
         filepath: str - path to the serialized model object, including the extension (expected `.nnmext`).
 
-        Returns:
+        `Returns`:
         None
         """
 
@@ -290,15 +300,6 @@ class NNetworkExtended:
         # prefixes W, B are for the hidden layer & prefixes w, b are for the output layer.
         Wrows, Wcols, Brows, Bcols, wrows, wcols, brows, bcols = coeffs[:8].astype(np.uint64)
         print(coeffs[:8].astype(np.uint64))
-
-        caret += 8
-        self.__winhid = coeffs[caret : (caret + Wrows * Wcols)].reshape(Wrows, Wcols)
-        caret += Wrows * Wcols
-        self.__bhid = coeffs[caret : caret + Brows * Bcols].reshape(Brows, Bcols)
-        caret += Brows * Bcols
-        self.__whidout = coeffs[caret : caret + wrows * wcols].reshape(wrows, wcols)
-        caret += wrows * wcols
-        self.__bout = coeffs[caret : caret + brows * bcols].reshape(brows, bcols)
 
         # mark the model as trained.
         self.__is_trained = True

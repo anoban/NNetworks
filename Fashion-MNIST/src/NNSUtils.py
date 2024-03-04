@@ -10,14 +10,14 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Rectified Linear Unit: x if x > 0 else 0
 
-    Parameters:
+    `Parameters`:
     data: NDArray[np.float64] - a matrix of image pixels (normalized, values in the of 0 and 1, in the first iteration)
     that are tobe updated in subsequent iterations. (could breach the above specified range!)
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - ReLUed pixel values.
 
-    Notes:
+    `Notes`:
     np.maximum returns the elementwise maxima of two arrays.
     If one input is a scalar, then the scalar gets broadcasted to the shape of the array, followed by the determination of elementwise maxima.
     So, this implementation scans through the array, and if the element is greater than or equal to 0, it takes that value else uses 0 to fillers.
@@ -33,15 +33,15 @@ def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float
     Leaky ReLU: x if x > 0 else (alpha * x)
     For good activation results, alpha better be in the range of 0.01 - 0.3
 
-    Parameters:
+    `Parameters`:
     data: NDArray[np.float64] - a matrix of image pixels (regularized values in the range of 0 and 1) (only in the first iteration)
     that are to be updated in subsequent iterations. (could breach the above specified range in the subsequent iterations)
     alpha: float - the factor to downscale the inputs in case of a negative value.
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - Leaky ReLU ed pixel values.
 
-    Notes:
+    `Notes`:
     Addresses the primary drawback of vanilla ReLU, the dying neuron problem, where a neuron with a negative bias won't likely
     be activated by ReLU. When the bias is added to the dot product of first connection group's weights and the input matrix,
     if the bias is a negative value, values in resultant matrix, for the given neuron's row, will likely end up with negative values
@@ -67,13 +67,13 @@ def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
         e is exponentiated to the elements of column vector (X), followed by an element-wise
         division by the sum of exponentiated values.
 
-    Parameters:
+    `Parameters`:
     data: NDArray[np.float64] - image pixel matrix
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - appropriateness probabilities for each label, for each image in the data matrix
 
-    Notes:
+    `Notes`:
     Video by Samson Zhang uses .sum() to divide by the total sum, but division by column sums is more appropriate here,
     as we do not need to normalize globally, we just need normalize the exponentiation results for each column (image), so we get a
     valid set of probabilities for each label for each image!
@@ -85,15 +85,15 @@ def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
 
 def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Parameters:
+    `Parameters`:
     labels: NDArray[np.float64] - true labels of the idx3 image matrices
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - one hot encoded labels (composed of binary flags)
     e.g. a class label 4, where the possible labels are 0 to 5 will produce an array => [0, 0, 0, 0, 1, 0],
     where only the fifth flag (corresponding to the value 4) is `turned on`.
 
-    Notes:
+    `Notes`:
     Returned array will be of the shape (labels.max() - labels.min() + 1) x labels.size, where each label will be one-hot
     encoded as separate columns. Labels are assumed to comprise only of non-negative 64 bit floats, with minimum always
     at 0.0 (the range is assumed to be 0 to labels.max()).
@@ -112,16 +112,16 @@ def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
 @jit(nopython=True, parallel=False, fastmath=True)
 def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Returns the derivative of ReLU activation results.
+    `Returns` the derivative of ReLU activation results.
     Possible results are 0 and 1
 
-    Parameters:
+    `Parameters`:
     activated_layer: NDArray[np.float64] - post-activation hidden layer (in the process of back propagation)
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - activation reversed hidden layer (ReLU undone)
 
-    Notes:
+    `Notes`:
     Considering the ReLU's derivative function, slope is 0 (m = 0) as long as x <= 0
     Slope becomes 1 (m = 1) where x > 0
     If the ReLU result is 0, the original input must have been a negative value, which will give us a slope of 0.
@@ -137,13 +137,13 @@ def undoLeakyReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Derivative of the LeakyReLU activation function.
 
-    Parameters:
+    `Parameters`:
     activated_layer: NDArray[np.float64] - post LeakyReLU activation, hidden layers (in back propagation)
 
-    Returns:
+    `Returns`:
     NDArray[np.float64] - activation reversed hidden layer (LeakyReLU undone)
 
-    Notes:
+    `Notes`:
     Considering the LeakyReLU's derivative function, slope is alpha (m = alpha) as long as x <= 0
     Slope becomes 1 (m = 1) where x > 0
     If the ReLU result is alpha * input, the original input must have been a negative value, which will give us a slope of alpha.

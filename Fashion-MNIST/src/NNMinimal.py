@@ -31,14 +31,14 @@ class NNetworkMinimal:
         maxiterations: int = 2500,
     ) -> None:
         """
-        Parameters:
+        `Parameters`:
         nodes_in: np.uint64 - number of nodes in the input layer
         nodes_hid: np.uint64 - number of nodes in the hidden layer
         nodes_out: np.uint64 - number of nodes in the output layer
         alpha: float - learning rate, default value is 0.001
         maxiterations - the maximum number of iterations gradient descent is allowed to make
 
-        Returns:
+        `Returns`:
         None
         """
 
@@ -70,14 +70,14 @@ class NNetworkMinimal:
         A rather complex routine that does the forward propagation and back propagation iteratively.
         Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `NNetworkMinimal` class instance.
 
-        Parameters:
+        `Parameters`:
         data: np.NDArray[np.float64] - training dataset
         labels: np.NDArray[np.float64] - training labels
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         Comments below inside are MNIST tailored
         """
 
@@ -167,13 +167,13 @@ class NNetworkMinimal:
         Does a forward propagation with the input data, using learned weights and biases and returns the predictions.
         Calling this method on an untrained model will raise NotImplementedError.
 
-        Parameters:
+        `Parameters`:
         data: NDArray[np.float64] - a matrix of image pixels to make predictions on
 
-        Returns:
+        `Returns`:
         NDArray[np.int64] - predictions
 
-        Notes:
+        `Notes`:
         The input data will remain untouched, as the method works only with a local normalized copy of it.
         """
 
@@ -195,14 +195,14 @@ class NNetworkMinimal:
         Does a simple forward propagation with the passed data, using the current state of the model, then the predictions are
         compared with the true labels.
 
-        Parameters:
+        `Parameters`:
         data: NDArray[np.float64] - a matrix of image pixels to make predictions on
         true_labels: NDArray[np.float64] - true labels for the image pixels array
 
-        Returns:
+        `Returns`:
         float - fraction of predictions that were correct. (in the range of 0 to 1)
 
-        Notes:
+        `Notes`:
         Accuracy is computed based on raw idenitity checks against true labels and predictions. using sklearn.metrics.accuracy_score()
         This mechanism disregards how close the predictions are to the true labels!
         """
@@ -223,12 +223,12 @@ class NNetworkMinimal:
 
     def coefficients(self) -> dict[str, NDArray[np.float64]]:
         """
-        Returns the weights and biases as a dictionary.
+        `Returns` the weights and biases as a dictionary.
 
-        Parameters:
+        `Parameters`:
         None
 
-        Returns:
+        `Returns`:
         dict[str, NDArray[np.float64]] (NNMinCoeffs)
         {
             "IHW": NDArray[np.float64], - weights of connections between the input and hidden layer
@@ -249,13 +249,13 @@ class NNetworkMinimal:
         """
         Serializes the model to disk, preserving the current state of the model (weights and biases).
 
-        Parameters:
+        `Parameters`:
         filepath: str - the path to serialize the <NNetworkMinimal> model object.
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         DO NOT SPECIFY AN EXTENSION with the filepath.
         .save() internally uses `.nnm` extension to serialize <NNetworkMinimal> model objects. This extension is leveraged to validate inputs
         to .load() method. Internally a `.nnm` file is a Numpy `.npy` file.
@@ -286,10 +286,10 @@ class NNetworkMinimal:
         and biases using the data stored in the .nnm file. Convenient in reusing models for new, similarly structured test data.
         The stored model is expected to have a `.nnm` extension. Else, a exception will be raised.
 
-        Parameters:
+        `Parameters`:
         filepath: str - path to the serialized model object, including the extension (expected `.nnm`).
 
-        Returns:
+        `Returns`:
         None
         """
 

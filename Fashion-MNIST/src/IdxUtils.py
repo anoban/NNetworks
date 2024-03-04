@@ -21,13 +21,13 @@ class Idx1:
 
     def __init__(self, filepath: str) -> None:
         """
-        Parameters:
+        `Parameters`:
         filepath: str - path to unzipped idx1 resource
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         Depends on NumPy
         """
 
@@ -50,13 +50,13 @@ class Idx1:
 
     def __getitem__(self, index: int) -> np.float64:  #
         """
-        Parameters:
+        `Parameters`:
         index: int - offset of the element to return from the labels array.
 
-        Returns:
+        `Returns`:
         np.float64 - the index th element in the labels array
 
-        Notes:
+        `Notes`:
         IndexErrors are left for NumPy to handle.
         """
 
@@ -84,13 +84,13 @@ class Idx3:
 
     def __init__(self, filepath: str) -> None:
         """
-        Parameters:
+        `Parameters`:
         filepath: str - path to unzipped idx3 resource
 
-        Returns:
+        `Returns`:
         None
 
-        Notes:
+        `Notes`:
         Depends on NumPy
         """
 
@@ -124,13 +124,13 @@ class Idx3:
 
     def __getitem__(self, index: int) -> NDArray[np.float64]:
         """
-        Parameters:
+        `Parameters`:
         index: int - the column to return from the matrix.
 
-        Returns:
+        `Returns`:
         NDArray[np.float64] - all pixels of index th image, i.e returns the index th column of the transposed matrix
 
-        Notes:
+        `Notes`:
         IndexErrors are left for NumPy to handle.
         """
 
@@ -149,16 +149,16 @@ def peek_idx(
     """
     Samples 15 randomly choosen pairs of images and labels from the provided idx resources and plots them.
 
-    Parameters:
+    `Parameters`:
     idx3: str - the path to the idx3 resource
     idx1: str - path to corresponding idx1 resource
     idx3elem_dim: typing.Tuple[int, int] - shape of the image matrices in the idx3 file
     colormap: str - matplotlib cmap specification to use, when plotting the images
 
-    Returns:
+    `Returns`:
     None
 
-    Notes:
+    `Notes`:
     Depends on NumPy and matplotlib.
     """
 
