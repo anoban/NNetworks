@@ -99,7 +99,10 @@ class NNetworkExtended:
         data_normed: NDArray[np.float64] = train_data / 255.00
 
         # one-hot encode the true labels
-        onehot_true_labels: NDArray[np.float64] = onehot(labels=train_labels)
+        ONEHOT_TRUE_LABELS: NDArray[np.float64] = onehot(labels=train_labels)
+
+        # total number of images whose pixels and labels are provided in the training data
+        NIMAGES: int = train_labels.size
 
         # a list that holds the states of input data, before activation (in every iteration of gradient descent)
         # except the input layer
@@ -149,10 +152,8 @@ class NNetworkExtended:
 
             # compute the difference between the outputs and the one-hot encoded true labels
             # this will be used to compute the contributions of weights of all connections and biases of all layers of nodes
-            delta_preds: NDArray[np.float64] = post_activation_layers[-1] - onehot_true_labels
-
-            # total number of images whose pixels and labels are provided in the training data
-            NIMAGES: int = train_labels.size
+            # delta_preds is a 10 x N matrix
+            delta_preds: NDArray[np.float64] = post_activation_layers[-1] - ONEHOT_TRUE_LABELS
 
             # processing the weights of connections between the output layer and last hidden layer and the biases of the
             # output layer outside a loop, as these require special treatment
@@ -163,6 +164,7 @@ class NNetworkExtended:
             delta_b: NDArray[np.float64] = (delta_preds.sum(axis=1) / NIMAGES).reshape(self.__wshapes[-1][0], 1)
 
             # update the weights for connections between the output and last hidden layer and the biases associated with the nodes of output layer.
+            print(self.__weights[-1].shape, delta_w.shape, self.__learning_rate)
             self.__weights[-1] -= delta_w * self.__learning_rate
             self.__biases[-1] -= delta_b * self.__learning_rate
 
