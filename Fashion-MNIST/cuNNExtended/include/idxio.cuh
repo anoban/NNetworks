@@ -6,10 +6,8 @@
 
 namespace idx {
 
-    template<typename T> requires std::integral<T> && std::is_unsigned<T>::value class idx1 {
-            // clang-format off
-
-	/*
+    class idx1 {
+            /*
     [offset] [type]          [value]          [description]
     0000     32 bit integer  0x00000801(2049) magic number (MSB first)
     0004     32 bit integer  10000            number of items
@@ -17,17 +15,34 @@ namespace idx {
     0009     unsigned byte   ??               label
     ........
     xxxx     unsigned byte   ??               label
-	*/
-
-            // clang-format on
+        	*/
 
         private:
-            uint32_t       idxmagic {};
-            uint32_t       nlabels {};
-            std::vector<T> labels {};
+            uint32_t             idxmagic {};
+            uint32_t             nlabels {};
+            std::vector<uint8_t> labels {};
     };
 
-    template<typename T> class idx3 { };
+    class idx3 {
+            /*
+    [offset] [type]          [value]          [description]
+    0000     32 bit integer  0x00000803(2051) magic number
+    0004     32 bit integer  10000            number of images
+    0008     32 bit integer  28               number of rows
+    0012     32 bit integer  28               number of columns
+    0016     unsigned byte   ??               pixel
+    0017     unsigned byte   ??               pixel
+    ........
+    xxxx     unsigned byte   ??               pixel
+            */
+
+        private:
+            uint32_t             idxmagic {};
+            uint32_t             nimages {};
+            uint32_t             nrows_perimage {};
+            uint32_t             ncols_perimage {};
+            std::vector<uint8_t> buffer {};
+    };
 
 } // namespace idx
 
