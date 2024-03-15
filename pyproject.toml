@@ -4,5 +4,5 @@
 
 [tool.black]
 line-length = 120
-target-version = ['py311', 'py312']
+target-version = ['py312']
 unstable = false

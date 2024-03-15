@@ -5,6 +5,7 @@ np.seterr(all="raise")
 from numba import jit
 
 
+@jit(nopython=True, fastmath=True, parallel=False)
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Rectified Linear Unit: x if x > 0 else 0
@@ -26,7 +27,7 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     return np.maximum(data, 0.000)
 
 
-@jit(nopython=True, fastmath=False, parallel=False)
+@jit(nopython=True, fastmath=True, parallel=False)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Softmax(X) =:

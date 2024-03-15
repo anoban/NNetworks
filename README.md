@@ -1,6 +1,6 @@
 ### ___Project idea inspired from `Samson Zhang`@[YouTube](https://www.youtube.com/watch?v=w8yWXqWQYmU)___
 -------------
-![MNIST](./images/MnistExamplesModified.png)      
+![MNIST](./images/MnistExamplesModified.png)
 
 -------------
 
@@ -23,7 +23,7 @@ I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
 ```math
 \underbrace{I}_{784 \times N} = |pixels~in~image| \times |images| \\
 ```
-                
+
 ### ___Forward propagation___
 ---------------------
 
@@ -34,19 +34,19 @@ I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
 \underbrace{\hat{H}}_{10 \times N} = \underbrace{f_{activation}(H)}_{10 \times N} \\
 ```
 ```math
-\underbrace{\hat{H}}_{10 \times N} = \underbrace{ReLU(H)}_{10 \times N} \\      
+\underbrace{\hat{H}}_{10 \times N} = \underbrace{ReLU(H)}_{10 \times N} \\
 ```
 ```math
-ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0 \\        
+ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0 \\
 ```
 ```math
 \underbrace{O}_{10 \times N} = \underbrace{w}_{10 \times 10} \cdot \underbrace{\hat{H}}_{10 \times N} + \underbrace{b}_{10 \times 1} \\
 ```
 ```math
-\underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N} \\                 
+\underbrace{\hat{O}}_{10 \times N} = \underbrace{f_{softmax}(O)}_{10 \times N} \\
 ```
 ```math
-softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O} \\         
+softmax = \frac{e^O}{\sum_{j = 1}^{K} {e_{j}}^O} \\
 ```
 ```math
 softmax(\underbrace{\begin{bmatrix}
@@ -57,7 +57,7 @@ softmax(\underbrace{\begin{bmatrix}
 2.1 \\
 8.5 \\
 9.1 \\
-\end{bmatrix}}_{10 \times 1}) = 
+\end{bmatrix}}_{10 \times 1}) =
 \underbrace{\begin{bmatrix}
 0.10 \\
 0.23 \\
@@ -66,7 +66,7 @@ softmax(\underbrace{\begin{bmatrix}
 0.74 \\
 0.01 \\
 0.01 \\
-\end{bmatrix}}_{10 \times 1} \\             
+\end{bmatrix}}_{10 \times 1} \\
 ```
 
 ### ___Backward propagation___
@@ -163,4 +163,4 @@ ___For a thorough, step by atep walkthrough, read the source code. It's comprehe
 
 ![Fashion-MNIST](./images/fashion-mnist-sprite.png)
 
-___Implementation of class `<<NNetworkExtended>>` is fundamentally same as class `<<NNetworkMinimal>>` except for the fact it allows customization of hidden layer attributes (number of hidden layers, number of nodes in layers). See the source for detailed information.___
+___Using `<<NNetworkMinimal>>` with 5,000 iterations gave an accuracy score of `0.262367` for training dataset and an accuracy score of `0.263800` for test dataset.___

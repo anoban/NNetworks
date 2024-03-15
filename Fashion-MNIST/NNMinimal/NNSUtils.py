@@ -5,7 +5,9 @@ np.seterr(all="raise")
 from numba import jit
 
 
-@jit(nopython=True, parallel=True, fastmath=False)
+# ReLU and softmax are called repeatedly inside a loop.
+# the overhead of spinning and joining multiple OS threads iteratively will probably outweigh the performance gained through paralellization.
+@jit(nopython=True, parallel=False, fastmath=True)
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Rectified Linear Unit: x if x > 0 else 0
@@ -27,7 +29,7 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     return np.maximum(data, 0.000)
 
 
-@jit(nopython=True, parallel=True, fastmath=False)
+@jit(nopython=True, parallel=False, fastmath=True)
 def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float64]:
     """
     Leaky ReLU: x if x > 0 else (alpha * x)
@@ -60,7 +62,7 @@ def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float
     )  # this is really elegant :) max(100, 100 * 0.01) is 100, max(-100, -100 * 0.01) is is -1
 
 
-@jit(nopython=True, parallel=False, fastmath=False)
+@jit(nopython=True, parallel=False, fastmath=True)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Softmax(X) :=
@@ -79,7 +81,6 @@ def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     valid set of probabilities for each label for each image!
     """
 
-    # print(data.max())
     exp: NDArray[np.float64] = np.exp(data / data.max())
     return exp / exp.sum(axis=0)
 
@@ -133,6 +134,7 @@ def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     return (activated_layer > 0).astype(np.float64)
 
 
+# TOD0: INCORRECT
 @jit(nopython=True, parallel=False, fastmath=True)
 def undoLeakyReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
