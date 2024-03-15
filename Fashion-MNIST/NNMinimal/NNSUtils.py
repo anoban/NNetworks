@@ -5,7 +5,7 @@ np.seterr(all="raise")
 from numba import jit
 
 
-# @jit(nopython=True, parallel=True, fastmath=False)
+@jit(nopython=True, parallel=True, fastmath=False)
 def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Rectified Linear Unit: x if x > 0 else 0
@@ -27,7 +27,7 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
     return np.maximum(data, 0.000)
 
 
-# @jit(nopython=True, parallel=True, fastmath=False)
+@jit(nopython=True, parallel=True, fastmath=False)
 def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float64]:
     """
     Leaky ReLU: x if x > 0 else (alpha * x)
@@ -60,7 +60,7 @@ def LeakyReLU(data: NDArray[np.float64], alpha: float = 0.1) -> NDArray[np.float
     )  # this is really elegant :) max(100, 100 * 0.01) is 100, max(-100, -100 * 0.01) is is -1
 
 
-# @jit(nopython=True, parallel=False, fastmath=False)
+@jit(nopython=True, parallel=False, fastmath=False)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Softmax(X) :=
@@ -110,7 +110,7 @@ def onehot(labels: NDArray[np.float64]) -> NDArray[np.float64]:
     return zeromat
 
 
-# @jit(nopython=True, parallel=False, fastmath=True)
+@jit(nopython=True, parallel=False, fastmath=True)
 def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     `Returns` the derivative of ReLU activation results.
@@ -133,7 +133,7 @@ def undoReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     return (activated_layer > 0).astype(np.float64)
 
 
-##@jit(nopython=True, parallel=False, fastmath=True)
+@jit(nopython=True, parallel=False, fastmath=True)
 def undoLeakyReLU(activated_layer: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Derivative of the LeakyReLU activation function.

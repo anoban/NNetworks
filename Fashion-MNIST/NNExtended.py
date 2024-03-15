@@ -18,7 +18,7 @@ class NNetworkExtended:
         nodes_hid: list[int] = [784, 588, 392, 286, 196],
         nodes_out: int = 10,
         alpha: float = 0.1,
-        maxiterations: int = 5000,
+        maxiterations: int = 10_000,
     ) -> None:
         """
         `Parameters`:
@@ -46,16 +46,18 @@ class NNetworkExtended:
         self.__is_trained: bool = False
         self.__learning_rate: float = alpha
         self.__maxiter: int = maxiterations
+
         # this stores the number of nodes in all layers of the NNetworkExtended object, including the input and output layers.
         self.__nnodes: tuple[int, ...] = tuple([nodes_in] + nodes_hid + [nodes_out])
+        # total number of layers in theNNetworkExtended object, including input and output layers
         self.__nlayers: int = len(nodes_hid) + 2
 
         # if there are N layers in total (counting the input and output layers), there'll be N - 1 group of connections.
-        # we needs weights for these N - 1 group of connections and biases for N - 1 layers of neurons (discounting the input layer).
+        # we needs weights for these N - 1 group of connections and biases for N - 1 layers of neurons (discounting the nodes in input layer).
 
-        # store the shapes of weight matrices, deliberately using tuples to make them immutable.
+        # store the shapes of weight matrices
         self.__wshapes: tuple[tuple[int, int], ...] = tuple(zip(self.__nnodes[1:], self.__nnodes[:-1]))
-        assert len(self.__wshapes) == len(self.__nnodes) - 1
+        assert len(self.__wshapes) == self.__nlayers - 1
 
         # store the weights of connections in a list (including the connections that directly involve the input and output layers)
         self.__weights: list[NDArray[np.float64]] = [np.random.rand(r, c) - 0.5 for (r, c) in self.__wshapes]
@@ -98,14 +100,10 @@ class NNetworkExtended:
         # this normalization is needed to avoid FloatingPointError s in np.exp() (inside softmax())
         data_normed: NDArray[np.float64] = train_data / 255.00
 
-        # one-hot encode the true labels
         ONEHOT_TRUE_LABELS: NDArray[np.float64] = onehot(labels=train_labels)
-
-        # total number of images whose pixels and labels are provided in the training data
         NIMAGES: int = train_labels.size
 
-        # a list that holds the states of input data, before activation (in every iteration of gradient descent)
-        # except the input layer
+        # a list that holds the states of input data, before activation (in every iteration of gradient descent) except the input layer
         pre_activation_layers: list[NDArray[np.float64]] = []
 
         # a list to store the states of the input data after being processed by each neural layer. (in every iteration of gradient descent)
@@ -128,6 +126,7 @@ class NNetworkExtended:
                     pre_activation_layers.append(self.__weights[0].dot(data_normed) + self.__biases[0])
                     post_activation_layers.append(ReLU(pre_activation_layers[0]))
                     continue
+                # at this point, there should be one array in each of these lists
 
                 # otherwise, create the next unactivated matrix
                 pre_activation_layers.append(self.__weights[j].dot(post_activation_layers[-1]) + self.__biases[j])
@@ -154,14 +153,17 @@ class NNetworkExtended:
             # this will be used to compute the contributions of weights of all connections and biases of all layers of nodes
             # delta_preds is a 10 x N matrix
             delta_preds: NDArray[np.float64] = post_activation_layers[-1] - ONEHOT_TRUE_LABELS
+            print(delta_preds.shape)
 
             # processing the weights of connections between the output layer and last hidden layer and the biases of the
             # output layer outside a loop, as these require special treatment
             delta_w: NDArray[np.float64] = delta_preds.dot(post_activation_layers[-1].T) / NIMAGES
+            print(delta_w.shape)
 
             # array.sum(axis = 1) gives row sums as a 1 x 10 row vector
             # delta_b will be a flat array, we want a column vector with rows equal to the number of nodes in the output layer
             delta_b: NDArray[np.float64] = (delta_preds.sum(axis=1) / NIMAGES).reshape(self.__wshapes[-1][0], 1)
+            print(delta_b.shape)
 
             # update the weights for connections between the output and last hidden layer and the biases associated with the nodes of output layer.
             print(self.__weights[-1].shape, delta_w.shape, self.__learning_rate)
