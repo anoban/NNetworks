@@ -1,10 +1,8 @@
 #pragma once
 #ifndef __IDXIO_H__
     #define __IDXIO_H__
-    #include <concepts>
-    #include <vector>
 
-namespace idx {
+namespace idxio {
 
     class idx1 {
             /*
@@ -18,9 +16,16 @@ namespace idx {
         	*/
 
         private:
-            uint32_t             idxmagic {};
-            uint32_t             nlabels {};
-            std::vector<uint8_t> labels {};
+            uint32_t idxmagic {};
+            uint32_t nlabels {};
+            uint8_t* buffer;
+            uint8_t* labels {}; // labels = buffer + 8;
+            bool     is_usable {};
+
+        public:
+            idx1(void) = delete; // we do not need a default constructor here
+            inline idx1(_In_ const wchar_t* const filename) noexcept;
+            ~idx1(void) noexcept;
     };
 
     class idx3 {
@@ -37,13 +42,20 @@ namespace idx {
             */
 
         private:
-            uint32_t             idxmagic {};
-            uint32_t             nimages {};
-            uint32_t             nrows_perimage {};
-            uint32_t             ncols_perimage {};
-            std::vector<uint8_t> buffer {};
+            uint32_t idxmagic {};
+            uint32_t nimages {};
+            uint32_t nrows_perimage {};
+            uint32_t ncols_perimage {};
+            uint8_t* buffer {};
+            uint8_t* pixels {}; // pixels = buffer + 16;
+            bool     is_usable {};
+
+        public:
+            idx3(void) = delete;
+            inline idx3(_In_ const wchar_t* const filename) noexcept;
+            ~idx3(void) noexcept;
     };
 
-} // namespace idx
+} // namespace idxio
 
 #endif // !__IDXIO_H__

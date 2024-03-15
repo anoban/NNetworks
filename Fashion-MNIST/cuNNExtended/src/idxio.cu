@@ -12,9 +12,11 @@
 #include <heapapi.h>
 #include <windef.h>
 
+#include <idxio.cuh>
+
 // a generic file reading routine, that reads in an existing binary file and returns the buffer. (NULL in case of a failure)
 // returned memory needs to be freed using HeapFree()! NOT UCRT's free()
-static inline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) {
+static __forceinline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) {
     uint8_t*       buffer    = nullptr;
     DWORD          nbytes    = 0UL;
     LARGE_INTEGER  liFsize   = { .QuadPart = 0LLU };
@@ -63,7 +65,7 @@ INVALID_HANDLE_ERR:
 
 // a file format agnostic write routine to serialize binary image files.
 // if a file with the specified name exists on disk, it will be overwritten.
-static inline bool serialize(
+static __forceinline bool serialize(
     _In_ const wchar_t* const filename,
     _In_ const uint8_t* const buffer,
     _In_ const size_t         size,
@@ -90,7 +92,7 @@ static inline bool serialize(
     ::CloseHandle(hFile);
     if (freebuffer) {
         const HANDLE64 hProcHeap = GetProcessHeap(); // WARNING :: ignoring potential errors here
-        ::HeapFree(hProcHeap, 0, buffer);
+        ::HeapFree(hProcHeap, 0, reinterpret_cast<void* const>(buffer));
     }
     ::CloseHandle(hFile);
     return true;
@@ -99,3 +101,12 @@ PREMATURE_RETURN:
     ::CloseHandle(hFile);
     return false;
 }
+
+// constructor of idx1 class
+idxio::idx1::idx1(_In_ const wchar_t* const filename) noexcept {
+    size_t     fsize {};
+    const auto filebuffer { ::open(filename, &fsize) };
+}
+
+// destructor of idx1
+idxio::idx1::~idx1(void) noexcept { }
