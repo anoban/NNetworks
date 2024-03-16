@@ -14,14 +14,14 @@
 
 #include <idxio.hpp>
 
-#pragma comment(lib, "Ws2_32.lib")  // ntohl()
+#pragma comment(lib, "Ws2_32.lib") // ntohl()
 
 // a generic file reading routine, that reads in an existing binary file and returns the buffer. (nullptr in case of a failure)
 // returned memory needs to be freed using HeapFree()! NOT UCRT's free()
 [[nodiscard]] static __forceinline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) noexcept {
     uint8_t*       buffer    = nullptr;
     DWORD          nbytes    = 0UL;
-    LARGE_INTEGER  liFsize   = { 0LLU };    // C++ doesn't support designated initializers
+    LARGE_INTEGER  liFsize   = { 0LLU }; // C++ doesn't support designated initializers
     const HANDLE64 hFile     = ::CreateFileW(file_name, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
     // process's default heap, non serializeable
@@ -96,7 +96,7 @@ INVALID_HANDLE_ERR:
         const HANDLE64 hProcHeap = ::GetProcessHeap(); // WARNING :: ignoring potential errors here
         ::HeapFree(hProcHeap, 0, reinterpret_cast<LPVOID>(const_cast<uint8_t*>(buffer)));
     }
-    
+
     return true;
 
 PREMATURE_RETURN:
@@ -141,17 +141,15 @@ idxio::idx1::~idx1(void) noexcept {
     return;
 }
 
+bool                        idxio::idx1::is_usable(void) const noexcept { return usable; }
 
-bool idxio::idx1::is_usable(void) const noexcept { return usable; }
-
-size_t idxio::idx1::size(void) const noexcept { return nlabels; }
+size_t                      idxio::idx1::size(void) const noexcept { return nlabels; }
 
 idxio::idx1::const_iterator idxio::idx1::cbegin(void) const noexcept { return labels; }
 
 idxio::idx1::const_iterator idxio::idx1::cend(void) const noexcept { return labels + nlabels; }
 
 // END IDX1
-
 
 // BEGIN IDX3
 
@@ -161,13 +159,13 @@ idxio::idx3::idx3(_In_ const wchar_t* const filename) noexcept {
     // open will report errors, if any were encountered, caller doesn't need to
     const auto filebuffer { ::open(filename, &fsize) };
     if (filebuffer) {
-        idxmagic = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
-        nimages  = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
+        idxmagic       = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
+        nimages        = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
         nrows_perimage = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 8));
         ncols_perimage = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 12));
-        buffer   = filebuffer;
-        pixels   = filebuffer + 16;
-        usable   = true;
+        buffer         = filebuffer;
+        pixels         = filebuffer + 16;
+        usable         = true;
     }
     // else leave other member variables in their default initialized state
     return;
@@ -200,6 +198,6 @@ idxio::idx3::const_iterator idxio::idx3::cbegin(void) const noexcept { return pi
 
 idxio::idx3::const_iterator idxio::idx3::cend(void) const noexcept { return pixels + (nimages * nrows_perimage * ncols_perimage); }
 
-std::pair<size_t, size_t>   idxio::idx3::shape(void) const noexcept { return std::make_pair<size_t, size_t>(nrows_perimage, ncols_perimage); }
+std::pair<size_t, size_t> idxio::idx3::shape(void) const noexcept { return std::make_pair<size_t, size_t>(nrows_perimage, ncols_perimage); }
 
 // END IDX3

@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __IDXIO_H__
     #define __IDXIO_H__
-    #include <utility>    
+    #include <utility>
 
 namespace idxio {
 
@@ -35,11 +35,11 @@ namespace idxio {
             // no exceptions will be thrown, so always check is_usable() before using a idx1 object
             idx1(_In_ const wchar_t* const filename) noexcept;
 
-            ~idx1(void) noexcept;                                 // destructor: HeapFree()
+            ~idx1(void) noexcept;                          // destructor: HeapFree()
 
-            size_t                size(void) const noexcept;      // returns the number of labels in the object
+            size_t         size(void) const noexcept;      // returns the number of labels in the object
 
-            bool                  is_usable(void) const noexcept; // is the instance in a usable state?
+            bool           is_usable(void) const noexcept; // is the instance in a usable state?
 
             const_iterator cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
 
@@ -78,15 +78,15 @@ namespace idxio {
             // always check the return value of is_usable() before using idx3 objects.
             idx3(_In_ const wchar_t* const filename) noexcept;
 
-            ~idx3(void) noexcept;                                 // HeapFree()
+            ~idx3(void) noexcept;                                     // HeapFree()
 
-            size_t                size(void) const noexcept;      // returns the number of labels in the object
+            size_t                    size(void) const noexcept;      // returns the number of labels in the object
 
-            bool                  is_usable(void) const noexcept; // is the instance in a usable state?
+            bool                      is_usable(void) const noexcept; // is the instance in a usable state?
 
-            const_iterator cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
+            const_iterator            cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
 
-            const_iterator cend(void) const noexcept;      // end of constant iterator to the labels buffer
+            const_iterator            cend(void) const noexcept;      // end of constant iterator to the labels buffer
 
             std::pair<size_t, size_t> shape(void) const noexcept;
     };
