@@ -80,15 +80,15 @@ namespace idxio {
 
             ~idx3(void) noexcept;                                     // HeapFree()
 
-            size_t                    size(void) const noexcept;      // returns the number of labels in the object
+            size_t                    size(void) const noexcept;      // returns the number of images in the idx3 object
 
             bool                      is_usable(void) const noexcept; // is the instance in a usable state?
 
-            const_iterator            cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
+            const_iterator            cbegin(void) const noexcept;    // start of a constant iterator to the pixels buffer
 
-            const_iterator            cend(void) const noexcept;      // end of constant iterator to the labels buffer
+            const_iterator            cend(void) const noexcept;      // end of constant iterator to the pixels buffer
 
-            std::pair<size_t, size_t> shape(void) const noexcept;
+            std::pair<size_t, size_t> shape(void) const noexcept;   // dimensions of the images in the idx3 object (height, width)
     };
 
 } // namespace idxio
