@@ -13,13 +13,11 @@ namespace utils {
             // class random() is intended to be used as a functor
 
         private:
-            T                                 llimit {};
-            T                                 ulimit {};
             std::mt19937_64                   rngenerator;
             std::uniform_real_distribution<T> runiform;
 
         public:
-            inline random(void) noexcept : llimit { -0.500 }, ulimit { 0.500 } {
+            inline random(void) noexcept {
                 // creates a random device, that will provide a seed from a random number engine
                 std::random_device seeder;
                 // mersenne twister 64 engine seeded with the random device of our choosing
@@ -29,16 +27,19 @@ namespace utils {
             }
             // default constructor with -0.5 as lower limit and 0.5 as upper limit
 
-            inline random(_In_ const T llim, _In_ const T ulim) noexcept : llimit { llim }, ulimit { ulim } {
+            inline random(_In_ const T llim, _In_ const T ulim) noexcept {
                 std::random_device seeder;
                 rngenerator = std::mt19937_64 { seeder() };
                 runiform    = std::uniform_real_distribution<T> { llim, ulim };
             }
 
-            inline T operator()(void) /* can't have a const here as it alters the internal state of the random number generator */ noexcept { return runiform(rngenerator); }
+            inline T operator()(void
+            ) noexcept { // can't have a const qualifier here as the method alters the internal state of the random number generator
+                return runiform(rngenerator);
+            }
 
             ~random() = default;
-    };
+    }; // class random
 
 } // namespace utils
 
