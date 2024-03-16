@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <array>
 #include <iostream>
 
 #include <idxio.hpp>
@@ -20,9 +22,14 @@ auto main(void) -> int {
     std::wcout << L"Height: " << train_shape.first << L" Width: " << train_shape.second << L'\n';
     std::wcout << L"Height: " << test_shape.first << L" Width: " << test_shape.second << L'\n';
 
-    const auto rgen {
-        utils::random<float> { -1, 1 }
+    auto rgen {
+        utils::random<float> { -0.1, 0.1 }
     };
+
+    std::array<float, 1000> randoms {};
+    std::generate(randoms.begin(), randoms.end(), rgen);
+
+    for (const auto& elem : randoms) std::wcout << elem << L'\t';
 
     return 0;
 }
