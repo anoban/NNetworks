@@ -14,9 +14,9 @@
 
 #include <idxio.cuh>
 
-// a generic file reading routine, that reads in an existing binary file and returns the buffer. (NULL in case of a failure)
+// a generic file reading routine, that reads in an existing binary file and returns the buffer. (nullptr in case of a failure)
 // returned memory needs to be freed using HeapFree()! NOT UCRT's free()
-static __forceinline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) {
+[[nodiscard]] static __forceinline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) noexcept {
     uint8_t*       buffer    = nullptr;
     DWORD          nbytes    = 0UL;
     LARGE_INTEGER  liFsize   = { .QuadPart = 0LLU };
@@ -65,12 +65,12 @@ INVALID_HANDLE_ERR:
 
 // a file format agnostic write routine to serialize binary image files.
 // if a file with the specified name exists on disk, it will be overwritten.
-static __forceinline bool serialize(
+[[nodiscard]] static __forceinline bool serialize(
     _In_ const wchar_t* const filename,
     _In_ const uint8_t* const buffer,
     _In_ const size_t         size,
     _In_ const bool           freebuffer /* specifies whether to free the buffer after serialization */
-) {
+) noexcept {
     // buffer is assumed to be allocated with HeapAlloc, i.e HeapFree will be invoked to free the buffer NOT UCRT's free()
     // one major caveat is that the caller needs to pass in a byte stream instead of a image struct, which implies a potentially
     // unnecessary memory allocationand buffer creation from the image structs.
