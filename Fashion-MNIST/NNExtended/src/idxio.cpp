@@ -1,25 +1,27 @@
 #define _AMD64_ // architecture
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_MEAN
-#include <cstdbool>
+
 #include <cstdint>
 #include <cstdio>
-#include <vector>
 
 #include <errhandlingapi.h>
 #include <fileapi.h>
 #include <handleapi.h>
 #include <heapapi.h>
 #include <windef.h>
+#include <winsock.h>
 
-#include <idxio.cuh>
+#include <idxio.hpp>
+
+#pragma comment(lib, "Ws2_32.lib")  // ntohl()
 
 // a generic file reading routine, that reads in an existing binary file and returns the buffer. (nullptr in case of a failure)
 // returned memory needs to be freed using HeapFree()! NOT UCRT's free()
 [[nodiscard]] static __forceinline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) noexcept {
     uint8_t*       buffer    = nullptr;
     DWORD          nbytes    = 0UL;
-    LARGE_INTEGER  liFsize   = { .QuadPart = 0LLU };
+    LARGE_INTEGER  liFsize   = { 0LLU };    // C++ doesn't support designated initializers
     const HANDLE64 hFile     = ::CreateFileW(file_name, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
     // process's default heap, non serializeable
@@ -51,7 +53,7 @@
     }
 
     ::CloseHandle(hFile);
-    *size = liFsize.QuadPart;
+    *size = nbytes;
     return buffer;
 
 READFILE_ERR:
@@ -92,9 +94,9 @@ INVALID_HANDLE_ERR:
     ::CloseHandle(hFile);
     if (freebuffer) {
         const HANDLE64 hProcHeap = GetProcessHeap(); // WARNING :: ignoring potential errors here
-        ::HeapFree(hProcHeap, 0, reinterpret_cast<void* const>(buffer));
+        ::HeapFree(hProcHeap, 0, reinterpret_cast<LPVOID>(const_cast<uint8_t*>(buffer)));
     }
-    ::CloseHandle(hFile);
+    
     return true;
 
 PREMATURE_RETURN:
@@ -102,11 +104,56 @@ PREMATURE_RETURN:
     return false;
 }
 
+// BEGIN IDX1
+
 // constructor of idx1 class
 idxio::idx1::idx1(_In_ const wchar_t* const filename) noexcept {
     size_t     fsize {};
+    // open will report errors, if any were encountered, caller doesn't need to
     const auto filebuffer { ::open(filename, &fsize) };
+    if (filebuffer) {
+        idxmagic = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
+        nlabels  = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
+        buffer   = filebuffer;
+        labels   = filebuffer + 8;
+        usable   = true;
+    }
+    // else leave other member variables in their default initialized state
+    return;
 }
 
 // destructor of idx1
-idxio::idx1::~idx1(void) noexcept { }
+idxio::idx1::~idx1(void) noexcept {
+    const HANDLE64 hProcHeap { ::GetProcessHeap() };
+    if (hProcHeap == INVALID_HANDLE_VALUE) {
+        ::fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", ::GetLastError());
+        return;
+    }
+
+    if (!HeapFree(hProcHeap, 0, buffer)) {
+        ::fwprintf_s(stderr, L"Error %lu in HeapFree\n", ::GetLastError());
+        return;
+    }
+
+    idxmagic = nlabels = 0;
+    buffer = labels = nullptr;
+    usable          = false;
+    return;
+}
+
+
+bool idxio::idx1::is_usable(void) const noexcept { return usable; }
+
+size_t idxio::idx1::size(void) const noexcept { return nlabels; }
+
+idxio::idx1::const_iterator idxio::idx1::cbegin(void) const noexcept { return labels; }
+
+idxio::idx1::const_iterator idxio::idx1::cend(void) const noexcept { return labels + nlabels; }
+
+// END IDX1
+
+
+// BEGIN IDX3
+
+
+// END IDX3
