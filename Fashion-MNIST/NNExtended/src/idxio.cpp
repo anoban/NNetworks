@@ -28,27 +28,27 @@
     const HANDLE64 hProcHeap = ::GetProcessHeap();
 
     if (hFile == INVALID_HANDLE_VALUE) {
-        fwprintf_s(stderr, L"Error %lu in CreateFileW\n", ::GetLastError());
+        ::fwprintf_s(stderr, L"Error %lu in CreateFileW\n", ::GetLastError());
         goto INVALID_HANDLE_ERR;
     }
 
     if (!hProcHeap) {
-        fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", ::GetLastError());
+        ::fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", ::GetLastError());
         goto GET_FILESIZE_ERR;
     }
 
     if (!::GetFileSizeEx(hFile, &liFsize)) {
-        fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", ::GetLastError());
+        ::fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", ::GetLastError());
         goto GET_FILESIZE_ERR;
     }
 
     if (!(buffer = static_cast<uint8_t*>(::HeapAlloc(hProcHeap, 0UL, liFsize.QuadPart)))) {
-        fwprintf_s(stderr, L"Error %lu in HeapAlloc\n", ::GetLastError());
+        ::fwprintf_s(stderr, L"Error %lu in HeapAlloc\n", ::GetLastError());
         goto GET_FILESIZE_ERR;
     }
 
-    if (!ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, nullptr)) {
-        fwprintf_s(stderr, L"Error %lu in ReadFile\n", ::GetLastError());
+    if (!::ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, nullptr)) {
+        ::fwprintf_s(stderr, L"Error %lu in ReadFile\n", ::GetLastError());
         goto READFILE_ERR;
     }
 
@@ -82,18 +82,18 @@ INVALID_HANDLE_ERR:
     DWORD          nbytes = 0;
 
     if (hFile == INVALID_HANDLE_VALUE) {
-        fwprintf_s(stderr, L"Error %4lu in CreateFileW\n", ::GetLastError());
+        ::fwprintf_s(stderr, L"Error %4lu in CreateFileW\n", ::GetLastError());
         goto PREMATURE_RETURN;
     }
 
-    if (!WriteFile(hFile, buffer, size, &nbytes, nullptr)) {
-        fwprintf_s(stderr, L"Error %4lu in WriteFile\n", ::GetLastError());
+    if (!::WriteFile(hFile, buffer, size, &nbytes, nullptr)) {
+        ::fwprintf_s(stderr, L"Error %4lu in WriteFile\n", ::GetLastError());
         goto PREMATURE_RETURN;
     }
 
     ::CloseHandle(hFile);
     if (freebuffer) {
-        const HANDLE64 hProcHeap = GetProcessHeap(); // WARNING :: ignoring potential errors here
+        const HANDLE64 hProcHeap = ::GetProcessHeap(); // WARNING :: ignoring potential errors here
         ::HeapFree(hProcHeap, 0, reinterpret_cast<LPVOID>(const_cast<uint8_t*>(buffer)));
     }
     
@@ -130,7 +130,7 @@ idxio::idx1::~idx1(void) noexcept {
         return;
     }
 
-    if (!HeapFree(hProcHeap, 0, buffer)) {
+    if (!::HeapFree(hProcHeap, 0, buffer)) {
         ::fwprintf_s(stderr, L"Error %lu in HeapFree\n", ::GetLastError());
         return;
     }
@@ -155,5 +155,51 @@ idxio::idx1::const_iterator idxio::idx1::cend(void) const noexcept { return labe
 
 // BEGIN IDX3
 
+// constructor of idx3 class
+idxio::idx3::idx3(_In_ const wchar_t* const filename) noexcept {
+    size_t     fsize {};
+    // open will report errors, if any were encountered, caller doesn't need to
+    const auto filebuffer { ::open(filename, &fsize) };
+    if (filebuffer) {
+        idxmagic = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
+        nimages  = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
+        nrows_perimage = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 8));
+        ncols_perimage = ::ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 12));
+        buffer   = filebuffer;
+        pixels   = filebuffer + 16;
+        usable   = true;
+    }
+    // else leave other member variables in their default initialized state
+    return;
+}
+
+// destructor of idx3
+idxio::idx3::~idx3(void) noexcept {
+    const HANDLE64 hProcHeap { ::GetProcessHeap() };
+    if (hProcHeap == INVALID_HANDLE_VALUE) {
+        ::fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", ::GetLastError());
+        return;
+    }
+
+    if (!::HeapFree(hProcHeap, 0, buffer)) {
+        ::fwprintf_s(stderr, L"Error %lu in HeapFree\n", ::GetLastError());
+        return;
+    }
+
+    idxmagic = nimages = nrows_perimage = ncols_perimage = 0;
+    buffer = pixels = nullptr;
+    usable          = false;
+    return;
+}
+
+bool                        idxio::idx3::is_usable(void) const noexcept { return usable; }
+
+size_t                      idxio::idx3::size(void) const noexcept { return nimages; }
+
+idxio::idx3::const_iterator idxio::idx3::cbegin(void) const noexcept { return pixels; }
+
+idxio::idx3::const_iterator idxio::idx3::cend(void) const noexcept { return pixels + (nimages * nrows_perimage * ncols_perimage); }
+
+std::pair<size_t, size_t>   idxio::idx3::shape(void) const noexcept { return std::make_pair<size_t, size_t>(nrows_perimage, ncols_perimage); }
 
 // END IDX3

@@ -1,6 +1,7 @@
 #pragma once
 #ifndef __IDXIO_H__
     #define __IDXIO_H__
+    #include <utility>    
 
 namespace idxio {
 
@@ -75,7 +76,7 @@ namespace idxio {
 
             // similar to idx1 class, any errors in object creation will be reported on console and is_usable will be set to false
             // always check the return value of is_usable() before using idx3 objects.
-            inline idx3(_In_ const wchar_t* const filename) noexcept;
+            idx3(_In_ const wchar_t* const filename) noexcept;
 
             ~idx3(void) noexcept;                                 // HeapFree()
 
@@ -83,9 +84,11 @@ namespace idxio {
 
             bool                  is_usable(void) const noexcept; // is the instance in a usable state?
 
-            inline const_iterator cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
+            const_iterator cbegin(void) const noexcept;    // start of a constant iterator to the labels buffer
 
-            inline const_iterator cend(void) const noexcept;      // end of constant iterator to the labels buffer
+            const_iterator cend(void) const noexcept;      // end of constant iterator to the labels buffer
+
+            std::pair<size_t, size_t> shape(void) const noexcept;
     };
 
 } // namespace idxio
