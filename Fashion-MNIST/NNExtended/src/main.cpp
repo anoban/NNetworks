@@ -1,4 +1,6 @@
-#include <algorithm>
+#ifndef __TEST_NNExtended__
+
+    #include <algorithm>
 #include <array>
 #include <iostream>
 
@@ -22,14 +24,15 @@ auto main(void) -> int {
     std::wcout << L"Height: " << train_shape.first << L" Width: " << train_shape.second << L'\n';
     std::wcout << L"Height: " << test_shape.first << L" Width: " << test_shape.second << L'\n';
 
-    auto rgen {
-        utils::random<float> { -0.1, 0.1 }
-    };
+    const utils::random<float> rgen { -0.5, 0.5 };
 
-    std::array<float, 1000> randoms {};
+    std::array<float, 10000> randoms {};
     std::generate(randoms.begin(), randoms.end(), rgen);
 
-    for (const auto& elem : randoms) std::wcout << elem << L'\t';
+    const auto minmax { std::minmax_element(randoms.cbegin(), randoms.cend()) };
+    std::wcout << *minmax.first << L' ' << *minmax.second << L' ' << std::endl;
 
     return 0;
 }
+
+#endif // !__TEST_NNExtended__
