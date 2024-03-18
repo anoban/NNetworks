@@ -25,6 +25,32 @@ private:
         iterator begin(void) noexcept;
         
         iterator end(void) noexcept;
+
+        // returns a new matrix object
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T> operator*(_Inout_ const matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T> operator/(_Inout_ const matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T> operator+(_Inout_ const matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T> operator-(_Inout_ const matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        // compound assignments for in-place modification
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T>& operator*=(_Inout_ matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T>& operator/=(_Inout_ matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T>& operator+=(_Inout_ matrix<T>& input, _In_ const scalar_t scalar) noexcept;
+
+        template<typename scalar_t> requires std::is_arithmetic_v<scalar_t>
+        matrix<T>& operator-=(_Inout_ matrix<T>& input, _In_ const scalar_t scalar) noexcept;
 };
 
 #endif // !__MATRIX_H__
