@@ -1,11 +1,11 @@
 #ifndef __TEST_NNExtended__
 
     #include <algorithm>
-#include <array>
-#include <iostream>
+    #include <array>
+    #include <iostream>
 
-#include <idxio.hpp>
-#include <utilities.hpp>
+    #include <idxio.hpp>
+    #include <utilities.hpp>
 
 auto main(void) -> int {
     const auto train_images { idxio::idx3 { L"../idx/train-images-idx3-ubyte" } };
@@ -26,7 +26,7 @@ auto main(void) -> int {
 
     const utils::random<float> rgen { -0.5, 0.5 };
 
-    std::array<float, 10000> randoms {};
+    std::array<float, 10000>   randoms {};
     std::generate(randoms.begin(), randoms.end(), rgen);
 
     const auto minmax { std::minmax_element(randoms.cbegin(), randoms.cend()) };

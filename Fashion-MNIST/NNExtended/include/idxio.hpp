@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __IDXIO_H__
     #define __IDXIO_H__
-    #include <utility>  // std::pair
+    #include <utility> // std::pair
 
 namespace idxio {
 
@@ -88,7 +88,7 @@ namespace idxio {
 
             const_iterator            cend(void) const noexcept;      // end of constant iterator to the pixels buffer
 
-            std::pair<size_t, size_t> shape(void) const noexcept;   // dimensions of the images in the idx3 object (height, width)
+            std::pair<size_t, size_t> shape(void) const noexcept;     // dimensions of the images in the idx3 object (height, width)
     };
 
 } // namespace idxio
