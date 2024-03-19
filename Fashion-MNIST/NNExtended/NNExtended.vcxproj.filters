@@ -15,30 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\idxio.hpp">
+    <ClInclude Include="include\idxio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\network.hpp">
+    <ClInclude Include="include\network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\utilities.hpp">
+    <ClInclude Include="include\utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\matrix.hpp">
+    <ClInclude Include="include\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\idxio.cpp">
+    <ClCompile Include="src\idxio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\matrix.cpp">
+    <ClCompile Include="src\matrix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

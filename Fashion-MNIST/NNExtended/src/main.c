@@ -1,13 +1,9 @@
 #ifndef __TEST_NNExtended__
+    #include <stdio.h>
+    #include <idxio.h>
+    #include <utilities.h>
 
-    #include <algorithm>
-    #include <array>
-    #include <iostream>
-
-    #include <idxio.hpp>
-    #include <utilities.hpp>
-
-auto main(void) -> int {
+int main(void) {
     const auto train_images { idxio::idx3 { L"../idx/train-images-idx3-ubyte" } };
     const auto train_labels { idxio::idx1 { L"../idx/train-labels-idx1-ubyte" } };
 
