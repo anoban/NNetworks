@@ -119,21 +119,21 @@ idx1_t OpenIdx1(_In_ const wchar_t* const filename) {
     return tmp;
 }
 
-bool FreeIdx1(idx1_t object) {
+bool FreeIdx1(idx1_t* const restrict object) {
     const HANDLE64 hProcHeap = GetProcessHeap();
     if (hProcHeap == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
         return false;
     }
 
-    if (!HeapFree(hProcHeap, 0, object.buffer)) {
+    if (!HeapFree(hProcHeap, 0, object->buffer)) {
         fwprintf_s(stderr, L"Error %lu in HeapFree\n", GetLastError());
         return false;
     }
 
-    object.idxmagic = object.nlabels = 0;
-    object.buffer = object.labels = NULL;
-    object.is_usable              = false;
+    object->idxmagic = object->nlabels = 0;
+    object->buffer = object->labels = NULL;
+    object->is_usable               = false;
     return true;
 }
 
@@ -156,20 +156,36 @@ idx3_t OpenIdx3(_In_ const wchar_t* const filename) {
     return tmp;
 }
 
-bool FreeIdx3(idx3_t object) {
+bool FreeIdx3(idx3_t* const restrict object) {
     const HANDLE64 hProcHeap = GetProcessHeap();
     if (hProcHeap == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
         return false;
     }
 
-    if (!HeapFree(hProcHeap, 0, buffer)) {
+    if (!HeapFree(hProcHeap, 0, object->buffer)) {
         fwprintf_s(stderr, L"Error %lu in HeapFree\n", GetLastError());
         return false;
     }
 
-    idxmagic = nimages = nrows_perimage = ncols_perimage = 0;
-    buffer = pixels = NULL;
-    usable          = false;
+    object->idxmagic = object->nimages = object->nrows_perimage = object->ncols_perimage = 0;
+    object->buffer = object->pixels = NULL;
+    object->is_usable               = false;
     return true;
+}
+
+void PrintIdx1(_In_ const idx1_t* const object) {
+    wprintf_s(L"Idx1 object ::>\nmagic       :: %08X\nlabel count :: %6u\n\n", object->idxmagic, object->nlabels);
+    return;
+}
+
+void PrintIdx3(_In_ const idx3_t* const object) {
+    wprintf_s(
+        L"Idx3 object ::>\nmagic        :: %08X\nimage count  :: %6u\nimage height :: %6u\nimage width  :: %6u\n\n",
+        object->idxmagic,
+        object->nimages,
+        object->nrows_perimage,
+        object->ncols_perimage
+    );
+    return;
 }

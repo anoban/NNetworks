@@ -46,4 +46,16 @@ typedef struct idx3 {
         bool     is_usable;      // check this before using a idx3 object
 } idx3_t;
 
+idx1_t OpenIdx1(_In_ const wchar_t* const filename);
+
+idx3_t OpenIdx3(_In_ const wchar_t* const filename);
+
+bool   FreeIdx1(idx1_t* const restrict object);
+
+bool   FreeIdx3(idx3_t* const restrict object);
+
+void   PrintIdx1(_In_ const idx1_t* const object);
+
+void   PrintIdx3(_In_ const idx3_t* const object);
+
 #endif // !__IDXIO_H__
