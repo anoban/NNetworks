@@ -103,69 +103,73 @@ PREMATURE_RETURN:
 }
 
 idx1_t OpenIdx1(_In_ const wchar_t* const filename) {
-    size_t     fsize {};
-    // open will report errors, if any were encountered, caller doesn't need to
-    const auto filebuffer { open(filename, &fsize) };
+    size_t               fsize      = 0;
+    idx1_t               tmp        = { 0 };
+    // open() will report errors, if any were encountered, caller doesn't need to
+    const uint8_t* const filebuffer = open(filename, &fsize);
     if (filebuffer) {
-        idxmagic = ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
-        nlabels  = ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
-        buffer   = filebuffer;
-        labels   = filebuffer + 8;
-        usable   = true;
+        tmp.idxmagic  = ntohl(*(uint32_t*) (filebuffer));
+        tmp.nlabels   = ntohl(*(uint32_t*) (filebuffer + 4));
+        tmp.buffer    = filebuffer;
+        tmp.labels    = filebuffer + 8;
+        tmp.is_usable = true;
+        return tmp;
     }
     // else leave other member variables in their default initialized state
-    return;
+    return tmp;
 }
 
-bool FreeIdx1(void) {
-    const HANDLE64 hProcHeap { GetProcessHeap() };
+bool FreeIdx1(idx1_t object) {
+    const HANDLE64 hProcHeap = GetProcessHeap();
     if (hProcHeap == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
-        return;
+        return false;
     }
 
-    if (!HeapFree(hProcHeap, 0, buffer)) {
+    if (!HeapFree(hProcHeap, 0, object.buffer)) {
         fwprintf_s(stderr, L"Error %lu in HeapFree\n", GetLastError());
-        return;
+        return false;
     }
 
-    idxmagic = nlabels = 0;
-    buffer = labels = NULL;
-    usable          = false;
-    return;
+    object.idxmagic = object.nlabels = 0;
+    object.buffer = object.labels = NULL;
+    object.is_usable              = false;
+    return true;
 }
 
 idx3_t OpenIdx3(_In_ const wchar_t* const filename) {
-    size_t     fsize {};
+    size_t               fsize      = 0;
+    idx3_t               tmp        = { 0 };
     // open will report errors, if any were encountered, caller doesn't need to
-    const auto filebuffer { open(filename, &fsize) };
+    const uint8_t* const filebuffer = open(filename, &fsize);
     if (filebuffer) {
-        idxmagic       = ntohl(*reinterpret_cast<uint32_t*>(filebuffer));
-        nimages        = ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 4));
-        nrows_perimage = ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 8));
-        ncols_perimage = ntohl(*reinterpret_cast<uint32_t*>(filebuffer + 12));
-        buffer         = filebuffer;
-        pixels         = filebuffer + 16;
-        usable         = true;
+        tmp.idxmagic       = ntohl(*(uint32_t*) (filebuffer));
+        tmp.nimages        = ntohl(*(uint32_t*) (filebuffer + 4));
+        tmp.nrows_perimage = ntohl(*(uint32_t*) (filebuffer + 8));
+        tmp.ncols_perimage = ntohl(*(uint32_t*) (filebuffer + 12));
+        tmp.buffer         = filebuffer;
+        tmp.pixels         = filebuffer + 16;
+        tmp.is_usable      = true;
+        return tmp;
     }
     // else leave other member variables in their default initialized state
-    return;
+    return tmp;
 }
 
 bool FreeIdx3(idx3_t object) {
-    const HANDLE64 hProcHeap { GetProcessHeap() };
+    const HANDLE64 hProcHeap = GetProcessHeap();
     if (hProcHeap == INVALID_HANDLE_VALUE) {
         fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
-        return;
+        return false;
     }
 
     if (!HeapFree(hProcHeap, 0, buffer)) {
         fwprintf_s(stderr, L"Error %lu in HeapFree\n", GetLastError());
-        return;
+        return false;
     }
 
     idxmagic = nimages = nrows_perimage = ncols_perimage = 0;
     buffer = pixels = NULL;
     usable          = false;
-    return;
+    return true;
 }
