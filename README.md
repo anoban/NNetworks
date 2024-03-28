@@ -157,7 +157,7 @@ ___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
 - `Training dataset` - 0.935367 (93.54%)
 - `Test dataset` - 0.928800 (92.88%)
 
-___For a thorough, step by atep walkthrough, read the source code. It's comprehensively annotated.___
+___For a thorough, step by step walkthrough, read the source code. It's comprehensively annotated.___
 
 # ___Fashion MNIST___
 ---------------
