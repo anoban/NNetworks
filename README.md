@@ -1,8 +1,5 @@
 ### ___Project idea inspired from `Samson Zhang`@[YouTube](https://www.youtube.com/watch?v=w8yWXqWQYmU)___
 -------------
-![MNIST](./images/MnistExamplesModified.png)
-
--------------
 
 ___Implementation is quite different from the one in [his Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that:___
 
@@ -11,8 +8,12 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 - Uses OOP to modularize code.
 - Uses the real `MNIST` Idx data sets, instead of Kaggle provided `csv`s.
 - Includes classes for handling `Idx1`, `Idx3` IO.
-- classes `<<NNetworkMinimal>>` and `<<NNetworkExtended>>` enable saving model states and restoring the trained state from serialized models.
+- `<<NNetworkMinimal>>` class enable saving the model state and restoring the trained state from serialized model objects.
 
+# ___MNIST___
+---------------------
+
+![MNIST](./images/MnistExamplesModified.png)
 
 ### ___Conceptual framework of the `NNetworkMinimal` training process:___
 ---------------------
@@ -69,7 +70,7 @@ softmax(\underbrace{\begin{bmatrix}
 \end{bmatrix}}_{10 \times 1} \\
 ```
 
-### ___Backward propagation___
+### ___Back propagation___
 ---------------
 
 ```math

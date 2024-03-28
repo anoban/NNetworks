@@ -4,6 +4,7 @@
 
 #include <errhandlingapi.h>
 #include <handleapi.h>
+#include <stdio.h>
 #include <heapapi.h>
 #include <matrix.h>
 
@@ -48,7 +49,41 @@ matrix_t MatrixOpScalar(
 }
 
 matrix_t MatrixMul(_In_ const matrix_t first, _In_ const matrix_t second) {
-    matrix_t      tmp          = { 0 };
-    float* const  buffer       = NULL; // in case inplace = false
-    const shape_t result_shape = { .nrows = 0, .ncolumns = 0 };
+    
+    matrix_t result = { 0 };
+
+    // matrix multiplication can only work if the number of columns of the first matrix is equal to the number of rows of the second matrix.
+    // this relation is not interchangeable, i.e cannot multiply two matrices where the number of rows of the first matrix is equal to
+    // the number of columns of the second matrix
+    if (first.dimension.ncolumns != second.dimension.nrows) {
+        fwprintf_s(
+            stderr,
+            L"Error in MatrixMul, cannot multiply matrices with dimensions {%5zu, %5zu} & {%5zu, %5zu}\n",
+            first.dimension.nrows,
+            first.dimension.ncolumns,
+            second.dimension.nrows,
+            second.dimension.ncolumns
+        );
+        return result;
+    }  
+
+    const HANDLE64 hProcHeap    = GetProcessHeap(); // sidestepping malloc, will probably hurt the performance
+    if (hProcHeap == INVALID_HANDLE_VALUE) {
+        fputws(L"Error in MatrixMul, call to GetProcessHeap returned INVALID_HANDLE_VALUE", stderr);
+        return result;
+    }
+
+    // number of elements in the product of matrix multiplication
+    const size_t   nreselems    = first.dimension.nrows * second.dimension.ncolumns;
+
+    float* const   buffer       = HeapAlloc(hProcHeap, 0, nreselems * sizeof(float));
+    if (!buffer) {
+        fwprintf_s(stderr, L"Error %4lu in MatrixMul, call to HeapAlloc failed\n", GetLastError());
+        return result;
+    }
+    
+    // the resulting matrix will have the number of rows of the first matrix and the number of columns of the second matrix.
+    const shape_t  result_shape = { .nrows = first.dimension.nrows, .ncolumns = second.dimension.ncolumns };
+    
+    
 }

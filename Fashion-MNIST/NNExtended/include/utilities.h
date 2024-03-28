@@ -13,4 +13,10 @@ static inline void fillRandoms(
     srand(time(NULL));
 }
 
+static inline void ReLU() { }
+
+static inline void leakyReLU() { }
+
+static inline void softMax() { }
+
 #endif // !__UTILITIES_H__

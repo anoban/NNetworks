@@ -6,6 +6,9 @@
     #include <utilities.h>
 
 int main(void) {
+
+#pragma region TEST_IDX
+
     const idx1_t train_labels = OpenIdx1(L"../idx/train-labels-idx1-ubyte");
     const idx3_t train_images = OpenIdx3(L"../idx/train-images-idx3-ubyte");
 
@@ -46,6 +49,8 @@ int main(void) {
     PrintIdx3(&train_images);
     PrintIdx1(&test_labels);
     PrintIdx3(&test_images);
+
+#pragma endregion  TEST_IDX
 
     return 0;
 }
