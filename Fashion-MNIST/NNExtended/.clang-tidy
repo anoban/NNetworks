@@ -192,7 +192,7 @@ FormatStyle: file
 HeaderFileExtensions:         ['h', 'cuh']
 
 HeaderFilterRegex:   ''
-# ignore diagnostics from c++ STL headers. (FUCK C++ though)
+# ignore diagnostics from c++ STL headers.
 
 ImplementationFileExtensions: ['c', 'cu']
 
