@@ -102,10 +102,13 @@ Checks: >
   bugprone-too-small-loop-variable,
   bugprone-unsafe-functions,
   bugprone-unused-return-value,
+  cert-dcl50-cpp,
   cert-env33-c,
   cert-err34-c,
   cert-flp30-c,
+  cert-err52-cpp,
   cppcoreguidelines-init-variables,
+  cppcoreguidelines-narrowing-conversions,
   google-runtime-int,
   llvm-include-order,
   misc-confusable-identifiers,
@@ -319,11 +322,20 @@ CheckOptions:
     value: g
   - key: readability-identifier-naming.IgnoreMainLikeFunctions
     value: true
-  - key: readability-identifier-naming.LocalConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.LocalConstantPointerCase
-    value: UPPER_CASE
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
   - key: readability-identifier-naming.StaticConstantCase
     value: UPPER_CASE
+
+  - key: cppcoreguidelines-narrowing-conversions.WarnOnIntegerNarrowingConversion
+    value: true
+  - key: cppcoreguidelines-narrowing-conversions.WarnOnIntegerToFloatingPointNarrowingConversion
+    value: true
+  - key: cppcoreguidelines-narrowing-conversions.WarnOnFloatingPointNarrowingConversion
+    value: true
+  - key: cppcoreguidelines-narrowing-conversions.WarnWithinTemplateInstantiation
+    value: true
+  - key: cppcoreguidelines-narrowing-conversions.WarnOnEquivalentBitWidth
+    value: true
+  - key: cppcoreguidelines-narrowing-conversions.PedanticMode
+    value: true
