@@ -1,7 +1,7 @@
 #pragma once
 #if defined __clang__ || defined __llvm__
     #error "matrix.c uses MSVC AVX512 intrinsics, incompatible with LLVM intrinsics!"
-#endif // !__clang__ || defined __llvm__
+#endif // __clang__ || __llvm__
 
 #ifndef __MATRIX_H__
     #define __MATRIX_H__

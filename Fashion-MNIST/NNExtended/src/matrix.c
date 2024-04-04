@@ -7,7 +7,7 @@
 #include <heapapi.h>
 #include <matrix.h>
 #include <stdio.h>
-#include <zmmintrin.h>
+// #include <zmmintrin.h>
 
 matrix_t MatrixAddScalar(
     _Inout_ matrix_t matrix,
@@ -49,7 +49,7 @@ matrix_t MatrixMulScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ 
 
 matrix_t MatrixDivScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
 
-matrix_t MatrixMul(_In_ const matrix_t first, _In_ const matrix_t second) {
+matrix_t __stdcall MatrixMul(_In_ const matrix_t first, _In_ const matrix_t second) {
     matrix_t result = { 0 };
 
     // matrix multiplication can only work if the number of columns of the first matrix is equal to the number of rows of the second matrix.
@@ -76,12 +76,15 @@ matrix_t MatrixMul(_In_ const matrix_t first, _In_ const matrix_t second) {
     // number of elements in the product of matrix multiplication
     const size_t nreselems = first.dimension.nrows * second.dimension.ncolumns;
 
-    float* const buffer    = HeapAlloc(hProcHeap, 0, nreselems * sizeof(float));
-    if (!buffer) {
+    result.buffer          = HeapAlloc(hProcHeap, 0, nreselems * sizeof(float));
+    if (!result.buffer) {
         fwprintf_s(stderr, L"Error %4lu in MatrixMul, call to HeapAlloc failed\n", GetLastError());
         return result;
     }
 
     // the resulting matrix will have the number of rows of the first matrix and the number of columns of the second matrix.
-    const shape_t result_shape = { .nrows = first.dimension.nrows, .ncolumns = second.dimension.ncolumns };
+    result.dimension.nrows    = first.dimension.nrows;
+    result.dimension.ncolumns = second.dimension.ncolumns;
+
+    return result;
 }

@@ -110,7 +110,6 @@ Checks: >
   cppcoreguidelines-init-variables,
   cppcoreguidelines-narrowing-conversions,
   google-runtime-int,
-  llvm-include-order,
   misc-confusable-identifiers,
   misc-definitions-in-headers,
   misc-header-include-cycle,
@@ -128,7 +127,6 @@ Checks: >
   readability-else-after-return,
   readability-function-size,
   readability-identifier-length,
-  readability-identifier-naming,
   readability-implicit-bool-conversion,
   readability-inconsistent-declaration-parameter-name,
   readability-isolate-declaration,
@@ -303,29 +301,6 @@ CheckOptions:
 
   - key: clang-analyzer.security.cert.env.InvalidPtr.InvalidatingGetEnv
     value: true
-
-  - key: readability-identifier-naming.ConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.EnumCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.EnumConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.GlobalConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.GlobalConstantPrefix
-    value: g
-  - key: readability-identifier-naming.GlobalConstantPointerCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.GlobalConstantPointerPrefix
-    value: g
-  - key: readability-identifier-naming.GlobalPointerPrefix
-    value: g
-  - key: readability-identifier-naming.IgnoreMainLikeFunctions
-    value: true
-  - key: readability-identifier-naming.MacroDefinitionCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.StaticConstantCase
-    value: UPPER_CASE
 
   - key: cppcoreguidelines-narrowing-conversions.WarnOnIntegerNarrowingConversion
     value: true
