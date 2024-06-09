@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\idxio.hpp" />
+    <ClInclude Include="include\iterator.hpp" />
     <ClInclude Include="include\matrix.hpp" />
     <ClInclude Include="include\network.hpp" />
     <ClInclude Include="include\utilities.hpp" />
@@ -169,7 +170,7 @@
   <ItemGroup>
     <ClCompile Include="src\idxio.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\matrix.c" />
+    <ClCompile Include="src\matrix.cpp" />
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

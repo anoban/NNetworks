@@ -2,17 +2,23 @@
 #ifndef __MATRIX_HPP__
     #define __MATRIX_HPP__
     #include <cstdint>
+    #include <type_traits>
 
-typedef struct shape {
-        size_t nrows;    // number of rows in the matrix
-        size_t ncolumns; // number of columns in the matrix
-} shape_t;
+template<typename T, typename = typename std::enable_if<std::is_arithmetic_v<T>, T>::type> class matrix {
+    public:
+        using value_type      = std::remove_cv_t<T>;
+        using pointer         = value_type*;
+        using const_pointer   = const value_type*;
+        using reference       = value_type&;
+        using const_reference = const value_type&;
+        using difference_type = ptrdiff_t;
+        using size_type       = unsigned long long;
 
-typedef struct matrix {
-        float*  buffer;    // let's settle with 32 bit floats
-        shape_t dimension; // could just decompoe this into two plain uint32_t s :(
-                           // but having a dedicated type for shape makes it easier to pass as arguments to factory functions
-} matrix_t;
+    private:
+        size_type   _nrows; // number of rows in the matrix
+        size_type   _ncols; // number of columns in the matrix
+        value_type* _rsrc;
+};
 
 static_assert(sizeof(matrix_t) == 24, L"Potential alignment issues :: matrix_t must be 24 bytes in size!");
 

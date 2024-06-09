@@ -1,68 +1,54 @@
-#define _AMD64_ // architecture
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_MEAN
-
-#include <errhandlingapi.h>
-#include <fileapi.h>
-#include <handleapi.h>
-#include <heapapi.h>
-#include <idxio.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <windef.h>
-#include <winsock.h>
-
-#pragma comment(lib, "Ws2_32.lib") // ntohl()
+#include <idxio.hpp>
 
 namespace helpers {
 
     // a generic file reading routine, that reads in an existing binary file and returns the buffer. (NULL in case of a failure)
     // returned memory needs to be freed using HeapFree()! NOT UCRT's free()
-    static inline uint8_t* open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) {
-        uint8_t*       buffer    = NULL;
-        DWORD          nbytes    = 0UL;
-        LARGE_INTEGER  liFsize   = { .QuadPart = 0LLU };
-        const HANDLE64 hFile     = CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+    static inline std::optional<std::vector<uint8_t>> open(_In_ const wchar_t* const file_name, _Inout_ size_t* const size) {
+        std::vector<uint8_t> buffer {};
+        DWORD                nbytes {};
+        LARGE_INTEGER        liFsize { .QuadPart = 0LLU };
+        const HANDLE64       hFile     = ::CreateFileW(file_name, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
 
         // process's default heap, non serializeable
-        const HANDLE64 hProcHeap = GetProcessHeap();
+        const HANDLE64       hProcHeap = ::GetProcessHeap();
 
         if (hFile == INVALID_HANDLE_VALUE) {
-            fwprintf_s(stderr, L"Error %lu in CreateFileW\n", GetLastError());
+            ::fwprintf_s(stderr, L"Error %lu in CreateFileW\n", GetLastError());
             goto INVALID_HANDLE_ERR;
         }
 
         if (!hProcHeap) {
-            fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
+            ::fwprintf_s(stderr, L"Error %lu in GetProcessHeap\n", GetLastError());
             goto GET_FILESIZE_ERR;
         }
 
         if (!GetFileSizeEx(hFile, &liFsize)) {
-            fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
+            ::fwprintf_s(stderr, L"Error %lu in GetFileSizeEx\n", GetLastError());
             goto GET_FILESIZE_ERR;
         }
 
         if (!(buffer = HeapAlloc(hProcHeap, 0UL, liFsize.QuadPart))) {
-            fwprintf_s(stderr, L"Error %lu in HeapAlloc\n", GetLastError());
+            ::fwprintf_s(stderr, L"Error %lu in HeapAlloc\n", GetLastError());
             goto GET_FILESIZE_ERR;
         }
 
         if (!ReadFile(hFile, buffer, liFsize.QuadPart, &nbytes, NULL)) {
-            fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
+            ::fwprintf_s(stderr, L"Error %lu in ReadFile\n", GetLastError());
             goto READFILE_ERR;
         }
 
-        CloseHandle(hFile);
+        ::CloseHandle(hFile);
         *size = nbytes;
         return buffer;
 
 READFILE_ERR:
-        HeapFree(hProcHeap, 0UL, buffer);
+        ::HeapFree(hProcHeap, 0UL, buffer);
 GET_FILESIZE_ERR:
-        CloseHandle(hFile);
+        ::CloseHandle(hFile);
 INVALID_HANDLE_ERR:
         *size = 0;
-        return NULL;
+        return std::nullopt;
     }
 
     // a file format agnostic write routine to serialize binary image files.
@@ -106,7 +92,23 @@ PREMATURE_RETURN:
 
 } // namespace helpers
 
-idx1_t OpenIdx1(_In_ const wchar_t* const filename) {
+constexpr idx::idx1::idx1() noexcept { }
+
+constexpr idx::idx1::idx1(_In_ const wchar_t* const filename) noexcept { }
+
+constexpr idx::idx1::idx1(_In_ const idx1& other) noexcept { }
+
+constexpr idx::idx1::idx1(_In_ idx1&& other) noexcept { }
+
+constexpr idx::idx1& idx::idx1::operator=(_In_ const idx::idx1& other) noexcept { }
+
+constexpr idx::idx1& idx::idx1::operator=(_In_ idx::idx1&& other) noexcept { }
+
+constexpr idx::idx1::~idx1() noexcept { }
+
+template<typename char_t> std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx::idx1& object) { }
+
+idx1_t                                                OpenIdx1(_In_ const wchar_t* const filename) {
     size_t               fsize      = 0;
     idx1_t               tmp        = { 0 };
     // open() will report errors, if any were encountered, caller doesn't need to

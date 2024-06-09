@@ -1,9 +1,26 @@
 #pragma once
 #ifndef __IDXIO_HPP__
     #define __IDXIO_HPP__
+
+// clang-format off
+#define _AMD64_ // architecture
+#define WIN32_LEAN_AND_MEAN
+#define WIN32_EXTRA_MEAN
+
+#include <windef.h>
+#include <errhandlingapi.h>
+#include <fileapi.h>
+#include <handleapi.h>
+#include <heapapi.h>
+#include <winsock.h>
+#pragma comment(lib, "Ws2_32.lib") // ntohl
+// clang-format on
+
     #include <cstdint>
-    #include <format>
+    #include <cstdio>
     #include <iostream>
+    #include <optional>
+    #include <vector>
 
 // to be used as a type constarint for templates that deal with iostreams, to filter types char and wchar_t
 template<typename T> concept is_iostream_compatible =
@@ -11,7 +28,7 @@ template<typename T> concept is_iostream_compatible =
 
 namespace idx {
 
-    class idx1 {
+    class idx1 final {
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000801(2049) magic number (MSB first)
             // 0004     32 bit integer  10000            number of items
@@ -48,7 +65,7 @@ namespace idx {
             friend std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx1& object);
     };
 
-    class idx3 {
+    class idx3 final {
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000803(2051) magic number
             // 0004     32 bit integer  10000            number of images

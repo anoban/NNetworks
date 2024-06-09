@@ -1,10 +1,9 @@
 #pragma once
 #ifndef __UTILITIES_HPP__
     #define __UTILITIES_HPP__
-
-    #include <matrix.h>
-    #include <stdlib.h>
-    #include <time.h>
+    #include <cstdlib>
+    #include <iterator>
+    #include <random>
 
 namespace utilities {
 
