@@ -49,7 +49,7 @@ namespace idx {
         public:
             constexpr idx1() noexcept;
 
-            constexpr idx1(_In_ const wchar_t* const filename) noexcept;
+            constexpr explicit idx1(_In_ const wchar_t* const filename) noexcept;
 
             constexpr idx1(_In_ const idx1& other) noexcept;
 
@@ -82,13 +82,13 @@ namespace idx {
             uint32_t nrows_perimage; // height of an image, in pixels
             uint32_t ncols_perimage; // width of an image, in pixels
             uint8_t* buffer;
-            uint8_t* pixels;         // pixels = buffer + 16;
-            bool     is_usable;      // check this before using a idx3 object
+            uint8_t* pixels;    // pixels = buffer + 16;
+            bool     is_usable; // check this before using a idx3 object
 
         public:
             constexpr idx3() noexcept;
 
-            constexpr idx3(_In_ const wchar_t* const filename) noexcept;
+            constexpr explicit idx3(_In_ const wchar_t* const filename) noexcept;
 
             constexpr idx3(_In_ const idx3& other) noexcept;
 

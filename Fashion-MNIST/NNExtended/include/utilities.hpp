@@ -2,7 +2,6 @@
 #ifndef __UTILITIES_HPP__
     #define __UTILITIES_HPP__
     #include <cstdlib>
-    #include <iterator>
     #include <random>
 
 namespace utilities {
