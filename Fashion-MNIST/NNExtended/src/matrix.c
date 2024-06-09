@@ -2,14 +2,17 @@
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_MEAN
 
+#include <basetsd.h>
 #include <errhandlingapi.h>
 #include <handleapi.h>
 #include <heapapi.h>
 #include <matrix.h>
+#include <minwindef.h>
+#include <sal.h>
+#include <stdbool.h>
 #include <stdio.h>
-// #include <zmmintrin.h>
 
-matrix_t MatrixAddScalar(
+matrix_t __stdcall MatrixAddScalar(
     _Inout_ matrix_t matrix,
     _In_ const float scalar,
     _In_ const bool  inplace /* whether to store the results in the original buffer or to return a new matrix object */
@@ -28,26 +31,15 @@ matrix_t MatrixAddScalar(
             return tmp;
         }
     }
-    const __m512 scalar_broadcast = { .m512_f32 = { scalar } }; // broadcast the scalar to an array of 16 floats
-    __m512*      zmmword_0;
-
-    const size_t nfp32szmm = sizeof(__m512) / sizeof(float);
-    size_t       i         = 0;
-
-    for (; i < matrix.dimension.nrows * matrix.dimension.ncolumns; i += nfp32szmm) {
-        buffer[i] = matrix.buffer[i] / scalar;
-        zmmword_0 = (__m512*) (matrix.buffer + i);
-        ;
-    }
 
     return matrix;
 }
 
-matrix_t MatrixSubScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
+matrix_t __stdcall MatrixSubScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
 
-matrix_t MatrixMulScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
+matrix_t __stdcall MatrixMulScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
 
-matrix_t MatrixDivScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
+matrix_t __stdcall MatrixDivScalar(_Inout_ matrix_t matrix, _In_ const float scalar, _In_ const bool inplace) { }
 
 matrix_t __stdcall MatrixMul(_In_ const matrix_t first, _In_ const matrix_t second) {
     matrix_t result = { 0 };
@@ -67,7 +59,7 @@ matrix_t __stdcall MatrixMul(_In_ const matrix_t first, _In_ const matrix_t seco
         return result;
     }
 
-    const HANDLE64 hProcHeap = GetProcessHeap(); // sidestepping malloc, will probably hurt the performance
+    const HANDLE64 hProcHeap = GetProcessHeap(); // sidestepping malloc, will probably hurt performance
     if (hProcHeap == INVALID_HANDLE_VALUE) {
         fputws(L"Error in MatrixMul, call to GetProcessHeap returned INVALID_HANDLE_VALUE", stderr);
         return result;

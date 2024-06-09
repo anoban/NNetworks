@@ -72,10 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +121,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -144,7 +147,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -158,16 +161,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\idxio.h" />
-    <ClInclude Include="include\matrix.h" />
-    <ClInclude Include="include\network.h" />
-    <ClInclude Include="include\utilities.h" />
+    <ClInclude Include="include\idxio.hpp" />
+    <ClInclude Include="include\matrix.hpp" />
+    <ClInclude Include="include\network.hpp" />
+    <ClInclude Include="include\utilities.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\idxio.c" />
-    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\idxio.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\matrix.c" />
-    <ClCompile Include="src\test.c" />
+    <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
