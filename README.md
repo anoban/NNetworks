@@ -13,7 +13,7 @@ ___Implementation is quite different from the one in [his Kaggle Notebook](https
 # ___MNIST___
 ---------------------
 
-![MNIST](./images/MnistExamplesModified.png)
+![MNIST](./readme/MnistExamplesModified.png)
 
 ### ___Conceptual framework of the `NNetworkMinimal` training process:___
 ---------------------
@@ -162,6 +162,6 @@ ___For a thorough, step by step walkthrough, read the source code. It's comprehe
 # ___Fashion MNIST___
 ---------------
 
-![Fashion-MNIST](./images/fashion-mnist-sprite.png)
+![Fashion-MNIST](./readme/fashion-mnist-sprite.png)
 
 ___Using `<<NNetworkMinimal>>` with 5,000 iterations gave an accuracy score of `0.262367` for training dataset and an accuracy score of `0.263800` for test dataset.___
