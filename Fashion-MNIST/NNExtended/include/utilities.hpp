@@ -6,6 +6,10 @@
 
 namespace utilities {
 
+    // to be used as a type constarint for templates that deal with iostreams, to filter types char and wchar_t
+    template<typename T> concept is_iostream_compatible =
+        std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>;
+
     // fills the buffer with random numbers between -0.5 and 0.5
     static inline void __stdcall FillRandoms(_In_ matrix_t matrix) {
         srand(time(NULL));

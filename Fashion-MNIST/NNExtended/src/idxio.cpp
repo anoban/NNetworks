@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include <idxio.hpp>
 
 namespace helpers {
@@ -72,7 +74,7 @@ PREMATURE_RETURN:
 
 constexpr idx::idx1::idx1() noexcept { }
 
-constexpr idx::idx1::idx1(_In_ const wchar_t* const filename) noexcept { }
+constexpr idx::idx1::idx1(_In_ const wchar_t* const filename) { }
 
 constexpr idx::idx1::idx1(_In_ const idx1& other) noexcept { }
 
@@ -90,9 +92,20 @@ template<typename char_t> std::basic_ostream<char_t>& operator<<(std::basic_ostr
 // class idx3 member function implementations //
 ////////////////////////////////////////////////
 
-constexpr idx::idx3::idx3() noexcept { }
+constexpr idx::idx3::idx3() noexcept : idxmagic {}, nimages {}, nrows_perimage {}, ncols_perimage {}, buffer {}, pixels {} { }
 
-constexpr idx::idx3::idx3(_In_ const wchar_t* const filename) noexcept { }
+constexpr idx::idx3::idx3(_In_ const wchar_t* const filename) {
+    unsigned long fsize {};
+    const auto    filebuffer = helpers::open(filename, &fsize);
+    if (!filebuffer.has_value()) throw utilities::nnext_error { "" };
+
+    idxmagic       = ::ntohl(*(uint32_t*) (filebuffer));
+    nimages        = ::ntohl(*(uint32_t*) (filebuffer + 4));
+    nrows_perimage = ::ntohl(*(uint32_t*) (filebuffer + 8));
+    ncols_perimage = ::ntohl(*(uint32_t*) (filebuffer + 12));
+    buffer         = filebuffer;
+    pixels         = filebuffer + 16;
+}
 
 constexpr idx::idx3::idx3(_In_ const idx3& other) noexcept { }
 

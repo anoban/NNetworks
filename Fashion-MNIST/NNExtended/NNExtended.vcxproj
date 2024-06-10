@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\exception.hpp" />
     <ClInclude Include="include\idxio.hpp" />
     <ClInclude Include="include\iterator.hpp" />
     <ClInclude Include="include\matrix.hpp" />

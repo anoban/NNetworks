@@ -22,9 +22,8 @@
     #include <optional>
     #include <vector>
 
-// to be used as a type constarint for templates that deal with iostreams, to filter types char and wchar_t
-template<typename T> concept is_iostream_compatible =
-    std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>;
+    #include <iterator.hpp>
+    #include <utilities.hpp>
 
 namespace idx {
 
@@ -37,19 +36,22 @@ namespace idx {
             // ........
             // xxxx     unsigned byte   ??               label
 
+        public:
+            using iterator       = random_access_iterator<uint8_t>;
+            using const_iterator = random_access_iterator<const uint8_t>;
+
         private:
             uint32_t idxmagic; // idx magic number (0x00000801 for idx1 objects)
             uint32_t nlabels;  // number of labels in the idx1 object
             uint8_t* buffer;   // this will point to the raw file buffer
             // for performance reasons, in lieu of parsing and extracting the contents from file buffer and freeing it afterwards
             // the original file buffer will be used inside idx1 objects.
-            uint8_t* labels;    // labels = buffer + 8; (offset past the metainfo)
-            bool     is_usable; // check this before using idx1 objects
+            uint8_t* labels; // labels = buffer + 8; (offset past the metainfo)
 
         public:
             constexpr idx1() noexcept;
 
-            constexpr explicit idx1(_In_ const wchar_t* const filename) noexcept;
+            constexpr explicit idx1(_In_ const wchar_t* const filename); // could throw
 
             constexpr idx1(_In_ const idx1& other) noexcept;
 
@@ -61,7 +63,7 @@ namespace idx {
 
             constexpr ~idx1() noexcept;
 
-            template<typename char_t> requires ::is_iostream_compatible<char_t>
+            template<typename char_t> requires utilities::is_iostream_compatible<char_t>
             friend std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx1& object);
     };
 
@@ -82,13 +84,12 @@ namespace idx {
             uint32_t nrows_perimage; // height of an image, in pixels
             uint32_t ncols_perimage; // width of an image, in pixels
             uint8_t* buffer;
-            uint8_t* pixels;    // pixels = buffer + 16;
-            bool     is_usable; // check this before using a idx3 object
+            uint8_t* pixels; // pixels = buffer + 16;
 
         public:
             constexpr idx3() noexcept;
 
-            constexpr explicit idx3(_In_ const wchar_t* const filename) noexcept;
+            constexpr explicit idx3(_In_ const wchar_t* const filename); // could throw
 
             constexpr idx3(_In_ const idx3& other) noexcept;
 
@@ -100,7 +101,7 @@ namespace idx {
 
             constexpr ~idx3() noexcept;
 
-            template<typename char_t> requires ::is_iostream_compatible<char_t>
+            template<typename char_t> requires utilities::is_iostream_compatible<char_t>
             friend std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx3& object);
     };
 

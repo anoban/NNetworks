@@ -6,6 +6,8 @@
     #include <ranges>
     #include <type_traits>
 
+    #include <iterator.hpp>
+
 template<typename T, typename = typename std::enable_if<std::is_arithmetic_v<T>, T>::type> class matrix {
     public:
         using value_type      = typename std::remove_cv_t<T>;
@@ -15,6 +17,8 @@ template<typename T, typename = typename std::enable_if<std::is_arithmetic_v<T>,
         using const_reference = const value_type&;
         using difference_type = ptrdiff_t;
         using size_type       = unsigned long long;
+        using iterator        = random_access_iterator<value_type>;
+        using const_iterator  = random_access_iterator<const value_type>;
 
     private:
         size_type   _nrows; // number of rows in the matrix
