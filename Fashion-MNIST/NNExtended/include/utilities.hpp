@@ -1,8 +1,8 @@
 #pragma once
 #ifndef __UTILITIES_HPP__
     #define __UTILITIES_HPP__
-    #include <cstdlib>
     #include <random>
+    #include <type_traits>
 
 namespace utilities {
 

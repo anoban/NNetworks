@@ -171,7 +171,6 @@
   <ItemGroup>
     <ClCompile Include="src\idxio.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\matrix.cpp" />
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
