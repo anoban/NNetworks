@@ -1,3 +1,4 @@
+from typing import override
 import numpy as np
 from numpy.typing import NDArray
 
@@ -45,6 +46,7 @@ class Idx1:
         # get rid of the original data
         del tmp
 
+    @override
     def __repr__(self) -> str:
         return f"idx1 object(magic: {self.magic}, count: {self.count:,})"
 
@@ -119,6 +121,7 @@ class Idx3:
         self.data: NDArray[np.float64] = tmp[16:].reshape(self.count, self.__ppimage).T.astype(np.float64)
         del tmp  # don't need this anymore.
 
+    @override
     def __repr__(self) -> str:
         return f"idx3 object(magic: {self.magic}, shape: {self.shape}, count: {self.count:,})"
 

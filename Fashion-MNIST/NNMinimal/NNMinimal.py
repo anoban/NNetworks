@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
-from typing import TypedDict
+from typing import TypedDict, override
 from sklearn.metrics import accuracy_score
 
 np.seterr(all="raise")
@@ -58,6 +58,7 @@ class NNetworkMinimal:
         # biases of nodes in the output layer.
         self.__bout: NDArray[np.float64] = np.random.rand(nodes_out, 1) - 0.5  # 10 x 1 column vector for MNIST
 
+    @override
     def __repr__(self) -> str:
         return (
             f"Untrained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_out}"
@@ -149,9 +150,9 @@ class NNetworkMinimal:
             #    10 x 1                           10 x 1
             db_hid: NDArray[np.float64] = d_hidden.sum(axis=1).reshape(10, 1) / labels.size
 
-            #####################
-            # PARAMETER UPDATES #
-            #####################
+            ##################################
+            # SIMULTANEOUS PARAMETER UPDATES #
+            ##################################
 
             self.__winhid -= dw_hidin * self.__learning_rate
             self.__bhid -= db_hid * self.__learning_rate
