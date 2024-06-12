@@ -1,55 +1,24 @@
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(__TEST__)
 
-    #include <assert.h>
-    #include <idxio.h>
+    #include <exception.hpp>
+    #include <idxio.hpp>
+    #include <iterator.hpp>
+    #include <utilities.hpp>
 
-int wmain(void) {
-    #pragma region TEST_IDX
+auto wmain() -> int {
+    #pragma region    __TEST_IDXIO__
+    #pragma endregion __TEST_IDXIO__
 
-    const idx1_t train_labels = OpenIdx1(L"../idx/train-labels-idx1-ubyte");
-    const idx3_t train_images = OpenIdx3(L"../idx/train-images-idx3-ubyte");
+    #pragma region    __TEST_NNEXT_EXCEPTION__
+    #pragma endregion __TEST_NNEXT_EXCEPTION__
 
-    const idx1_t test_labels  = OpenIdx1(L"../idx/t10k-labels-idx1-ubyte");
-    const idx3_t test_images  = OpenIdx3(L"../idx/t10k-images-idx3-ubyte");
+    #pragma region    __TEST_ITERATOR__
+    #pragma endregion __TEST_ITERATOR__
 
-    assert(train_images.nimages == 60000);
-    assert(train_images.buffer);
-    assert(train_images.idxmagic == 2051);
-    assert(train_images.ncols_perimage == 28);
-    assert(train_images.nrows_perimage == 28);
+    #pragma region    __TEST_UTILITIES__
+    #pragma endregion __TEST_UTILITIES__
 
-    assert(train_labels.nlabels == 60000);
-    assert(train_labels.buffer);
-    assert(train_labels.idxmagic == 2049);
-
-    assert(test_images.nimages == 10000);
-    assert(test_images.buffer);
-    assert(test_images.idxmagic == 2051);
-    assert(test_images.ncols_perimage == 28);
-    assert(test_images.nrows_perimage == 28);
-
-    assert(test_labels.nlabels == 10000);
-    assert(test_labels.buffer);
-    assert(test_labels.idxmagic == 2049);
-
-    PrintIdx1(&train_labels);
-    PrintIdx3(&train_images);
-    PrintIdx1(&test_labels);
-    PrintIdx3(&test_images);
-
-    FreeIdx1(&train_labels);
-    FreeIdx3(&train_images);
-    FreeIdx1(&test_labels);
-    FreeIdx3(&test_images);
-
-    PrintIdx1(&train_labels);
-    PrintIdx3(&train_images);
-    PrintIdx1(&test_labels);
-    PrintIdx3(&test_images);
-
-    #pragma endregion TEST_IDX
-
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-#endif // _DEBUG
+#endif

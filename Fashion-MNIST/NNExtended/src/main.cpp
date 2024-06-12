@@ -1,9 +1,10 @@
-#ifndef _DEBUG
+#if !defined(__TEST__) && !defined(_DEBUG)
 
-    #include <idxio.h>
-    #include <stdio.h>
-    #include <utilities.h>
+    #include <exception.hpp>
+    #include <idxio.hpp>
+    #include <iterator.hpp>
+    #include <utilities.hpp>
 
-int main(void) { return 0; }
+auto wmain() -> int { return EXIT_SUCCESS; }
 
-#endif // !_DEBUG
+#endif

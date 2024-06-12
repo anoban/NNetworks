@@ -37,8 +37,13 @@ namespace idx {
             // xxxx     unsigned byte   ??               label
 
         public:
-            using iterator       = random_access_iterator<uint8_t>;
-            using const_iterator = random_access_iterator<const uint8_t>;
+            using value_type      = uint8_t;
+            using pointer         = uint8_t*;
+            using const_pointer   = const uint8_t*;
+            using reference       = uint8_t&;
+            using const_reference = const uint8_t&;
+            using iterator        = random_access_iterator<uint8_t>;
+            using const_iterator  = random_access_iterator<const uint8_t>;
 
         private:
             uint32_t idxmagic; // idx magic number (0x00000801 for idx1 objects)
@@ -65,6 +70,24 @@ namespace idx {
 
             template<typename char_t> requires utilities::is_iostream_compatible<char_t>
             friend std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx1& object);
+
+            constexpr iterator begin() noexcept;
+
+            constexpr const_iterator begin() const noexcept;
+
+            constexpr const_iterator cbegin() const noexcept;
+
+            constexpr iterator end() noexcept;
+
+            constexpr const_iterator end() const noexcept;
+
+            constexpr const_iterator cend() const noexcept;
+
+            constexpr reference data() noexcept;
+
+            constexpr const_reference data() const noexcept;
+
+            constexpr size_t size() const noexcept;
     };
 
     class idx3 final {
@@ -77,6 +100,15 @@ namespace idx {
             // 0017     unsigned byte   ??               pixel
             // ........
             // xxxx     unsigned byte   ??               pixel
+
+        public:
+            using value_type      = uint8_t;
+            using pointer         = uint8_t*;
+            using const_pointer   = const uint8_t*;
+            using reference       = uint8_t&;
+            using const_reference = const uint8_t&;
+            using iterator        = random_access_iterator<uint8_t>;
+            using const_iterator  = random_access_iterator<const uint8_t>;
 
         private:
             uint32_t idxmagic;       // idx magic number (0x00000803 for Idx3 objects)
@@ -103,6 +135,24 @@ namespace idx {
 
             template<typename char_t> requires utilities::is_iostream_compatible<char_t>
             friend std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx3& object);
+
+            constexpr iterator begin() noexcept;
+
+            constexpr const_iterator begin() const noexcept;
+
+            constexpr const_iterator cbegin() const noexcept;
+
+            constexpr iterator end() noexcept;
+
+            constexpr const_iterator end() const noexcept;
+
+            constexpr const_iterator cend() const noexcept;
+
+            constexpr reference data() noexcept;
+
+            constexpr const_reference data() const noexcept;
+
+            constexpr size_t size() const noexcept;
     };
 
 } // namespace idx

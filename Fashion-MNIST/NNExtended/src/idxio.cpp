@@ -88,6 +88,24 @@ constexpr idx::idx1::~idx1() noexcept { }
 
 template<typename char_t> std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx::idx1& object) { }
 
+constexpr idx::idx1::iterator idx::idx1::begin() noexcept { }
+
+constexpr idx::idx1::const_iterator idx::idx1::begin() const noexcept { }
+
+constexpr idx::idx1::const_iterator idx::idx1::cbegin() const noexcept { }
+
+constexpr idx::idx1::iterator idx::idx1::end() noexcept { }
+
+constexpr idx::idx1::const_iterator idx::idx1::end() const noexcept { }
+
+constexpr idx::idx1::const_iterator idx::idx1::cend() const noexcept { }
+
+constexpr idx::idx1::reference idx::idx1::data() noexcept { }
+
+constexpr idx::idx1::const_reference idx::idx1::data() const noexcept { }
+
+constexpr size_t idx::idx1::size() const noexcept { }
+
 ////////////////////////////////////////////////
 // class idx3 member function implementations //
 ////////////////////////////////////////////////
@@ -97,7 +115,7 @@ constexpr idx::idx3::idx3() noexcept : idxmagic {}, nimages {}, nrows_perimage {
 constexpr idx::idx3::idx3(_In_ const wchar_t* const filename) {
     unsigned long fsize {};
     const auto    filebuffer = helpers::open(filename, &fsize);
-    if (!filebuffer.has_value()) throw utilities::nnext_error { "" };
+    if (!filebuffer.has_value()) throw utilities::nnext_exception { "" };
 
     idxmagic       = ::ntohl(*(uint32_t*) (filebuffer));
     nimages        = ::ntohl(*(uint32_t*) (filebuffer + 4));
@@ -118,6 +136,24 @@ constexpr idx::idx3& idx::idx3::operator=(_In_ idx3&& other) noexcept { }
 constexpr idx::idx3::~idx3() noexcept { }
 
 template<typename char_t> std::basic_ostream<char_t>& operator<<(std::basic_ostream<char_t>& ostr, const idx::idx3& object) { }
+
+constexpr idx::idx3::iterator idx::idx3::begin() noexcept { }
+
+constexpr idx::idx3::const_iterator idx::idx3::begin() const noexcept { }
+
+constexpr idx::idx3::const_iterator idx::idx3::cbegin() const noexcept { }
+
+constexpr idx::idx3::iterator idx::idx3::end() noexcept { }
+
+constexpr idx::idx3::const_iterator idx::idx3::end() const noexcept { }
+
+constexpr idx::idx3::const_iterator idx::idx3::cend() const noexcept { }
+
+constexpr idx::idx3::reference idx::idx3::data() noexcept { }
+
+constexpr idx::idx3::const_reference idx::idx3::data() const noexcept { }
+
+constexpr size_t idx::idx3::size() const noexcept { }
 
 idx1_t OpenIdx1(_In_ const wchar_t* const filename) {
     size_t               fsize      = 0;
