@@ -1,43 +1,40 @@
 #pragma once
 #ifndef __EXCEPTION_HPP__
     #define __EXCEPTION_HPP__
-
     #include <utilities.hpp>
 
 // implementing a custom exception becase std::exception uses char* as return type for what() virtual method but I want a wchar_t* variant
 // and don't want the vtable overhead!
-template<typename char_t> requires utilities::is_iostream_compatible<char_t> class nnext_exception final {
+template<typename char_t = wchar_t> requires utilities::is_iostream_compatible<char_t> class nnext_exception final {
     public:
         constexpr inline nnext_exception() noexcept : _descr {}, _is_heap_allocated {} { }
 
-        constexpr inline explicit nnext_exception(const char_t* const _detail) noexcept : // when the input is a string literal
-            _descr { _detail }, _is_heap_allocated { false } { }
+        // do not use heap allocated strings with this ctor, will lead to a memory leak
+        constexpr inline explicit nnext_exception(const char_t* const _detail) noexcept : _descr { _detail } { }
 
-        constexpr inline explicit nnext_exception(const std::basic_string<char_t>& _detail) noexcept : _descr {} { }
+        constexpr inline nnext_exception(const nnext_exception& _other) noexcept : _descr { _other._descr } { } // copying just the pointer
 
-        constexpr inline explicit nnext_exception(std::basic_string<char_t>&& _detail) noexcept :
-            _descr { std::swap(_detail.c_str(), _detail) } { }
+        constexpr inline nnext_exception(nnext_exception&& _other) noexcept : _descr { _other._descr } { _other._descr = nullptr; }
 
-        constexpr inline nnext_exception(char const* const _detail, int) noexcept : _descr {} { }
-
-        constexpr inline nnext_exception(nnext_exception const& _Other) noexcept : _descr {} { }
-
-        constexpr inline nnext_exception& operator=(nnext_exception const& _Other) noexcept {
-            if (this == &_Other) return *this;
-
+        constexpr inline nnext_exception& operator=(const nnext_exception& _other) noexcept {
+            if (this == &_other) return *this;
+            _descr = _other._descr;
             return *this;
         }
 
-        constexpr inline ~nnext_exception() noexcept {
-            if (_is_heap_allocated) delete[] _descr;
-            _descr = nullptr;
+        constexpr inline nnext_exception& operator=(nnext_exception&& _other) noexcept {
+            if (this == &_other) return *this;
+            _descr        = _other._descr;
+            _other._descr = nullptr;
+            return *this;
         }
 
-        [[nodiscard]] const char_t* const what() const noexcept { }
+        constexpr inline ~nnext_exception() noexcept { _descr = nullptr; }
+
+        [[nodiscard]] const char_t* const what() const noexcept { return _descr; }
 
     private:
-        const char_t* _descr;             // exception resource for storing exception descriptions
-        bool          _is_heap_allocated; // flag registering whether _descr is a heap allocated string
+        const char_t* _descr; // exception resource for storing exception descriptions
 };
 
 #endif // !__EXCEPTION_HPP__
