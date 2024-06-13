@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        ".clang-format": "yaml",
-        ".clang-tidy": "yaml",
-        "*.h": "c"
-    }
-}
