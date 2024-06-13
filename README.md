@@ -12,13 +12,13 @@ ___MNIST___
 
 ___Outline of the `NNetworkMinimal` class training process___
 
+- The NNetworkMinimal class represents a very simple three layer fully connected neural network. The input layer has 784 neurons, each designated to handle one pixel from the training image.    
+- The middle hidden layer has 10 neurons, fully connected to the input and output layers.
+- The output layer has 10 neurons, each registering the probability of a given image representing the n th digit (the digits can be 0 through 9, hence the 10 neurons).
+- The training images are arrays of 28 x 28 black and white pixels (each one byte in size, with 0 mapping to white and 255 mapping to black).
 
-```math
-I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N} \\
-```
-```math
-\underbrace{I}_{784 \times N} = |pixels~in~image| \times |images| \\
-```
+$I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}$            
+$\underbrace{I}_{784 \times N} = |pixels~in~image| \times |images|$
 
 ___Phase 1) Forward propagation___
 
