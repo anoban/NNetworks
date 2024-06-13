@@ -1,22 +1,17 @@
-### ___Project idea inspired from `Samson Zhang`@[YouTube](https://www.youtube.com/watch?v=w8yWXqWQYmU)___
--------------
+___Project idea inspired from [Samson Zhang](https://www.youtube.com/watch?v=w8yWXqWQYmU). Design and implementation are quite different from the one in his [Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that___
 
-___Implementation is quite different from the one in [his Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that:___
-
---------------
-- This implementation uses `Numba` to speed up the computations (I doubt this actually boosted the performance)
+- This implementation uses `Numba` to speed up the computations
 - Uses OOP to modularize code.
-- Uses the real `MNIST` Idx data sets, instead of Kaggle provided `csv`s.
-- Includes classes for handling `Idx1`, `Idx3` IO.
-- `<<NNetworkMinimal>>` class enable saving the model state and restoring the trained state from serialized model objects.
+- Uses the real `MNIST` Idx data sets, instead of the Kaggle provided `.csv` files.
+- Includes separate classes for handling `Idx1`, `Idx3` IO.
+- `NNetworkMinimal` class can save a trained model's state to disk and construct a new model from the serialized model file, this prevents the need to retrain the model, given that the training dataset hasn't been altered since the last training.
 
-# ___MNIST___
----------------------
+___MNIST___
 
 ![MNIST](./readme/MnistExamplesModified.png)
 
-### ___Conceptual framework of the `NNetworkMinimal` training process:___
----------------------
+___Outline of the `NNetworkMinimal` class training process___
+
 
 ```math
 I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N} \\
@@ -25,8 +20,8 @@ I_{784 \times N} \Longrightarrow H_{10 \times N} \Longrightarrow O_{10 \times N}
 \underbrace{I}_{784 \times N} = |pixels~in~image| \times |images| \\
 ```
 
-### ___Forward propagation___
----------------------
+___Phase 1) Forward propagation___
+
 
 ```math
 \underbrace{H}_{10 \times N} = \underbrace{W}_{784 \times 10} \cdot \underbrace{I}_{784 \times N} + \underbrace{B}_{10 \times 1} \\
@@ -70,8 +65,7 @@ softmax(\underbrace{\begin{bmatrix}
 \end{bmatrix}}_{10 \times 1} \\
 ```
 
-### ___Back propagation___
----------------
+___Phase 2) Back propagation___
 
 ```math
 prediction = \underbrace{\begin{bmatrix}
@@ -134,8 +128,7 @@ prediction = \underbrace{\begin{bmatrix}
 ```
 
 
-### ___Paramater updates___
----------------------
+___Phase 3) Simultaneous paramater updates___
 
 ```math
 W = W - \alpha \cdot \mathrm{d}{W}
@@ -149,19 +142,18 @@ w = w - \alpha \cdot \mathrm{d}{w}
 ```math
 b = b - \alpha \cdot \mathrm{d}{b}
 ```
-$\alpha$ is the learning rate! (A user specified constant)
+$\alpha$ is the learning rate
 
-___After 5,000 iterations, the accuracy scores for `MNIST` datasets were:___
+After 5,000 iterations, the accuracy scores for `MNIST` datasets were:
+- Training dataset - 0.935367 (93.54%)
+- Test dataset - 0.928800 (92.88%)
 
--------------
-- `Training dataset` - 0.935367 (93.54%)
-- `Test dataset` - 0.928800 (92.88%)
+For a thorough, step by step walkthrough, refer the source code. It's comprehensively annotated!
 
-___For a thorough, step by step walkthrough, read the source code. It's comprehensively annotated.___
-
-# ___Fashion MNIST___
----------------
+___Fashion MNIST___
 
 ![Fashion-MNIST](./readme/fashion-mnist-sprite.png)
 
-___Using `<<NNetworkMinimal>>` with 5,000 iterations gave an accuracy score of `0.262367` for training dataset and an accuracy score of `0.263800` for test dataset.___
+Using the same `NNetworkMinimal` class used for MNIST datasets with 5000 iterations, the accuracy scores were:
+- Training dataset - 0.262367 (26.24%)
+- Test dataset - 0.263800 (26.38%)
