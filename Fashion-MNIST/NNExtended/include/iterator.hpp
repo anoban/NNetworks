@@ -18,7 +18,12 @@ template<typename T> class random_access_iterator final { // unchecked random ac
         using size_type         = unsigned long long; // aka size_t
         using iterator_category = std::random_access_iterator_tag;
 
+        // clang-format off
+#if !defined(_DEBUG) && !defined(__TEST__)    // for testing purposes make these members public!
     private:
+#endif 
+        // clang-format on             
+        
         // using an unqualified pointer here will raise errors with const iterables!
         pointer   _rsrc;   // pointer to the iterable resource
         size_type _length; // number of elements in the iterable
