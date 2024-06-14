@@ -157,3 +157,7 @@ ___Fashion MNIST___
 Using the same `NNetworkMinimal` class used for MNIST datasets with 5000 iterations, the accuracy scores were:
 - Training dataset - 0.262367 (26.24%)
 - Test dataset - 0.263800 (26.38%)
+
+Fashion MNIST datasets was designed intentionally as a superior alternative to the MNIST datasets as the former is too simple that even a naive network could make decent predictions using it. The problem with MNIST is that the information encoded in the image pixels are not that complex to easily materialize a good enough digit classifier. And the number of classification categories were just 10, 0 through 9.    
+
+Introducing more sophisticated, visually similar shapes, the model now needs to capture more nuanced, granular patterns in the images to make good enough predictions (The differences between a woman's top and a tshirt aren't as pronounced as the differences between 1 and 2, particularly in images made of just 28 x 28 pixels). Our `NNetworkMinimal` class design is way too simple for complex learning endeavours, hence the poor accuracy scores!
