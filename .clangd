@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-Wall, -Wextra, -pedantic, -O0, -std=c++23, -c, -I ./include/, -I ./eigen-3.4.0/]
+  Add: [-Wall, -Wextra, -pedantic, -O0, -std=c++23, -c, -I ./include/]
   Compiler:  clang++.exe
   CompilationDatabase: None
 

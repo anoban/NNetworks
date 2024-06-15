@@ -1,11 +1,12 @@
 #if defined(_DEBUG) && defined(__TEST__)
 
     #include <algorithm>
+    #include <iostream>
     #include <numeric>
     #include <random>
     #include <vector>
 
-    #include <iterator.hpp>
+    #include <idxio.hpp>
 
 auto wmain() -> int {
     #pragma region __TEST_ITERATOR__
@@ -65,6 +66,20 @@ auto wmain() -> int {
     for (auto it = std::cbegin(randoms), end = std::cend(randoms); it != end; ++it, ++begin_copy) assert(*it == *begin_copy);
 
     #pragma endregion __TEST_ITERATOR__
+
+    #pragma region __TEST_IDX__
+
+    const idxio::idx1<uint8_t> train_labels { L"../idx/train-labels-idx1-ubyte" };
+    const idxio::idx1<uint8_t> test_labels { L"../idx/t10k-labels-idx1-ubyte" };
+
+    assert(train_labels.count() == 60'000);
+    assert(test_labels.count() == 10'000);
+    assert(train_labels.magic() == 2049);
+    assert(test_labels.magic() == 2049);
+    // const idxio::idx1<uint8_t> train_images { L"../idx/train-labels-idx1-ubyte" };
+    // const idxio::idx1<uint8_t> test_images { L"../idx/train-labels-idx1-ubyte" };
+
+    #pragma endregion __TEST_IDX__
 
     return EXIT_SUCCESS;
 }
