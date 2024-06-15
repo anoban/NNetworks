@@ -1,6 +1,7 @@
 #if defined(_DEBUG) && defined(__TEST__)
 
     #include <algorithm>
+    #include <array>
     #include <iostream>
     #include <numeric>
     #include <random>
@@ -76,8 +77,20 @@ auto wmain() -> int {
     assert(test_labels.count() == 10'000);
     assert(train_labels.magic() == 2049);
     assert(test_labels.magic() == 2049);
+
     // const idxio::idx1<uint8_t> train_images { L"../idx/train-labels-idx1-ubyte" };
     // const idxio::idx1<uint8_t> test_images { L"../idx/train-labels-idx1-ubyte" };
+
+    std::array<unsigned, 10> frequencies {};
+
+    for (const auto& l : train_labels) frequencies.at(l)++;
+    assert(std::all_of(frequencies.cbegin(), frequencies.cend(), [](const int& count) constexpr noexcept -> bool { return count == 6'000; })
+    );
+
+    std::fill(frequencies.begin(), frequencies.end(), 0);
+    for (const auto& l : test_labels) frequencies.at(l)++;
+    assert(std::all_of(frequencies.cbegin(), frequencies.cend(), [](const int& count) constexpr noexcept -> bool { return count == 1'000; })
+    );
 
     #pragma endregion __TEST_IDX__
 

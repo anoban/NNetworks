@@ -1,5 +1,5 @@
 #include <cassert>
-#include <cstdint>
+#include <compare>
 #include <iterator>
 #include <type_traits>
 
@@ -21,9 +21,9 @@ template<typename T> class random_access_iterator final { // unchecked random ac
         // clang-format off
 #if !defined(_DEBUG) && !defined(__TEST__)    // for testing purposes make these members public!
     private:
-#endif 
-        // clang-format on             
-        
+#endif
+        // clang-format on
+
         // using an unqualified pointer here will raise errors with const iterables!
         pointer   _rsrc;   // pointer to the iterable resource
         size_type _length; // number of elements in the iterable
@@ -43,33 +43,33 @@ template<typename T> class random_access_iterator final { // unchecked random ac
             assert(_sz >= _pos);
         }
 
-        constexpr inline __cdecl random_access_iterator(_In_ const random_access_iterator& _other) noexcept :
-            _rsrc(_other._rsrc), _length(_other._length), _offset(_other._offset) { }
+        constexpr inline __cdecl random_access_iterator(_In_ const random_access_iterator& other) noexcept :
+            _rsrc(other._rsrc), _length(other._length), _offset(other._offset) { }
 
-        constexpr inline __cdecl random_access_iterator(_In_ random_access_iterator&& _other) noexcept :
-            _rsrc(_other._rsrc), _length(_other._length), _offset(_other._offset) {
+        constexpr inline __cdecl random_access_iterator(_In_ random_access_iterator&& other) noexcept :
+            _rsrc(other._rsrc), _length(other._length), _offset(other._offset) {
             // cleanup the stolen from resource
-            _other._rsrc   = nullptr;
-            _other._length = _other._offset = 0;
+            other._rsrc   = nullptr;
+            other._length = other._offset = 0;
         }
 
-        constexpr inline random_access_iterator& __cdecl operator=(_In_ const random_access_iterator& _other) noexcept {
-            if (this == &_other) return *this;
-            _rsrc   = _other._rsrc;
-            _length = _other._length;
-            _offset = _other._offset;
+        constexpr inline random_access_iterator& __cdecl operator=(_In_ const random_access_iterator& other) noexcept {
+            if (this == &other) return *this;
+            _rsrc   = other._rsrc;
+            _length = other._length;
+            _offset = other._offset;
             return *this;
         }
 
-        constexpr inline random_access_iterator& __cdecl operator=(_In_ random_access_iterator&& _other) noexcept {
-            if (this == &_other) return *this;
-            _rsrc          = _other._rsrc;
-            _length        = _other._length;
-            _offset        = _other._offset;
+        constexpr inline random_access_iterator& __cdecl operator=(_In_ random_access_iterator&& other) noexcept {
+            if (this == &other) return *this;
+            _rsrc         = other._rsrc;
+            _length       = other._length;
+            _offset       = other._offset;
 
             // cleanup
-            _other._rsrc   = nullptr;
-            _other._length = _other._offset = 0;
+            other._rsrc   = nullptr;
+            other._length = other._offset = 0;
             return *this;
         }
 
@@ -108,31 +108,43 @@ template<typename T> class random_access_iterator final { // unchecked random ac
 
         [[nodiscard]] constexpr inline random_access_iterator __stdcall operator--(int) noexcept {
             _offset--;
-            assert(_offset <= _length); // assert(_offset >= 0); won't help because _offset is unsigned, so instead check for wraparounds
+            assert(_offset <= _length);
             return { _rsrc, _length, _offset + 1 };
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator==(const random_access_iterator& _other) noexcept {
-            return _rsrc == _other._rsrc && _offset == _other._offset;
+#ifdef __ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__ // aka "I'm not worried about performance"
+
+        // defining a custom <=> operator because we want only the _offset member to participate in the comparison
+        // we do not care about the _length member and _rsrc being identical is rather a precondition for comparison than a criteria for the pedciation
+        [[nodiscard]] constexpr inline std::strong_ordering __stdcall operator<=>(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset <=> other._offset; // the first subexpression is a prerequisite
+            // let the second predicate of the composition dictate the final ordering
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator!=(const random_access_iterator& _other) noexcept {
-            return _rsrc != _other._rsrc || _offset != _other._offset;
+#else
+        [[nodiscard]] constexpr inline bool __stdcall operator==(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset == other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator<(const random_access_iterator& _other) noexcept {
-            return _rsrc == _other._rsrc && _offset < _other._offset;
+        [[nodiscard]] constexpr inline bool __stdcall operator!=(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc != other._rsrc || _offset != other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator<=(const random_access_iterator& _other) noexcept {
-            return _rsrc == _other._rsrc && _offset <= _other._offset;
+        [[nodiscard]] constexpr inline bool __stdcall operator<(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset < other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator>(const random_access_iterator& _other) noexcept {
-            return _rsrc == _other._rsrc && _offset > _other._offset;
+        [[nodiscard]] constexpr inline bool __stdcall operator<=(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset <= other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator>=(const random_access_iterator& _other) noexcept {
-            return _rsrc == _other._rsrc && _offset >= _other._offset;
+        [[nodiscard]] constexpr inline bool __stdcall operator>(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset > other._offset;
         }
+
+        [[nodiscard]] constexpr inline bool __stdcall operator>=(_In_ const random_access_iterator& other) noexcept {
+            return _rsrc == other._rsrc && _offset >= other._offset;
+        }
+
+#endif // !__ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
 };
