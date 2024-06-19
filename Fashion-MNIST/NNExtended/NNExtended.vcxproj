@@ -201,7 +201,7 @@
       <ConformanceMode>true</ConformanceMode>
       <ExceptionHandling>false</ExceptionHandling>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <UseProcessorExtensions>COMMON512</UseProcessorExtensions>
       <GenerateAlternateCodePaths>COMMON512</GenerateAlternateCodePaths>
@@ -211,12 +211,13 @@
       <CCppSupport>Cpp20Support</CCppSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
-      <LoopUnrolling>10000</LoopUnrolling>
+      <OptimizeForWindowsApplication>false</OptimizeForWindowsApplication>
+      <LoopUnrolling>
+      </LoopUnrolling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
