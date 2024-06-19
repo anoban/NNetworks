@@ -403,17 +403,21 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _raw_buffer = _pixels = nullptr;
             }
 
-            constexpr iterator __cdecl begin() noexcept { }
+            constexpr iterator __cdecl begin() noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl begin() const noexcept { }
+            constexpr const_iterator __cdecl begin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl cbegin() const noexcept { }
+            constexpr const_iterator __cdecl cbegin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr iterator __cdecl end() noexcept { }
+            constexpr iterator __cdecl end() noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl end() const noexcept { }
+            constexpr const_iterator __cdecl end() const noexcept {
+                return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
+            }
 
-            constexpr const_iterator __cdecl cend() const noexcept { }
+            constexpr const_iterator __cdecl cend() const noexcept {
+                return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
+            }
 
             template<typename other_t> requires std::is_arithmetic_v<other_t>
             [[nodiscard("very expensive")]] std::vector<other_t> __cdecl pixels_astype() const noexcept {

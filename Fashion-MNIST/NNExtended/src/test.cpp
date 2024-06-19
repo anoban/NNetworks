@@ -184,6 +184,15 @@ auto wmain() -> int {
     assert(trainltotal == std::accumulate(ftrainlabs.cbegin(), ftrainlabs.cend(), 0LLU));
     assert(trainltotal == std::accumulate(dtrainlabs.cbegin(), dtrainlabs.cend(), 0LLU));
 
+    std::array<unsigned, std::numeric_limits<decltype(train_images)::value_type>::max() + 1> pixfreqs {};
+    for (const auto& p : train_images) pixfreqs.at(p)++;
+    std::wcout << L"Frequency of pixels in the training image dataset :: \n";
+    for (unsigned i = 0; const auto& f : pixfreqs) std::wcout << i++ << L") " << f << L'\n';
+
+    for (const auto& p : test_images) pixfreqs.at(p)++;
+    std::wcout << L"Frequency of pixels in the test image dataset :: \n";
+    for (unsigned i = 0; const auto& f : pixfreqs) std::wcout << i++ << L") " << f << L'\n';
+
     #pragma endregion __TEST_IDX__
 
     return EXIT_SUCCESS;
