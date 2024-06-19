@@ -6,6 +6,7 @@
     #define _AMD64_ // architecture
     #define WIN32_LEAN_AND_MEAN
     #define WIN32_EXTRA_MEAN
+    #define NOMINMAX
     #include <windef.h>
     #include <errhandlingapi.h>
     #include <fileapi.h>
@@ -110,11 +111,14 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     // for the ubyte variants of idx files, the data type will be unsigned chars, hence the third byte of the magic number will be 0x08
 
     template<typename T>
-    constexpr bool is_idx_compatible_v = std::_Is_any_of_v<std::remove_cv_t<T>, unsigned char, char, short, int, float, double>;
+    constexpr bool is_idx_compatible_v = std::_Is_any_of_v<std::remove_cv_t<T>, unsigned char, signed char, short, int, float, double>;
 
     template<typename T> struct is_idx_compatible final : std::integral_constant<bool, is_idx_compatible_v<T>> { };
 
-    template<typename scalar_t, typename = typename std::enable_if<is_idx_compatible<scalar_t>::value, bool>::type> class idx1 final {
+    template<
+        typename scalar_t = uint8_t, // the element type of the idx1 buffer
+        typename          = typename std::enable_if<is_idx_compatible<scalar_t>::value, bool>::type>
+    class idx1 final {
             //////////////////////////
             //  IDX1 BINARY LAYOUT  //
             //////////////////////////
@@ -128,23 +132,21 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             // xxxx     unsigned byte   ??               label
 
         public:
-            using value_type      = typename std::remove_cv<scalar_t>::type;
+            using value_type      = scalar_t;
             using pointer         = scalar_t*;
-            using const_pointer   = const value_type*;
+            using const_pointer   = const scalar_t*;
             using reference       = scalar_t&;
-            using const_reference = const value_type&;
-            using iterator        = random_access_iterator<value_type>;
-            using const_iterator  = random_access_iterator<const value_type>;
+            using const_reference = const scalar_t&;
+            using iterator        = random_access_iterator<scalar_t>;
+            using const_iterator  = random_access_iterator<const scalar_t>;
 
         private:
-            uint32_t       _idxmagic;   // first 4 bytes
-            uint32_t       _nlabels;    // next 4 bytes
-            const uint8_t* _raw_buffer; // the whole file
-            const_pointer  _labels; // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
+            uint32_t _idxmagic;   // first 4 bytes
+            uint32_t _nlabels;    // next 4 bytes
+            uint8_t* _raw_buffer; // the whole file
+            pointer  _labels;     // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
 
         public:
-            // the template argument of ctors needs to be explicitly specified because the compiler has no way to infer it
-
             constexpr inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
             constexpr inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept :
@@ -158,17 +160,17 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     return;
                 }
 
-                const uint8_t* buffer { option.value() };
+                uint8_t* buffer { option.value() };
                 assert(buffer);
                 assert(buffer[3] == 0x01); // must be 0x01 for idx1 objects
 
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
                 _raw_buffer = buffer;
-                _labels     = reinterpret_cast<const_pointer>(buffer + 8);
+                _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            constexpr inline explicit __cdecl idx1(_In_ const uint8_t* const buffer, _In_ const size_t& size) noexcept {
+            constexpr inline explicit __cdecl idx1(_In_ uint8_t* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 // again, the 100 here is an arbitrary choice, when you pass a dummy buffer for testing, make sure it's longer than 100 bytes
@@ -177,21 +179,21 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
                 _raw_buffer = buffer;
-                _labels     = reinterpret_cast<const_pointer>(buffer + 8);
+                _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
             constexpr inline __cdecl idx1(_In_ const idx1& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
-                uint8_t* temp_buff = new (std::nothrow)
-                    uint8_t[_nlabels * sizeof(value_type) + 8]; // 8 for the first 8 bytes and the rest for the buffer downstream
+                uint8_t* temp_buff = new (std::nothrow) uint8_t[_nlabels * sizeof(value_type) + 8];
+                // 8 for the first 8 metadata bytes and the rest for the buffer downstream
                 if (!temp_buff) {
-                    ::fputws(L"idx1(_In_ const idx1& other) copy constructor failed!, object is left partially initialized!\n", stderr);
+                    ::fputws(L"idx1(_In_ const idx1& other) copy constructor failed!, object is in unusable state!\n", stderr);
                     return;
                 }
 
                 std::copy(other._raw_buffer, other._raw_buffer + _nlabels * sizeof(value_type) + 8, temp_buff);
                 _raw_buffer = temp_buff;
-                _labels     = reinterpret_cast<const_pointer>(_raw_buffer + 8);
+                _labels     = reinterpret_cast<pointer>(_raw_buffer + 8);
             }
 
             constexpr inline __cdecl idx1(_In_ idx1&& other) noexcept :
@@ -200,9 +202,45 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 other._raw_buffer = other._labels = nullptr;
             }
 
-            constexpr inline idx1& __cdecl operator=(const idx1& other) noexcept { }
+            constexpr inline idx1& __cdecl operator=(const idx1& other) noexcept {
+                if (this == &other) return *this;
 
-            constexpr inline idx1& __cdecl operator=(idx1&& other) noexcept { }
+                _idxmagic = other._idxmagic;
+                _nlabels  = other._nlabels;
+
+                // if the existing buffer can hold the other object, reuse the buffer
+                if (_nlabels > other._nlabels) { // just copy the data
+                    ::memset(_raw_buffer, 0, 8 + _nlabels * sizeof(value_type));
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                } else if (_nlabels == other._nlabels) { // don't bother the memset
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                } else {
+                    delete[] _raw_buffer;
+                    _raw_buffer = new (std::nothrow) uint8_t[8 + other._nlabels * sizeof(value_type)];
+                    if (!_raw_buffer) {
+                        ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
+                        return *this;
+                    }
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                }
+
+                return *this;
+            }
+
+            constexpr inline idx1& __cdecl operator=(idx1&& other) noexcept {
+                if (this == &other) return *this;
+
+                delete[] _raw_buffer; // discard the old buffer and take ownership of the stolen buffer
+                _idxmagic       = other._idxmagic;
+                _nlabels        = other._nlabels;
+                _raw_buffer     = other._raw_buffer;
+                _labels         = other._labels;
+
+                other._idxmagic = other._nlabels = 0;
+                other._raw_buffer = other._labels = nullptr;
+
+                return *this;
+            }
 
             constexpr inline __cdecl ~idx1() noexcept {
                 delete[] _raw_buffer;
@@ -210,26 +248,41 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _idxmagic = _nlabels = 0;
             }
 
+            [[nodiscard]] constexpr iterator __cdecl begin() noexcept { return { _labels, _nlabels }; }
+
             [[nodiscard]] constexpr const_iterator __cdecl begin() const noexcept { return { _labels, _nlabels }; }
 
             [[nodiscard]] constexpr const_iterator __cdecl cbegin() const noexcept { return { _labels, _nlabels }; }
+
+            [[nodiscard]] constexpr iterator __cdecl end() noexcept { return { _labels, _nlabels, _nlabels }; }
 
             [[nodiscard]] constexpr const_iterator __cdecl end() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
             [[nodiscard]] constexpr const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
-            template<typename other_t> requires std::is_arithmetic_v<other_t>
-            [[nodiscard("very expensive")]] std::vector<other_t> __cdecl labels_astype() const noexcept { }
+            template<typename other_t>
+            requires std::is_arithmetic_v<other_t> // this will discard the first 8 bytes of idx1 object used to store the metadata
+            [[nodiscard("very expensive")]] std::vector<other_t> __cdecl labels_astype() const noexcept {
+                std::vector<other_t> temp(_nlabels);
+                std::copy(_labels, _labels + _nlabels, temp.data());
+                return temp;
+            }
 
             template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx1& object) { }
+            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx1& object) {
+                if constexpr (std::is_same_v<char, char_t>)
+                    ostr << "idxio::idx1 [ " << object._idxmagic << ' ' << object._nlabels << " ]\n";
+                else if constexpr (std::is_same_v<wchar_t, char_t>)
+                    ostr << L"idxio::idx1 [ " << object._idxmagic << L' ' << object._nlabels << L" ]\n";
+                return ostr;
+            }
 
             constexpr uint32_t __cdecl count() const noexcept { return _nlabels; }
 
             constexpr uint32_t __cdecl magic() const noexcept { return _idxmagic; }
     };
 
-    template<typename scalar_t, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
+    template<typename scalar_t = uint8_t, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
             //////////////////////////
             //  IDX3 BINARY LAYOUT  //
             //////////////////////////
@@ -245,26 +298,23 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             // xxxx     unsigned byte   ??               pixel
 
         public:
-            using value_type      = typename std::remove_cv<scalar_t>::type;
+            using value_type      = scalar_t;
             using pointer         = scalar_t*;
-            using const_pointer   = const value_type*;
+            using const_pointer   = const scalar_t*;
             using reference       = scalar_t&;
-            using const_reference = const value_type&;
-            using iterator        = random_access_iterator<value_type>;
-            using const_iterator  = random_access_iterator<const value_type>;
+            using const_reference = const scalar_t&;
+            using iterator        = random_access_iterator<scalar_t>;
+            using const_iterator  = random_access_iterator<const scalar_t>;
 
         private:
-            uint32_t       _idxmagic;   // first 4 bytes
-            uint32_t       _nimages;    // next 4 bytes
-            uint32_t       _nrows;      // next 4 bytes
-            uint32_t       _ncols;      // next 4 bytes
-            const uint8_t* _raw_buffer; // the whole file
-            const_pointer  _pixels;     // an array of elements of a scalar type (a type casted alias to a position, 16 strides
-            // into the buffer)
+            uint32_t _idxmagic;   // first 4 bytes
+            uint32_t _nimages;    // next 4 bytes
+            uint32_t _nrows;      // next 4 bytes
+            uint32_t _ncols;      // next 4 bytes
+            uint8_t* _raw_buffer; // the whole file
+            pointer  _pixels;     // an array of elements of a scalar type (a type casted alias to a position, 16 strides into the buffer)
 
         public:
-            // the template argument needs to be scecified explicitly because the compiler has no way to infer it
-            // from the ctor argument types
             constexpr inline __cdecl idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
 
             constexpr inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
@@ -278,7 +328,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     return;
                 }
 
-                const uint8_t* buffer { option.value() };
+                uint8_t* buffer { option.value() };
                 assert(buffer);
                 assert(buffer[3] == 0x03); // must be 0x03 for idx3 objects
 
@@ -287,10 +337,21 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _nrows      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 8));
                 _ncols      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 12));
                 _raw_buffer = buffer;
-                _pixels     = reinterpret_cast<const_pointer>(buffer + 16);
+                _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            constexpr inline explicit __cdecl idx3(_In_ const uint8_t* const buffer, _In_ const size_t& size) noexcept { }
+            constexpr inline explicit __cdecl idx3(_In_ uint8_t* const buffer, _In_ const size_t& size) noexcept {
+                assert(buffer);
+                assert(size >= 100);
+                assert(buffer[3] == 0x03); // must be 0x03 for idx3 objects
+
+                _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
+                _nimages    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
+                _nrows      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 8));
+                _ncols      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 12));
+                _raw_buffer = buffer;
+                _pixels     = reinterpret_cast<pointer>(buffer + 16);
+            }
 
             constexpr inline __cdecl idx3(_In_ const idx3& other) noexcept :
                 _idxmagic(other._idxmagic), _nimages(other._nimages), _nrows(other._nrows), _ncols(other._ncols), _raw_buffer(), _pixels() {
@@ -304,29 +365,73 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _ncols(other._ncols),
                 _raw_buffer(other._raw_buffer),
                 _pixels(other._pixels) {
+                // handle the cleanup
                 other._idxmagic = other._nimages = other._nrows = other._ncols = 0;
                 other._raw_buffer = other._pixels = nullptr;
             }
 
-            constexpr inline idx3& __cdecl operator=(const idx3& other) noexcept { }
+            constexpr inline idx3& __cdecl operator=(const idx3& other) noexcept {
+                if (this == &other) return *this;
 
-            constexpr inline idx3& __cdecl operator=(idx3&& other) noexcept { }
+                _idxmagic = other._idxmagic;
+                _nimages  = other._nimages;
+                _nrows    = other._nrows;
+                _ncols    = other._ncols;
 
-            constexpr inline __cdecl ~idx3() noexcept { }
+                return *this;
+            }
+
+            constexpr inline idx3& __cdecl operator=(idx3&& other) noexcept {
+                if (this == &other) return *this;
+
+                _idxmagic       = other._idxmagic;
+                _nimages        = other._nimages;
+                _nrows          = other._nrows;
+                _ncols          = other._ncols;
+                _raw_buffer     = other._raw_buffer;
+                _pixels         = other._pixels;
+
+                other._idxmagic = other._nimages = other._nrows = other._ncols = 0;
+                other._raw_buffer = other._pixels = nullptr;
+
+                return *this;
+            }
+
+            constexpr inline __cdecl ~idx3() noexcept {
+                delete[] _raw_buffer;
+                _idxmagic = _nimages = _nrows = _ncols = 0;
+                _raw_buffer = _pixels = nullptr;
+            }
+
+            constexpr iterator __cdecl begin() noexcept { }
 
             constexpr const_iterator __cdecl begin() const noexcept { }
 
             constexpr const_iterator __cdecl cbegin() const noexcept { }
 
+            constexpr iterator __cdecl end() noexcept { }
+
             constexpr const_iterator __cdecl end() const noexcept { }
 
             constexpr const_iterator __cdecl cend() const noexcept { }
 
-            template<typename other_t> requires std::is_arithmetic_v<other_t> std::vector<other_t> __cdecl pixels_astype() const noexcept {
+            template<typename other_t> requires std::is_arithmetic_v<other_t>
+            [[nodiscard("very expensive")]] std::vector<other_t> __cdecl pixels_astype() const noexcept {
+                std::vector<other_t> temp(_ncols * _nrows * _nimages);
+                std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
+                return temp;
             }
 
             template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) { }
+            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
+                if constexpr (std::is_same_v<char, char_t>)
+                    ostr << "idxio::idx3 [ " << object._idxmagic << ' ' << object._nimages << " (" << object._nrows << ", " << object._ncols
+                         << ") ]\n";
+                else if constexpr (std::is_same_v<wchar_t, char_t>)
+                    ostr << L"idxio::idx3 [ " << object._idxmagic << L' ' << object._nimages << L" (" << object._nrows << L", "
+                         << object._ncols << L") ]\n";
+                return ostr;
+            }
 
             constexpr uint32_t __cdecl count() const noexcept { return _nimages; }
 
@@ -334,11 +439,6 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
             constexpr std::pair<uint32_t, uint32_t> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
     };
-
-    // convenience aliases for the ubyte variants of idx types which use unsigned bytes as the element type
-    using idx1u8 = idx1<uint8_t>;
-
-    using idx3u8 = idx3<uint8_t>;
 
 } // namespace idxio
 

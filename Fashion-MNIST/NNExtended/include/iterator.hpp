@@ -8,15 +8,18 @@ template<typename T> class random_access_iterator final { // unchecked random ac
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
     public:
-        using value_type        = typename std::remove_cv<T>::type;
-        using pointer           = T*;
+        using value_type             = T;
+        // T preserves constness of the resource pointer, typename std::remove_cv_t<T> would have removed the qualifiers
+        // we would end up with a unqualified pointer even if the passed resource is a const iterable
+        using unqualified_value_type = typename std::remove_cv_t<T>;
+        using pointer                = T*;
         // T* preserves const correctness if T is a const qualified type, value_type* would have removed that const qualifier
-        using const_pointer     = const value_type*;
-        using reference         = T&; // T& instead of value_type& for the sake of const correctness
-        using const_reference   = const value_type&;
-        using difference_type   = signed long long;   // aka ptrdiff_t
-        using size_type         = unsigned long long; // aka size_t
-        using iterator_category = std::random_access_iterator_tag;
+        using const_pointer          = const unqualified_value_type*;
+        using reference              = T&; // T& instead of value_type& for the sake of const correctness
+        using const_reference        = const unqualified_value_type&;
+        using difference_type        = signed long long;   // aka ptrdiff_t
+        using size_type              = unsigned long long; // aka size_t
+        using iterator_category      = std::random_access_iterator_tag;
 
         // clang-format off
 #if !defined(_DEBUG) && !defined(__TEST__)    // for testing purposes make these members public!
@@ -122,29 +125,53 @@ template<typename T> class random_access_iterator final { // unchecked random ac
         }
 
 #else
-        [[nodiscard]] constexpr inline bool __stdcall operator==(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator==(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset == other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator!=(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator!=(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc != other._rsrc || _offset != other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator<(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator<(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset < other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator<=(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator<=(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset <= other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator>(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator>(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset > other._offset;
         }
 
-        [[nodiscard]] constexpr inline bool __stdcall operator>=(_In_ const random_access_iterator& other) noexcept {
+        [[nodiscard]] constexpr inline bool __stdcall operator>=(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset >= other._offset;
         }
 
 #endif // !__ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
+
+        template<typename integral_t> requires std::integral<integral_t>
+        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const integral_t& stride) const noexcept {
+            assert(_length >= _offset + stride);
+            return { _rsrc, _length, _offset + stride };
+        }
+
+        template<typename integral_t> requires std::integral<integral_t>
+        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const integral_t& stride) const noexcept {
+            assert(_length >= _offset - stride);
+            return { _rsrc, _length, _offset - stride };
+        }
+
+        [[nodiscard]] constexpr inline difference_type operator+(_In_ const random_access_iterator& other) const noexcept {
+            assert(_rsrc == other._rsrc && _length == other._length);
+            assert(_offset + other._offset <= _length);
+            return _offset + other._offset;
+        }
+
+        [[nodiscard]] constexpr inline difference_type operator-(_In_ const random_access_iterator& other) const noexcept {
+            assert(_rsrc == other._rsrc && _length == other._length);
+            assert(_offset + other._offset <= _length);
+            return _offset - other._offset;
+        }
 };

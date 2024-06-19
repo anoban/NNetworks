@@ -1,7 +1,7 @@
 #if !defined(_DEBUG) && !defined(__TEST__)
 
-auto wmain() -> int {
-    return 0;
-}
+    #include <idxio.hpp>
 
-#endif 
+auto wmain() -> int { return EXIT_SUCCESS; }
+
+#endif
