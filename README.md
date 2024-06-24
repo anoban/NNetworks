@@ -4,18 +4,25 @@ ___Project idea inspired from [Samson Zhang](https://www.youtube.com/watch?v=w8y
 - Uses OOP to modularize code.
 - Uses the real `MNIST` Idx data sets, instead of the Kaggle provided `.csv` files.
 - Includes separate classes for handling `Idx1`, `Idx3` IO.
-- `NNetworkMinimal` class can save a trained model's state to disk and construct a new model from the serialized model file, this prevents the need to retrain the model, given that the training dataset hasn't been altered since the last training.
+- `NNetworkMinimal` class can save a trained model's state to disk and reconstruct the trained model from the serialized model file. This prevents the need to retrain the model from scratch to make predictions again, granted that the training dataset hasn't been altered since the last training.
 
 ___MNIST___
 
+----------------
 ![MNIST](./readme/MnistExamplesModified.png)
 
 ___Outline of the `NNetworkMinimal` class training process___
 
-- The NNetworkMinimal class represents a very simple three layer fully connected neural network. The input layer has 784 neurons, each designated to handle one pixel from the training image.    
-- The middle hidden layer has 10 neurons, fully connected to the input and output layers.
-- The output layer has 10 neurons, each registering the probability of a given image representing the n th digit (the digits can be 0 through 9, hence the 10 neurons).
+- The `NNetworkMinimal` class represents a very simple fully connected three layer neural network. The input layer has 784 neurons, each designated to handle one pixel from the training image.    
+- The middle (aka hidden) layer has 10 neurons, fully connected to the input and output layers.
+- The output layer has 10 neurons, each registering the probability of the given image representing the n th digit (the digits (predictions) can be 0 through 9, hence the 10 neurons).
 - The training images are arrays of 28 x 28 black and white pixels (each one byte in size, with 0 mapping to black and 255 mapping to white).
+- The training happens in batches, so instead of processing each image (i.e an array of 28 x 28 pixels), we'll treat the N number of images as a matrix which embodies 28 x 28 rows and N columns.
+- In other words, in lieu of iteratively passing every image through all the layers (in both forward and backward propagations) we'll be passing arrays of images.
+- Here, the rows represent a select pixel from all the N images and a column holds all the 28 x 28 pixels of an image.
+
+___The matrix can also be reimagined as a tensor with (28, 28, N) dimensions___
+
 ----------------
 $$I_{[784, ~N]} \Longrightarrow H_{[10, ~N]} \Longrightarrow O_{[10, ~N]}$$
 
@@ -26,13 +33,11 @@ ___A matrix notation $M_{[r,~c]}$ indicates a matrix with `r` rows and `c` colum
 
 ___Phase 1) Forward propagation___
 
-${H}_{[10, ~N]} = {W}_{[784, ~10]} \cdot {I}_{[784, ~N]} + {B}_{[10, ~1]}$
+$H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}$
 
 ${\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}$
 
-
 ${\hat{H}}_{10 \times N} = {ReLU(H)}_{10 \times N}$
-
 
 $ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0$
 
@@ -136,6 +141,8 @@ For a thorough, step by step walkthrough, refer the source code. It's comprehens
 
 ___Fashion MNIST___
 
+------------------------
+
 ![Fashion-MNIST](./readme/fashion-mnist-sprite.png)
 
 --------------
@@ -144,11 +151,11 @@ Using the same `NNetworkMinimal` class used for `MNIST` datasets with 5000 itera
 - Test dataset - 0.263800 (26.38%)
 --------------
 
-Fashion MNIST datasets was designed intentionally as a superior alternative to the MNIST datasets as the former is too simple that even a naive network could make decent predictions using it. The problem with MNIST is that the information encoded in the image pixels are not that complex to easily materialize a good enough digit classifier. And the number of classification categories were just 10, 0 through 9.    
+Fashion MNIST datasets was designed intentionally as a superior alternative to the MNIST datasets as the former is too simple that even a naive network could make decent predictions using it. The problem with MNIST is that the information encoded in the image pixels are not that complex to easily materialize a good enough digit classifier.
 
-Introducing more sophisticated, visually similar shapes, the model now needs to capture more nuanced, granular patterns in the images to make good enough predictions (The differences between a woman's top and a tshirt aren't as pronounced as the differences between 1 and 2, particularly in images made of just 28 x 28 pixels). Our `NNetworkMinimal` class design is way too simple for complex learning endeavours, hence the poor accuracy scores!
+As Fashion MNIST introduces more sophisticated visually similar shapes, the model now needs to capture more nuanced, granular patterns in the images to make good enough predictions (e.g. the visual differences between a woman's top and a tshirt aren't as pronounced as the differences between the digits 1 and 2, particularly in low resolution images (28 x 28 pixels to be precise)). Our `NNetworkMinimal` class design is way too simple for complex learning endeavours, hence the poor accuracy scores with Fashion MNIST datasets.
 
 --------------
-___And this is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on Fashion MNIST datasets, but this time in C++.___
+___This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on Fashion MNIST datasets, but this time in C++.___
 
 --------------

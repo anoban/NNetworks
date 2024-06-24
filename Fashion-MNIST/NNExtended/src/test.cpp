@@ -1,3 +1,6 @@
+// clang .\src\test.cpp -I .\include\ -Wall -Wextra -O3 -pedantic -march=native -std=c++23 -D__TEST__ -D_DEBUG -DDEBUG -c -g0
+// link.exe .\test.o kernel32.lib vcruntimed.lib msvcrtd.lib /DEBUG:NONE
+
 #if defined(_DEBUG) && defined(__TEST__)
 
 // clang-format off
@@ -85,11 +88,11 @@ auto wmain() -> int {
     assert(mfend._offset == __crt_countof(frandoms));
 
     // test the moved from object
-    assert(!fbegin._rsrc);
+    assert(!fbegin._rsrc); // NOLINT(bugprone-use-after-move)
     assert(!fbegin._length);
     assert(!fbegin._offset);
 
-    assert(!fend._rsrc);
+    assert(!fend._rsrc); // NOLINT(bugprone-use-after-move)
     assert(!fend._length);
     assert(!fend._offset);
 
@@ -105,7 +108,8 @@ auto wmain() -> int {
         _ = static_cast<float>(rndengine());
     });
 
-    for (unsigned i = 0; i < 200; ++i) assert(frandoms[i] >= -0.5 && frandoms[i] <= 0.5);
+    for (unsigned i = 0; i < 200; ++i)
+        assert(frandoms[i] >= -0.5 && frandoms[i] <= 0.5); // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
 
     assert(begin._Unwrapped() == randoms);
     assert(*begin == 0);
