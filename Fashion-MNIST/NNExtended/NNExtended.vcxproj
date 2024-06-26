@@ -218,9 +218,9 @@
       <CCppSupport>Cpp20Support</CCppSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <Optimization>MaxSpeedHighLevel</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <LoopUnrolling>
@@ -230,7 +230,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeaderOutputFile />
       <PrecompiledHeaderFile />
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <GuardEHContMetadata>true</GuardEHContMetadata>
     </ClCompile>
     <Link>
@@ -288,6 +288,7 @@
     <ClInclude Include="include\idxio.hpp" />
     <ClInclude Include="include\iterator.hpp" />
     <ClInclude Include="include\matrix.hpp" />
+    <ClInclude Include="include\misc.hpp" />
     <ClInclude Include="include\neunet.hpp" />
     <ClInclude Include="include\utilities.hpp" />
   </ItemGroup>

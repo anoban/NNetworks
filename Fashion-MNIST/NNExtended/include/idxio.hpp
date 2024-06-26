@@ -23,9 +23,7 @@
     #include <vector>
 
     #include <iterator.hpp>
-
-// use this to constrain the template arguments to overloaded std::basic_ostream<T>::<<operator()
-template<typename T> concept is_iostream_output_operator_compatible = std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
+    #include <misc.hpp>
 
 inline namespace helpers { // routines inside namespace helpers aren't meant to be used outside this header
 
@@ -140,7 +138,11 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             using iterator        = random_access_iterator<scalar_t>;
             using const_iterator  = random_access_iterator<const scalar_t>;
 
+            // clang-format off
+    #if !defined(_DEBUG) && !defined(__TEST__)
         private:
+    #endif
+            // clang-format on
             uint32_t _idxmagic;   // first 4 bytes
             uint32_t _nlabels;    // next 4 bytes
             uint8_t* _raw_buffer; // the whole file
@@ -185,6 +187,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             constexpr inline __cdecl idx1(_In_ const idx1& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
                 uint8_t* temp_buff = new (std::nothrow) uint8_t[_nlabels * sizeof(value_type) + 8];
+                // cannot just use value_type[_nlabels] because we need to accomodate the metadata which is always unsigned char
                 // 8 for the first 8 metadata bytes and the rest for the buffer downstream
                 if (!temp_buff) {
                     ::fputws(L"idx1(_In_ const idx1& other) copy constructor failed!, object is in unusable state!\n", stderr);
@@ -306,7 +309,11 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             using iterator        = random_access_iterator<scalar_t>;
             using const_iterator  = random_access_iterator<const scalar_t>;
 
+            // clang-format off
+    #if !defined(_DEBUG) && !defined(__TEST__)
         private:
+    #endif
+            // clang-format on
             uint32_t _idxmagic;   // first 4 bytes
             uint32_t _nimages;    // next 4 bytes
             uint32_t _nrows;      // next 4 bytes

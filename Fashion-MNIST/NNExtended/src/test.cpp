@@ -2,9 +2,10 @@
 // link.exe .\test.o kernel32.lib vcruntimed.lib msvcrtd.lib /DEBUG:NONE
 
 #if defined(_DEBUG) && defined(__TEST__)
-
 // clang-format off
+    #include <iterator.hpp>
     #include <idxio.hpp>
+    #include <matrix.hpp>
 // clang-format on
 
     #include <algorithm>
@@ -143,23 +144,54 @@ auto wmain() -> int {
     std::vector<decltype(begin)::unqualified_value_type> rs { begin, end };
     assert(rs.size() == max);
 
-    #pragma endregion __TEST_ITERATOR__
+    #pragma endregion
 
     #pragma region __TEST_IDX__
 
-    const idxio::idx1 train_labels { L"../idx/train-labels-idx1-ubyte" };
-    const idxio::idx1 test_labels { L"../idx/t10k-labels-idx1-ubyte" };
+    idxio::idx1 train_labels { L"../idx/train-labels-idx1-ubyte" };
+    idxio::idx1 test_labels { L"../idx/t10k-labels-idx1-ubyte" };
 
     std::wcout << train_labels;
     std::wcout << test_labels;
 
-    assert(train_labels.count() == 60'000);
-    assert(test_labels.count() == 10'000);
+    assert(train_labels._idxmagic == 2049);
     assert(train_labels.magic() == 2049);
-    assert(test_labels.magic() == 2049);
+    assert(train_labels._nlabels == 60'000);
+    assert(train_labels.count() == 60'000);
+    assert(train_labels._raw_buffer);
+    assert(train_labels._labels == train_labels._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-    const idxio::idx3 train_images { L"../idx/train-images-idx3-ubyte" };
-    const idxio::idx3 test_images { L"../idx/t10k-images-idx3-ubyte" };
+    assert(test_labels._idxmagic == 2049);
+    assert(test_labels.magic() == 2049);
+    assert(test_labels._nlabels == 10'000);
+    assert(test_labels.count() == 10'000);
+    assert(test_labels._raw_buffer);
+    assert(test_labels._labels == test_labels._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    idxio::idx3 train_images { L"../idx/train-images-idx3-ubyte" };
+    idxio::idx3 test_images { L"../idx/t10k-images-idx3-ubyte" };
+
+    assert(train_images._idxmagic == 2051);
+    assert(train_images.magic() == 2051);
+    assert(train_images._nimages == 60'000);
+    assert(train_images.count() == 60'000);
+    assert(train_images._raw_buffer);
+    assert(train_images._pixels == train_images._raw_buffer + 16); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    assert(train_images._ncols == 28);
+    assert(train_images._nrows == 28);
+    auto [rows, cols] = train_images.dim();
+    assert(rows == 28 && cols == 28);
+
+    assert(test_images._idxmagic == 2051);
+    assert(test_images.magic() == 2051);
+    assert(test_images._nimages == 10'000);
+    assert(test_images.count() == 10'000);
+    assert(test_images._raw_buffer);
+    assert(test_images._pixels == test_images._raw_buffer + 16); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    assert(test_images._ncols == 28);
+    assert(test_images._nrows == 28);
+    std::tie(rows, cols) = test_images.dim();
+    assert(rows == 28 && cols == 28);
 
     std::wcout << train_images;
     std::wcout << test_images;
@@ -196,7 +228,90 @@ auto wmain() -> int {
     for (const auto& p : test_images) pixfreqs.at(p)++;
     assert(std::reduce(pixfreqs.cbegin(), pixfreqs.cend(), 0LLU) == 10'000 * 784);
 
-    #pragma endregion __TEST_IDX__
+    // test the default ctors
+    constexpr idxio::idx1 empty_idx1 {};
+    constexpr idxio::idx3 empty_idx3 {};
+    std::wcout << empty_idx1;
+    std::wcout << empty_idx3;
+
+    assert(!empty_idx1._idxmagic);
+    assert(!empty_idx1._nlabels);
+    assert(!empty_idx1._raw_buffer);
+    assert(!empty_idx1._labels);
+
+    assert(!empty_idx3._idxmagic);
+    assert(!empty_idx3._nimages);
+    assert(!empty_idx3._nrows);
+    assert(!empty_idx3._ncols);
+    assert(!empty_idx3._raw_buffer);
+    assert(!empty_idx3._pixels);
+
+    // test the copy ctors
+    auto cpy_trlabs { train_labels };
+    assert(cpy_trlabs._idxmagic == 2049);
+    assert(cpy_trlabs.magic() == 2049);
+    assert(cpy_trlabs._nlabels == 60'000);
+    assert(cpy_trlabs.count() == 60'000);
+    assert(train_labels._raw_buffer != cpy_trlabs._raw_buffer);
+    assert(cpy_trlabs._raw_buffer);
+    assert(cpy_trlabs._labels == cpy_trlabs._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    for (const auto& i : std::ranges::views::iota(0, 10))
+        assert(std::count(train_labels.cbegin(), train_labels.cend(), i) == std::count(cpy_trlabs.cbegin(), cpy_trlabs.cend(), i));
+    assert(std::reduce(train_labels.cbegin(), train_labels.cend(), 0LLU) == std::reduce(cpy_trlabs.cbegin(), cpy_trlabs.cend(), 0LLU));
+
+    // test the move ctor
+    const auto* const trainlbl = train_labels._raw_buffer;
+    const auto* const testlbl  = test_labels._raw_buffer;
+
+    auto       train_labelsmvd { std::move(train_labels) };
+    const auto test_labelsmvd { std::move(test_labels) };
+
+    assert(!train_labels._idxmagic);
+    assert(!train_labels.magic());
+    assert(!train_labels._nlabels);
+    assert(!train_labels.count());
+    assert(!train_labels._raw_buffer);
+    assert(!train_labels._labels);
+    assert(!train_labels._raw_buffer);
+
+    assert(!test_labels._idxmagic);
+    assert(!test_labels.magic());
+    assert(!test_labels._nlabels);
+    assert(!test_labels.count());
+    assert(!test_labels._raw_buffer);
+    assert(!test_labels._labels);
+    assert(!test_labels._raw_buffer);
+
+    assert(trainlbl == train_labelsmvd._raw_buffer);
+    assert(testlbl == test_labelsmvd._raw_buffer);
+
+    for (const auto& i : std::ranges::views::iota(0, 10))
+        assert(std::count(train_labelsmvd.cbegin(), train_labelsmvd.cend(), i) == std::count(cpy_trlabs.cbegin(), cpy_trlabs.cend(), i));
+    for (const auto& i : std::ranges::views::iota(0, 10)) {
+        assert(std::count(train_labelsmvd.cbegin(), train_labelsmvd.cend(), i) == 6'000);
+        assert(std::count(test_labelsmvd.cbegin(), test_labelsmvd.cend(), i) == 1'000);
+    }
+    assert(
+        std::reduce(train_labelsmvd.cbegin(), train_labelsmvd.cend(), 0LLU) == std::reduce(cpy_trlabs.cbegin(), cpy_trlabs.cend(), 0LLU)
+    );
+
+    // test the copy assignment operator
+    const auto* const ptr = train_labelsmvd._raw_buffer;
+    train_labelsmvd       = test_labelsmvd;     // train labels object has a bigger buffer than the test labels object
+    assert(train_labelsmvd._raw_buffer == ptr); // no reallocation should have happened!
+
+    // even though train_labelsmvd now has lesser elements than what could fill its buffer, it sould repurpose its iterators accordingly
+    for (const auto& i : std::ranges::views::iota(0, 10)) assert(std::count(train_labelsmvd.cbegin(), train_labelsmvd.cend(), i) == 1'000);
+
+    std::wcout << train_labelsmvd;
+    std::wcout << test_labelsmvd;
+
+    #pragma endregion
+
+    #pragma region __TEST_MATRIX__
+    matrix fmat { 10, 10 };
+    #pragma endregion
 
     return EXIT_SUCCESS;
 }
