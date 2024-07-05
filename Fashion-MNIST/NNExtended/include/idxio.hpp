@@ -385,11 +385,28 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _nrows    = other._nrows;
                 _ncols    = other._ncols;
 
+                // if the existing buffer can hold the other object, reuse the old buffer
+                if ((_nimages * _nrows * _ncols) > (other._nimages * other._nrows * other._ncols)) { // just copy the data
+                    ::memset(_raw_buffer, 0, 8LL + _nimages * _nrows * _ncols * sizeof(value_type));
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                } else if (_nlabels == other._nlabels) { // don't bother the memset
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                } else {
+                    delete[] _raw_buffer;
+                    _raw_buffer = new (std::nothrow) uint8_t[8 + other._nlabels * sizeof(value_type)];
+                    if (!_raw_buffer) {
+                        ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
+                        return *this;
+                    }
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                }
+
                 return *this;
             }
 
             constexpr inline idx3& __cdecl operator=(idx3&& other) noexcept {
                 if (this == &other) return *this;
+                delete[] _raw_buffer;
 
                 _idxmagic       = other._idxmagic;
                 _nimages        = other._nimages;

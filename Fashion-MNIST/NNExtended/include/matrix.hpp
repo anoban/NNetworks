@@ -31,13 +31,51 @@ template<typename T = float> requires std::is_arithmetic_v<T> class matrix final
     public:
         constexpr inline matrix() noexcept : _buffer {}, _nrows {}, _ncols {} { }
 
-        inline matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) noexcept :
+        constexpr inline matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) noexcept :
             _buffer { new (std::nothrow) value_type[nrows * ncols] }, _nrows { nrows }, _ncols { ncols } {
             if (!_buffer)
-                ;
+                fputws(
+                    L"matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) constructor failed. matrix object is left in unusable state\n",
+                    stderr
+                );
         }
 
-        [[nodiscard]] constexpr inline std::pair<size_type, size_type> shape() const noexcept { }
+        constexpr inline matrix(_In_ const matrix& other) noexcept :
+            _buffer { new (std::nothrow) value_type[other._nrows * other._ncols] }, _nrows { other._nrows }, _ncols { other._ncols } {
+            if (!_buffer) {
+                fputws(L"matrix(_In_ const matrix& other) constructor failed. matrix object is left in unusable state\n", stderr);
+                return;
+            }
+            std::copy(other._buffer, other._buffer + (other._nrows * other._ncols), _buffer);
+        }
+
+        constexpr inline matrix(_In_ matrix&& other) noexcept :
+            _buffer { other._buffer }, _nrows { other._nrows }, _ncols { other._ncols } {
+            other._buffer = nullptr;
+            other._nrows = other._ncols = 0;
+        }
+
+        constexpr inline matrix& operator=(_In_ const matrix& other) noexcept {
+            if (this == &other) return *this;
+
+            return *this;
+        }
+
+        constexpr inline matrix& operator=(_In_ matrix&& other) noexcept {
+            if (this == &other) return *this;
+
+            other._buffer = nullptr;
+            other._nrows = other._ncols = 0;
+            return *this;
+        }
+
+        constexpr inline ~matrix() {
+            delete[] _buffer;
+            _nrows = _ncols = 0;
+            _buffer         = nullptr;
+        }
+
+        [[nodiscard]] constexpr inline std::pair<size_type, size_type> shape() const noexcept { return { _nrows, _ncols }; }
 
         template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
         friend std::basic_ostream<char_t>& operator<<(_In_ std::basic_ostream<char_t>& ostream, _In_ const matrix& matrix) { }
