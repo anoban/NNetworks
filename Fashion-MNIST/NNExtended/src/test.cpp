@@ -139,9 +139,9 @@ auto wmain() -> int {
     assert(csum == stdsum);
 
     for (auto it = std::cbegin(randoms), end = std::cend(randoms); it != end; ++it, ++begin_copy) assert(*it == *begin_copy);
-    std::vector<decltype(mfbegin)::unqualified_value_type> frs { mfbegin, mfend };
+    std::vector<decltype(mfbegin)::value_type> frs { mfbegin, mfend };
     assert(frs.size() == maxx);
-    std::vector<decltype(begin)::unqualified_value_type> rs { begin, end };
+    std::vector<decltype(begin)::value_type> rs { begin, end };
     assert(rs.size() == max);
 
     #pragma endregion

@@ -200,7 +200,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         using iterator_category = std::random_access_iterator_tag;
 
         // clang-format off
-#if !defined(_DEBUG) && !defined(__TEST__)   
+#if !defined(_DEBUG) && !defined(__TEST__)
     private:
 #endif
         // clang-format on
@@ -228,13 +228,13 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         }
 
         constexpr inline __cdecl strided_random_access_iterator(_In_ const strided_random_access_iterator& other) noexcept :
-            _rsrc(other._rsrc), _length(other._length), _offset(other._offset) { }
+            random_access_iterator<T>(other._rsrc, other._length, other._offset), _stride(other._stride) { }
 
         constexpr inline __cdecl strided_random_access_iterator(_In_ strided_random_access_iterator&& other) noexcept :
-            _rsrc(other._rsrc), _length(other._length), _offset(other._offset) {
+            random_access_iterator<T>(other._rsrc, other._length, other._offset), _stride(other._stride) {
             // cleanup the stolen from resource
             other._rsrc   = nullptr;
-            other._length = other._offset = 0;
+            other._length = other._offset = other._stride = 0;
         }
 
         constexpr inline strided_random_access_iterator& __cdecl operator=(_In_ const strided_random_access_iterator& other) noexcept {
@@ -242,6 +242,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _rsrc   = other._rsrc;
             _length = other._length;
             _offset = other._offset;
+            _stride = other._stride;
             return *this;
         }
 
@@ -250,6 +251,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _rsrc         = other._rsrc;
             _length       = other._length;
             _offset       = other._offset;
+            _stride       = other._stride;
 
             // cleanup
             other._rsrc   = nullptr;
@@ -259,7 +261,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
 
         constexpr inline __cdecl ~strided_random_access_iterator() noexcept {
             _rsrc   = nullptr;
-            _length = _offset = 0;
+            _length = _offset = _stride = 0;
         }
 
         // using the __stdcall calling convention to very frequently invoked methods!
