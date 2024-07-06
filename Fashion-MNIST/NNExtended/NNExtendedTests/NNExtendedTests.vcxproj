@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{351ea2a9-f3c9-43ba-85f6-6f64011a3a58}</ProjectGuid>
-    <RootNamespace>Test</RootNamespace>
+    <ProjectGuid>{6e93dd7b-e8ba-4db7-acf6-86af0e7f9902}</ProjectGuid>
+    <RootNamespace>NNExtendedTests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,18 +127,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\idxio.hpp" />
-    <ClInclude Include="..\..\include\iterator.hpp" />
-    <ClInclude Include="..\..\include\matrix.hpp" />
-    <ClInclude Include="..\..\include\misc.hpp" />
-    <ClInclude Include="..\..\include\neunet.hpp" />
-    <ClInclude Include="..\..\include\utilities.hpp" />
+    <ClInclude Include="..\include\idxio.hpp" />
+    <ClInclude Include="..\include\iterator.hpp" />
+    <ClInclude Include="..\include\matrix.hpp" />
+    <ClInclude Include="..\include\misc.hpp" />
+    <ClInclude Include="..\include\neunet.hpp" />
+    <ClInclude Include="..\include\utilities.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\idxio.cpp" />
-    <ClCompile Include="..\iterator.cpp" />
-    <ClCompile Include="..\matrix.cpp" />
-    <ClCompile Include="..\test.cpp" />
+    <ClCompile Include="src\idxio.cpp" />
+    <ClCompile Include="src\iterator.cpp" />
+    <ClCompile Include="src\matrix.cpp" />
+    <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
