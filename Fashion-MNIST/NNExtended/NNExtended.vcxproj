@@ -282,7 +282,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\idxio.hpp" />
