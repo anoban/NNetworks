@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <array>
 #include <numeric>
 #include <ranges>
@@ -165,5 +165,5 @@ void TEST_IDXIO() noexcept {
     std::wcout << train_labelsmvd;
     std::wcout << test_labelsmvd;
 
-    ::_putws(L"");
+    ::_putws(L"TEST_IDXIO passed :: ✓");
 }

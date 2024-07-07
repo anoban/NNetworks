@@ -1,4 +1,4 @@
-#include <chrono>
+﻿#include <chrono>
 #include <numeric>
 #include <random>
 
@@ -129,5 +129,5 @@ void TEST_ITERATORS() noexcept {
     std::vector<decltype(begin)::value_type> rs { begin, end };
     assert(rs.size() == max);
 
-    ::_putws(L"");
+    ::_putws(L"TEST_ITERATORS passed :: ✓");
 }
