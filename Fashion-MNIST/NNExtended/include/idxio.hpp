@@ -36,7 +36,13 @@ inline namespace helpers { // routines inside namespace helpers aren't meant to 
         const HANDLE64 hFile = ::CreateFileW(filename, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
         if (hFile == INVALID_HANDLE_VALUE) {
-            ::fwprintf_s(stderr, L"Error %4lu occurred inside %s, in call to CreateFileW\n", ::GetLastError(), __FUNCTIONW__);
+            ::fwprintf_s(
+                stderr,
+                L"Cannot open file %s, Error %4lu occurred inside %s, in call to CreateFileW\n",
+                filename,
+                ::GetLastError(),
+                __FUNCTIONW__
+            );
             goto INVALID_HANDLE_ERR;
         }
 

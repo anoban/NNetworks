@@ -85,12 +85,12 @@ void TEST_ITERATORS() noexcept {
     // fill the array with values
     std::iota(begin + 10, end, 11); // start filing from 11th element, first 10 will be 0s.
     // first 200 will be between urealdistr.min() and urealdistr.max()
-    std::for_each(mfbegin, mfbegin + 200, [&urealdistr, &rndengine](decltype(mfbegin)::value_type& _) constexpr noexcept -> void {
+    std::for_each(mfbegin, mfbegin + 200, [&urealdistr, &rndengine](decltype(mfbegin)::value_type& _) noexcept -> void {
         _ = static_cast<decltype(mfbegin)::value_type>(urealdistr(rndengine));
     });
     assert(maxx >= 200);
     // the rest will be filled unrestricted by the random engine
-    std::for_each(mfbegin + 200, mfend, [&rndengine](decltype(mfbegin)::value_type& _) constexpr noexcept -> void {
+    std::for_each(mfbegin + 200, mfend, [&rndengine](decltype(mfbegin)::value_type& _) noexcept -> void {
         _ = static_cast<float>(rndengine());
     });
 
@@ -129,5 +129,5 @@ void TEST_ITERATORS() noexcept {
     std::vector<decltype(begin)::value_type> rs { begin, end };
     assert(rs.size() == max);
 
-    ::_putws(L"TEST_ITERATORS passed :: ✓");
+    ::_putws(L"TEST_ITERATORS passed :)");
 }

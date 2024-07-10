@@ -12,6 +12,5 @@ extern void TEST_MATRIX() noexcept;    // matrix.cpp
 auto wmain() -> int {
     TEST_ITERATORS();
     TEST_IDXIO();
-    ::_putws(L"All tests have passed!");
     return EXIT_SUCCESS;
 }

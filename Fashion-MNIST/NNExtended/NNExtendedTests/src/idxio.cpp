@@ -6,8 +6,11 @@
 #include <idxio.hpp>
 
 void TEST_IDXIO() noexcept {
-    idxio::idx1 train_labels { L"../idx/train-labels-idx1-ubyte" };
-    idxio::idx1 test_labels { L"../idx/t10k-labels-idx1-ubyte" };
+    idxio::idx1 train_labels { L"../../idx/train-labels-idx1-ubyte" };
+    idxio::idx1 test_labels { L"../../idx/t10k-labels-idx1-ubyte" };
+
+    idxio::idx3 train_images { L"../../idx/train-images-idx3-ubyte" };
+    idxio::idx3 test_images { L"../../idx/t10k-images-idx3-ubyte" };
 
     std::wcout << train_labels;
     std::wcout << test_labels;
@@ -25,9 +28,6 @@ void TEST_IDXIO() noexcept {
     assert(test_labels.count() == 10'000);
     assert(test_labels._raw_buffer);
     assert(test_labels._labels == test_labels._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
-    idxio::idx3 train_images { L"../idx/train-images-idx3-ubyte" };
-    idxio::idx3 test_images { L"../idx/t10k-images-idx3-ubyte" };
 
     assert(train_images._idxmagic == 2051);
     assert(train_images.magic() == 2051);
@@ -165,5 +165,5 @@ void TEST_IDXIO() noexcept {
     std::wcout << train_labelsmvd;
     std::wcout << test_labelsmvd;
 
-    ::_putws(L"TEST_IDXIO passed :: ✓");
+    ::_putws(L"TEST_IDXIO passed :)");
 }
