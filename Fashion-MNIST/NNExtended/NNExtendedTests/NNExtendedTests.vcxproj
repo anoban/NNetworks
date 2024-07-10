@@ -72,7 +72,7 @@
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -80,6 +80,8 @@
       <FloatingPointModel>Precise</FloatingPointModel>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <DisableSpecificWarnings>4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Disabled</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
