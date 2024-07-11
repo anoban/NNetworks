@@ -24,30 +24,30 @@ ___Outline of the `NNetworkMinimal` class training process___
 ___The matrix can also be reimagined as a tensor with (28, 28, N) dimensions___
 
 ----------------
-$$I_{[784, ~N]} \Longrightarrow H_{[10, ~N]} \Longrightarrow O_{[10, ~N]}$$
+$`I_{[784, ~N]} \Longrightarrow H_{[10, ~N]} \Longrightarrow O_{[10, ~N]}`$
 
 -----------------
-___A matrix notation $M_{[r,~c]}$ indicates a matrix with `r` rows and `c` columns, not the matrix element at `r` th row and `c` th column!.___
+___A matrix notation $`M_{[r,~c]}`$ indicates a matrix with `r` rows and `c` columns, not the matrix element at `r` th row and `c` th column!.___
 
 -----------------
 
 ___Phase 1) Forward propagation___
 
-$$H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}$$
+$`H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}`$
 
-$${\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}$$
+$`{\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}`$
 
-$${\hat{H}}_{10 \times N} = {ReLU(H)}_{10 \times N}$$
+$`{\hat{H}}_{10 \times N} = {ReLU(H)}_{10 \times N}`$
 
-$$ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0$$
+$`ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0`$
 
-$${O}_{10 \times N} = {w}_{10 \times 10} \cdot {\hat{H}}_{10 \times N} + {b}_{10 \times 1}$$
+$`{O}_{10 \times N} = {w}_{10 \times 10} \cdot {\hat{H}}_{10 \times N} + {b}_{10 \times 1}`$
 
-$${\hat{O}}_{10 \times N} = {f_{softmax}(O)}_{10 \times N}$$
+$`{\hat{O}}_{10 \times N} = {f_{softmax}(O)}_{10 \times N}`$
 
-$$softmax = \frac{e^O}{\sum_{j = 1}^{K} e_{j}^O}$$
+$`softmax = \frac{e^O}{\sum_{j = 1}^{K} e_{j}^O}`$
 
-$$softmax = ({\begin{bmatrix}
+$`softmax = ({\begin{bmatrix}
 0.9 \\
 1.7 \\
 8.4 \\
@@ -55,7 +55,7 @@ $$softmax = ({\begin{bmatrix}
 2.1 \\
 8.5 \\
 9.1 \\
-\end{bmatrix}}_{10 \times 1})$$
+\end{bmatrix}}_{10 \times 1})`$
 
 {\begin{bmatrix}
 0.10 \\
