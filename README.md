@@ -37,13 +37,13 @@ $`H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}`$
 
 $`{\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}`$
 
-$`{\hat{H}}_{10 \times N} = {ReLU(H)}_{10 \times N}`$
+$`{\hat{H}}_{10, N} = {ReLU(H)}_{10, N}`$
 
 $`ReLU(x): ~ x ~ if ~ (x > 0) ~ else ~ 0`$
 
-$`{O}_{10 \times N} = {w}_{10 \times 10} \cdot {\hat{H}}_{10 \times N} + {b}_{10 \times 1}`$
+$`{O}_{10, N} = {w}_{10, 10} \cdot {\hat{H}}_{10, N} + {b}_{10, 1}`$
 
-$`{\hat{O}}_{10 \times N} = {f_{softmax}(O)}_{10 \times N}`$
+$`{\hat{O}}_{10, N} = {f_{softmax}(O)}_{10, N}`$
 
 $`softmax = \frac{e^O}{\sum_{j = 1}^{K} e_{j}^O}`$
 
@@ -55,7 +55,7 @@ $`softmax = ({\begin{bmatrix}
 2.1 \\
 8.5 \\
 9.1 \\
-\end{bmatrix}}_{10 \times 1})`$
+\end{bmatrix}})_{10, 1}`$
 
 {\begin{bmatrix}
 0.10 \\
@@ -65,7 +65,7 @@ $`softmax = ({\begin{bmatrix}
 0.74 \\
 0.01 \\
 0.01 \\
-\end{bmatrix}}_{10 \times 1}$
+\end{bmatrix}}_{10, 1}$
 
 
 ___Phase 2) Back propagation___
@@ -78,7 +78,7 @@ prediction = {\begin{bmatrix}
 0.00 \\
 0.10 \\
 0.07 \\
-\end{bmatrix}}_{10 \times 1} \\
+\end{bmatrix}}_{10, 1} \\
 
 \text{one hot encoded label} = {\begin{bmatrix}
 0 \\
@@ -88,9 +88,9 @@ prediction = {\begin{bmatrix}
 0 \\
 0 \\
 0 \\
-\end{bmatrix}}_{10 \times 1} \\
+\end{bmatrix}}_{10, 1} \\
 
-{\mathrm{d}O}_{10 \times N} = {\hat{O}}_{10 \times N} - {L_{True}}_{10 \times N} \\
+{\mathrm{d}O}_{10, N} = {\hat{O}}_{10, N} - {L_{True}}_{10, N} \\
 
 \mathrm{d}O_i = \begin{bmatrix}
 0.01 \\
@@ -110,15 +110,15 @@ prediction = {\begin{bmatrix}
 0 \\
 \end{bmatrix} \\
 
-{\mathrm{d}{w}}_{10 \times 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10 \times N} \cdot   \overbrace{\hat{H}^T}^{N \times 10}}{N} \\
+{\mathrm{d}{w}}_{10, 10} = \frac{  \overbrace{\mathrm{d}{O}}^{10, N} \cdot   \overbrace{\hat{H}^T}^{N, 10}}{N} \\
 
-{\mathrm{d}{b}}_{10 \times 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10 \times 1}}}{N} \\
+{\mathrm{d}{b}}_{10, 1} =  \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{O_i}}^{10, 1}}}{N} \\
 
-{\mathrm{d}{H}}_{10 \times N} = {w^T}_{10 \times 10} \cdot {\mathrm{d}{O}}_{10 \times N} \times {f^{\prime}(H)}_{10 \times N} \\
+{\mathrm{d}{H}}_{10, N} = {w^T}_{10, 10} \cdot {\mathrm{d}{O}}_{10, N}, {f^{\prime}(H)}_{10, N} \\
 
-{\mathrm{d}{W}}_{10 \times 784} = \frac{\overbrace{\mathrm{d}{H}}^{10 \times N} \cdot \overbrace{I^T}^{N \times 784}}{N} \\
+{\mathrm{d}{W}}_{10, 784} = \frac{\overbrace{\mathrm{d}{H}}^{10, N} \cdot \overbrace{I^T}^{N, 784}}{N} \\
 
-{\mathrm{d}{B}}_{10 \times 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10 \times 1}}}{N} \\
+{\mathrm{d}{B}}_{10, 1} = \frac{\sum_{i~=~1}^{N}{\overbrace{\mathrm{d}{H_i}}^{10, 1}}}{N} \\
 
 
 
