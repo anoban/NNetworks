@@ -7,7 +7,7 @@
     #include <type_traits>
 
     #pragma region __RANDOM_ACCESS_ITERATOR__
-template<typename T> class random_access_iterator final { // unchecked random access iterator
+template<typename T> class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
@@ -41,11 +41,16 @@ template<typename T> class random_access_iterator final { // unchecked random ac
 
         // resource pointer and length of the iterable
         constexpr inline __cdecl random_access_iterator(_In_ T* const _res, _In_ const size_t& _sz) noexcept :
-            _rsrc(_res), _length(_sz), _offset() { }
+            _rsrc(_res), _length(_sz), _offset() {
+            assert(_res);
+            assert(_sz);
+        }
 
         // resource pointer, length of the iterable and the current iterator position, will need this for .end() methods
         constexpr inline __cdecl random_access_iterator(_In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _pos) noexcept :
             _rsrc(_res), _length(_sz), _offset(_pos) {
+            assert(_res);
+            assert(_sz);
             assert(_sz >= _pos);
         }
 
@@ -188,9 +193,10 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         // hence it would require a custom stride (number of columns) to get to the next element instead of 1!
         // iterating over rows can be accomplished with an aptly customized random_access_iterator
 
-        using random_access_iterator<T>::_rsrc;
-        using random_access_iterator<T>::_offset;
-        using random_access_iterator<T>::_length;
+        // aliasing the injected name
+        using strided_random_access_iterator::random_access_iterator::_length;
+        using strided_random_access_iterator::random_access_iterator::_offset;
+        using strided_random_access_iterator::random_access_iterator::_rsrc;
 
     public:
         using value_type        = typename random_access_iterator<T>::value_type;
@@ -211,7 +217,6 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         size_type _stride; // stride size
 
     public:
-        // will require an explicit template type specification
         constexpr inline __cdecl strided_random_access_iterator() noexcept :
             strided_random_access_iterator::random_access_iterator(), _stride() { }
 
@@ -219,6 +224,8 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _str
         ) noexcept :
             strided_random_access_iterator::random_access_iterator { _res, _sz }, _stride { _str } {
+            assert(_res);
+            assert(_sz);
             assert(_str);
         }
 
@@ -226,6 +233,8 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _pos, _In_ const size_t& _str
         ) noexcept :
             strided_random_access_iterator::random_access_iterator { _res, _sz, _pos }, _stride { _str } {
+            assert(_res);
+            assert(_sz);
             assert(_sz >= _pos);
             assert(_str);
         }
@@ -267,8 +276,6 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _length = _offset = _stride = 0;
         }
 
-        // using the __stdcall calling convention to very frequently invoked methods!
-
         [[nodiscard]] constexpr inline reference __stdcall operator*() noexcept { return _rsrc[_offset]; }
 
         [[nodiscard]] constexpr inline const_reference __stdcall operator*() const noexcept { return _rsrc[_offset]; }
@@ -278,33 +285,31 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         [[nodiscard]] constexpr inline const_pointer __cdecl _Unwrapped() const noexcept { return _rsrc; }
 
         constexpr inline strided_random_access_iterator& __stdcall operator++() noexcept {
-            _offset++;
+            _offset += _stride;
             assert(_offset <= _length);
             return *this;
         }
 
         [[nodiscard]] constexpr inline strided_random_access_iterator __stdcall operator++(int) noexcept {
-            _offset++;
+            _offset += _stride;
             assert(_offset <= _length);
-            return { _rsrc, _length, _offset - 1 };
+            return { _rsrc, _length, _offset - _stride };
         }
 
         constexpr inline strided_random_access_iterator& __stdcall operator--() noexcept {
-            _offset--;
+            _offset -= _stride;
             assert(_offset <= _length); // assert(_offset >= 0); won't help because _offset is unsigned, so instead check for wraparounds
             return *this;
         }
 
         [[nodiscard]] constexpr inline strided_random_access_iterator __stdcall operator--(int) noexcept {
-            _offset--;
+            _offset -= _stride;
             assert(_offset <= _length);
-            return { _rsrc, _length, _offset + 1 };
+            return { _rsrc, _length, _offset - _stride };
         }
 
-    #ifdef __ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__ // aka "I'm not worried about performance"
+    #ifdef __ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
 
-        // defining a custom <=> operator because we want only the _offset member to participate in the comparison
-        // we do not care about the _length member and _rsrc being identical is rather a precondition for comparison than a criteria for the pedciation
         [[nodiscard]] constexpr inline std::strong_ordering __stdcall operator<=>(_In_ const random_access_iterator& other) noexcept {
             return _rsrc == other._rsrc && _offset <=> other._offset; // the first subexpression is a prerequisite
             // let the second predicate of the composition dictate the final ordering

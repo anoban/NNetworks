@@ -31,7 +31,7 @@ ___A matrix notation $`M_{[r,~c]}`$ indicates a matrix with `r` rows and `c` col
 
 -----------------
 
-___Phase 1) Forward propagation___
+___Forward propagation___
 
 $`H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}`$
 
@@ -125,12 +125,12 @@ prediction = {\begin{bmatrix}
 ___Phase 3) Simultaneous paramater updates___
 
 
-_W = W - $\alpha$ dW_  
-_B = B - $\alpha$ dB_  
-_w = w - $\alpha$ dw_  
-_b = b - $\alpha$ db_  
+_W = W - $`\alpha`$ dW_  
+_B = B - $`\alpha`$ dB_  
+_w = w - $`\alpha`$ dw_  
+_b = b - $`\alpha`$ db_  
 
-$\alpha$ - learning rate
+$`\alpha`$ - learning rate
 
 --------------
 After 5,000 iterations, the accuracy scores for `MNIST` datasets were:

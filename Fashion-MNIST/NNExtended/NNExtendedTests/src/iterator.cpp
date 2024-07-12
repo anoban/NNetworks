@@ -1,4 +1,5 @@
-﻿#include <chrono>
+﻿#include <algorithm>
+#include <chrono>
 #include <numeric>
 #include <random>
 #include <ranges>
@@ -597,6 +598,20 @@ void TEST_ITERATORS() noexcept {
 
     for (const auto& i : std::ranges::views::iota(0u, __crt_countof(randoms))) assert(randoms[i] == *randoms_begin++);
     assert(randoms_begin == randoms_end);
+
+    // test the strided_random_access_iterator
+    uint64_t                             pos {};
+    strided_random_access_iterator       step_2 { randoms, __crt_countof(randoms), 2 };
+    strided_random_access_iterator       step_11 { randoms, __crt_countof(randoms), 11 };
+    strided_random_access_iterator       step_56 { randoms, __crt_countof(randoms), 56 };
+    strided_random_access_iterator       step_9 { randoms, __crt_countof(randoms), 9 };
+    const strided_random_access_iterator rcend {
+        randoms, __crt_countof(randoms), __crt_countof(randoms), 1
+    }; // _stride does not participate in comparison operations
+
+    for (; step_2 != rcend; ++step_2, pos += 2) assert(*step_2 == randoms[pos]);
+    pos = 0;
+    for (; step_11 != rcend; ++step_11, pos += 11) assert(*step_2 == randoms[pos]);
 
     ::_putws(L"TEST_ITERATORS passed :)");
 }
