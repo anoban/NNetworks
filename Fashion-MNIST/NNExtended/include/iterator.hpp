@@ -297,7 +297,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         [[nodiscard]] constexpr inline strided_random_access_iterator __stdcall operator--(int) noexcept {
             _offset -= _stride;
             assert(_offset <= _length);
-            return { _rsrc, _length, _offset - _stride };
+            return { _rsrc, _length, _offset + _stride };
         }
 
         // using equality comparison operators are problematic with strided iterator because we will often (most definitely) run into access violations
@@ -308,25 +308,25 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         bool operator!=(const strided_random_access_iterator& other) = delete;
 
         template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const T& stride) const noexcept {
-            assert(_length >= _offset + stride);
-            return { _rsrc, _length, _offset + stride };
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const T& distance) const noexcept {
+            assert(_length >= _offset + distance);
+            return { _rsrc, _length, _offset + distance, _stride };
         }
 
         template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const T& stride) const noexcept {
-            assert(_length >= _offset - stride);
-            return { _rsrc, _length, _offset - stride };
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const T& distance) const noexcept {
+            assert(_length >= _offset - distance);
+            return { _rsrc, _length, _offset - distance, _stride };
         }
 
         [[nodiscard]] constexpr inline difference_type operator+(_In_ const strided_random_access_iterator& other) const noexcept {
-            assert(_rsrc == other._rsrc && _length == other._length);
+            assert(_rsrc == other._rsrc && _length == other._length && _stride == other._stride); // make sure the strides are identical too
             assert(_offset + other._offset <= _length);
             return _offset + other._offset;
         }
 
         [[nodiscard]] constexpr inline difference_type operator-(_In_ const strided_random_access_iterator& other) const noexcept {
-            assert(_rsrc == other._rsrc && _length == other._length);
+            assert(_rsrc == other._rsrc && _length == other._length && _stride == other._stride);
             assert(_offset + other._offset <= _length);
             return _offset - other._offset;
         }

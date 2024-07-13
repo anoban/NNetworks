@@ -14,7 +14,7 @@ static constexpr unsigned nstrides { 150 };
 
 #pragma region RANDOM_NUMBERS
 
-static constexpr int randoms[] {
+static constexpr int random_numbers[] {
     -146, -426, 281,  -321, -20,  67,   -135, -454, 236,  27,   157,  -278, 383,  334,  388,  147,  -93,  219,  262,  339,  100,  432,
     93,   -216, -194, 274,  224,  66,   402,  -167, -32,  -105, -489, -259, -144, 331,  -217, -170, 476,  -418, -391, 374,  94,   -407,
     -386, 494,  -490, 35,   -340, -276, -453, -149, -347, -156, -226, 462,  -425, -371, -63,  413,  -248, 225,  244,  226,  -54,  -411,
@@ -596,10 +596,10 @@ void TEST_ITERATORS() noexcept {
     std::vector<decltype(begin)::value_type> rs { begin, end };
     assert(rs.size() == max);
 
-    random_access_iterator       randoms_begin { randoms, __crt_countof(randoms) };
-    const random_access_iterator randoms_end { randoms, __crt_countof(randoms), __crt_countof(randoms) };
+    random_access_iterator       randoms_begin { random_numbers, __crt_countof(random_numbers) };
+    const random_access_iterator randoms_end { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
-    for (const auto& i : std::ranges::views::iota(0u, __crt_countof(randoms))) assert(randoms[i] == *randoms_begin++);
+    for (const auto& i : std::ranges::views::iota(0u, __crt_countof(random_numbers))) assert(random_numbers[i] == *randoms_begin++);
     assert(randoms_begin == randoms_end);
 
     // test the strided_random_access_iterator
@@ -612,14 +612,14 @@ void TEST_ITERATORS() noexcept {
     });
 
     const strided_random_access_iterator rcend {
-        randoms, __crt_countof(randoms), __crt_countof(randoms), 1
+        random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers), 1
     }; // _stride does not participate in comparison operations
 
     std::wcout << std::setw(4) << std::left;
 
     for (const auto& stride : random_strides) { // test the iterator with 100 randomly generated strides
-        strided_random_access_iterator start { randoms, __crt_countof(randoms), stride };
-        std::wcout << stride << L'\n';
+        strided_random_access_iterator start { random_numbers, __crt_countof(random_numbers), stride };
+        //
     }
 
     ::_putws(L"TEST_ITERATORS passed :)");
