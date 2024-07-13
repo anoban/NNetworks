@@ -1,4 +1,5 @@
 ﻿#include <algorithm>
+#include <array>
 #include <chrono>
 #include <numeric>
 #include <random>
@@ -8,6 +9,7 @@
 
 static constexpr unsigned max { 1000 };
 static constexpr unsigned maxx { 784 };
+static constexpr unsigned strides { 100 };
 
 #pragma region RANDOM_NUMBERS
 
@@ -600,7 +602,10 @@ void TEST_ITERATORS() noexcept {
     assert(randoms_begin == randoms_end);
 
     // test the strided_random_access_iterator
-    uint64_t                             pos {};
+    uint64_t pos {};
+
+    std::array<unsigned, strides> random_strides;
+
     strided_random_access_iterator       step_2 { randoms, __crt_countof(randoms), 2 };
     strided_random_access_iterator       step_11 { randoms, __crt_countof(randoms), 11 };
     strided_random_access_iterator       step_56 { randoms, __crt_countof(randoms), 56 };
@@ -609,9 +614,9 @@ void TEST_ITERATORS() noexcept {
         randoms, __crt_countof(randoms), __crt_countof(randoms), 1
     }; // _stride does not participate in comparison operations
 
-    for (; step_2 != rcend; ++step_2, pos += 2) assert(*step_2 == randoms[pos]);
+    for (; step_2 < rcend && pos < __crt_countof(randoms); ++step_2, pos += 2) assert(*step_2 == randoms[pos]);
     pos = 0;
-    for (; step_11 != rcend; ++step_11, pos += 11) assert(*step_2 == randoms[pos]);
+    for (; (step_11 < rcend) && (pos < __crt_countof(randoms)); ++step_11, pos += 11) assert(*step_2 == randoms[pos]);
 
     ::_putws(L"TEST_ITERATORS passed :)");
 }

@@ -159,14 +159,14 @@ template<typename T> class random_access_iterator { // unchecked random access i
 
     #endif // !__ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
 
-        template<typename integral_t> requires std::integral<integral_t>
-        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const integral_t& stride) const noexcept {
+        template<typename T> requires std::integral<T>
+        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const T& stride) const noexcept {
             assert(_length >= _offset + stride);
             return { _rsrc, _length, _offset + stride };
         }
 
-        template<typename integral_t> requires std::integral<integral_t>
-        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const integral_t& stride) const noexcept {
+        template<typename T> requires std::integral<T>
+        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const T& stride) const noexcept {
             assert(_length >= _offset - stride);
             return { _rsrc, _length, _offset - stride };
         }
@@ -276,14 +276,6 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _length = _offset = _stride = 0;
         }
 
-        [[nodiscard]] constexpr inline reference __stdcall operator*() noexcept { return _rsrc[_offset]; }
-
-        [[nodiscard]] constexpr inline const_reference __stdcall operator*() const noexcept { return _rsrc[_offset]; }
-
-        [[nodiscard]] constexpr inline pointer __cdecl _Unwrapped() noexcept { return _rsrc; }
-
-        [[nodiscard]] constexpr inline const_pointer __cdecl _Unwrapped() const noexcept { return _rsrc; }
-
         constexpr inline strided_random_access_iterator& __stdcall operator++() noexcept {
             _offset += _stride;
             assert(_offset <= _length);
@@ -308,48 +300,21 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             return { _rsrc, _length, _offset - _stride };
         }
 
-    #ifdef __ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
+        // using equality comparison operators are problematic with strided iterator because we will often run into access violations
+        // hence, deleting them explicitly
 
-        [[nodiscard]] constexpr inline std::strong_ordering __stdcall operator<=>(_In_ const random_access_iterator& other) noexcept {
-            return _rsrc == other._rsrc && _offset <=> other._offset; // the first subexpression is a prerequisite
-            // let the second predicate of the composition dictate the final ordering
-        }
+        bool operator==(const strided_random_access_iterator& other) = delete;
 
-    #else
-        [[nodiscard]] constexpr inline bool __stdcall operator==(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc == other._rsrc && _offset == other._offset;
-        }
+        bool operator!=(const strided_random_access_iterator& other) = delete;
 
-        [[nodiscard]] constexpr inline bool __stdcall operator!=(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc != other._rsrc || _offset != other._offset;
-        }
-
-        [[nodiscard]] constexpr inline bool __stdcall operator<(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc == other._rsrc && _offset < other._offset;
-        }
-
-        [[nodiscard]] constexpr inline bool __stdcall operator<=(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc == other._rsrc && _offset <= other._offset;
-        }
-
-        [[nodiscard]] constexpr inline bool __stdcall operator>(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc == other._rsrc && _offset > other._offset;
-        }
-
-        [[nodiscard]] constexpr inline bool __stdcall operator>=(_In_ const strided_random_access_iterator& other) const noexcept {
-            return _rsrc == other._rsrc && _offset >= other._offset;
-        }
-
-    #endif // !__ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
-
-        template<typename integral_t> requires std::integral<integral_t>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const integral_t& stride) const noexcept {
+        template<typename T> requires std::integral<T>
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const T& stride) const noexcept {
             assert(_length >= _offset + stride);
             return { _rsrc, _length, _offset + stride };
         }
 
-        template<typename integral_t> requires std::integral<integral_t>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const integral_t& stride) const noexcept {
+        template<typename T> requires std::integral<T>
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const T& stride) const noexcept {
             assert(_length >= _offset - stride);
             return { _rsrc, _length, _offset - stride };
         }
