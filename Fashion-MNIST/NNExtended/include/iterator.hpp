@@ -300,8 +300,8 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             return { _rsrc, _length, _offset - _stride };
         }
 
-        // using equality comparison operators are problematic with strided iterator because we will often run into access violations
-        // hence, deleting them explicitly
+        // using equality comparison operators are problematic with strided iterator because we will often (most definitely) run into access violations
+        // if used trivially like `; it != end;` hence, deleting them explicitly
 
         bool operator==(const strided_random_access_iterator& other) = delete;
 
