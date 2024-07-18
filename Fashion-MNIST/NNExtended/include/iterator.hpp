@@ -183,6 +183,8 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         // hence it would require a custom stride (number of columns) to get to the next element instead of 1!
         // iterating over rows can be accomplished with an aptly customized random_access_iterator
 
+        // arithmetic semantics of strided_random_access_iterator are very different from the base random_access_iterator!
+
         // using the injected class names
         using strided_random_access_iterator::random_access_iterator::_length;
         using strided_random_access_iterator::random_access_iterator::_offset;
@@ -205,6 +207,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         // clang-format on
 
         size_type _stride; // stride size
+        // data member _stride does not participate in comparison operations between strided_random_access_iterator s
 
     public:
         constexpr inline __cdecl strided_random_access_iterator() noexcept :
@@ -266,16 +269,20 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             _length = _offset = _stride = 0;
         }
 
+        // for strided_random_access_iterator, we need the increment and decrement operations to be checked because otherwise
+        // we could easily jump out of our access zone and we do not want that!
+
         constexpr inline strided_random_access_iterator& __stdcall operator++() noexcept {
-            _offset += _stride;
-            assert(_offset <= _length);
+            if (_offset + _stride <= _length) _offset += _stride; // otherwise do not do anything
             return *this;
         }
 
         [[nodiscard]] constexpr inline strided_random_access_iterator __stdcall operator++(int) noexcept {
-            _offset += _stride;
-            assert(_offset <= _length);
-            return { _rsrc, _length, _offset - _stride };
+            if (_offset + _stride <= _length) {
+                _offset += _stride;
+                return { _rsrc, _length, _offset - _stride };
+            }
+            return *this;
         }
 
         constexpr inline strided_random_access_iterator& __stdcall operator--() noexcept {
@@ -290,13 +297,9 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             return { _rsrc, _length, _offset + _stride };
         }
 
-        // using equality comparison operators are problematic with strided iterator because we will often (most definitely) run into access violations
-        // if used trivially like `; it != end;` hence, deleting them explicitly
+        bool operator==(const strided_random_access_iterator& other) { }
 
-        // OR IMPLEMENT A RANGE CHECKED NON-TRIVIAL ALTERNATIVE!!!!
-        bool operator==(const strided_random_access_iterator& other) = delete;
-
-        bool operator!=(const strided_random_access_iterator& other) = delete;
+        bool operator!=(const strided_random_access_iterator& other) { }
 
         template<typename T> requires std::integral<T>
         [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const T& distance) const noexcept {

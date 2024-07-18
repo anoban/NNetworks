@@ -11,5 +11,7 @@ extern void TEST_MATRIX() noexcept;    // matrix.cpp
 auto wmain() -> int {
     TEST_ITERATORS();
     TEST_IDXIO();
+    TEST_MATRIX();
+
     return EXIT_SUCCESS;
 }

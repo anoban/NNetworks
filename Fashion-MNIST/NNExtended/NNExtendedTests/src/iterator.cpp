@@ -320,19 +320,19 @@ void TEST_ITERATORS() noexcept {
     // test the strided_random_access_iterator
     uint64_t pos {};
 
-    std::array<unsigned, NSTRIDES> random_strides {}; // random strides between 1 and 100
+    std::array<unsigned, NSTRIDES> random_strides {}; // random strides between 1 and 200
     std::uniform_int_distribution  uintdist { 1, 200 };
     std::generate(random_strides.begin(), random_strides.end(), [&uintdist, &rndengine]() noexcept -> unsigned {
         return static_cast<decltype(random_strides)::value_type>(uintdist(rndengine));
     });
 
-    const strided_random_access_iterator rcend {
+    constexpr strided_random_access_iterator rcend {
         random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers), 1
     }; // _stride does not participate in comparison operations
 
     std::wcout << std::setw(4) << std::left;
 
-    for (const auto& stride : random_strides) { // test the iterator with 100 randomly generated strides
+    for (const auto& stride : random_strides) { // test the iterator with NSTRIDES randomly generated strides
         strided_random_access_iterator start { random_numbers, __crt_countof(random_numbers), stride };
         //
     }

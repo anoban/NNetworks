@@ -2,6 +2,10 @@
 
     #include <idxio.hpp>
 
-auto wmain() -> int { return EXIT_SUCCESS; }
+auto wmain() -> int {
+    //
+
+    return EXIT_SUCCESS;
+}
 
 #endif

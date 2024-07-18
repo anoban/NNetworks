@@ -25,7 +25,7 @@
     #include <iterator.hpp>
     #include <misc.hpp>
 
-inline namespace helpers { // routines inside namespace helpers aren't meant to be used outside this header
+namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
     [[nodiscard]] static inline std::optional<uint8_t*> __cdecl open(
         _In_ const wchar_t* const filename, _Inout_ unsigned long* const size
@@ -96,7 +96,7 @@ PREMATURE_RETURN:
         return false;
     }
 
-} // namespace helpers
+} // namespace internal
 
 namespace idxio { // we will not be using exceptions here! caller will have to manually examine the returned class type for errors
 
@@ -160,7 +160,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             constexpr inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept :
                 _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
                 unsigned long                 sz {};
-                const std::optional<uint8_t*> option { ::open(path, &sz) };
+                const std::optional<uint8_t*> option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
@@ -333,7 +333,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             constexpr inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
                 _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() {
                 unsigned long                 sz {};
-                const std::optional<uint8_t*> option { ::open(path, &sz) };
+                const std::optional<uint8_t*> option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
@@ -483,5 +483,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     };
 
 } // namespace idxio
+
+    #define internal FALSE // we do not want the functions inside namespace internal to be accessible in the source files
 
 #endif // __IDXIO_HPP__

@@ -4,4 +4,6 @@
 
 #include <matrix.hpp>
 
-void TEST_MATRIX() noexcept { }
+void TEST_MATRIX() noexcept {
+    //
+}
