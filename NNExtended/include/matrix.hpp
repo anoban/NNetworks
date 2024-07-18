@@ -7,21 +7,24 @@
     #include <iterator.hpp>
     #include <misc.hpp>
 
-// handrolling the matrix class because I want more granular control over memory management
+// handrolling the matrix class because I want utmost control over memory management
 // if many allocations happened at every iteration of gradient descent, this won't perform any better than the python implementation
-// and Eigen is too messy for my taste, I cba with BLAS and it's fortran dependency and oneMKL requires about 6 GiBs of space on disk so yes we will be rolling our own!
+// Eigen is too messy for my taste, I cba with BLAS and it's fortran dependency and oneMKL requires about 6 GiBs of space on disk
+// so yes we will be rolling our own!
 
 template<typename T = float> requires std::is_arithmetic_v<T> class matrix final { // not interested in supporting complex types
     public:
-        using value_type      = T;
-        using pointer         = T*;
-        using const_pointer   = const T*;
-        using refernce        = T&;
-        using const_refernce  = const T&;
-        using size_type       = unsigned long long;
-        using difference_type = long long;
-        using iterator        = random_access_iterator<T>;
-        using const_iterator  = random_access_iterator<const T>;
+        using value_type            = T;
+        using pointer               = T*;
+        using const_pointer         = const T*;
+        using refernce              = T&;
+        using const_refernce        = const T&;
+        using size_type             = unsigned long long;
+        using difference_type       = long long;
+        using iterator              = random_access_iterator<T>;
+        using const_iterator        = random_access_iterator<const T>;
+        using column_iterator       = strided_random_access_iterator<T>;
+        using const_column_iterator = strided_random_access_iterator<const T>;
 
     private:
         T*        _buffer;
@@ -33,17 +36,16 @@ template<typename T = float> requires std::is_arithmetic_v<T> class matrix final
 
         constexpr inline matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) noexcept :
             _buffer { new (std::nothrow) value_type[nrows * ncols] }, _nrows { nrows }, _ncols { ncols } {
-            if (!_buffer)
-                fputws(
-                    L"matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) constructor failed. matrix object is left in unusable state\n",
-                    stderr
-                );
+            assert(nrows);
+            assert(ncols);
+
+            if (!_buffer) fputws(L"matrix constructor failed. matrix object is left in unusable state\n", stderr);
         }
 
         constexpr inline matrix(_In_ const matrix& other) noexcept :
             _buffer { new (std::nothrow) value_type[other._nrows * other._ncols] }, _nrows { other._nrows }, _ncols { other._ncols } {
             if (!_buffer) {
-                fputws(L"matrix(_In_ const matrix& other) constructor failed. matrix object is left in unusable state\n", stderr);
+                fputws(L"matrix copy constructor failed. matrix object is left in unusable state\n", stderr);
                 return;
             }
             std::copy(other._buffer, other._buffer + (other._nrows * other._ncols), _buffer);

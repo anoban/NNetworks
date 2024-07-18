@@ -115,9 +115,10 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     // for the ubyte variants of idx files, the data type will be unsigned chars, hence the third byte of the magic number will be 0x08
 
     template<typename T>
-    constexpr bool is_idx_compatible_v = std::_Is_any_of_v<std::remove_cv_t<T>, unsigned char, signed char, short, int, float, double>;
+    struct is_idx_compatible final :
+        std::bool_constant<std::_Is_any_of_v<std::remove_cv_t<T>, unsigned char, signed char, short, int, float, double>> { };
 
-    template<typename T> struct is_idx_compatible final : std::integral_constant<bool, is_idx_compatible_v<T>> { };
+    template<typename T> constexpr bool is_idx_compatible_v = is_idx_compatible<T>::value;
 
     template<
         typename scalar_t = uint8_t, // the element type of the idx1 buffer
@@ -145,7 +146,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             using const_iterator  = random_access_iterator<const scalar_t>;
 
             // clang-format off
-    #if !defined(_DEBUG) && !defined(__TEST__)
+    #ifndef __TEST__
         private:
     #endif
             // clang-format on
@@ -316,7 +317,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             using const_iterator  = random_access_iterator<const scalar_t>;
 
             // clang-format off
-    #if !defined(_DEBUG) && !defined(__TEST__)
+    #ifndef __TEST__
         private:
     #endif
             // clang-format on
