@@ -193,7 +193,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         // hence it would require a custom stride (number of columns) to get to the next element instead of 1!
         // iterating over rows can be accomplished with an aptly customized random_access_iterator
 
-        // aliasing the injected name
+        // using the injected class names
         using strided_random_access_iterator::random_access_iterator::_length;
         using strided_random_access_iterator::random_access_iterator::_offset;
         using strided_random_access_iterator::random_access_iterator::_rsrc;
@@ -303,6 +303,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         // using equality comparison operators are problematic with strided iterator because we will often (most definitely) run into access violations
         // if used trivially like `; it != end;` hence, deleting them explicitly
 
+        // OR IMPLEMENT A RANGE CHECKED NON-TRIVIAL ALTERNATIVE!!!!
         bool operator==(const strided_random_access_iterator& other) = delete;
 
         bool operator!=(const strided_random_access_iterator& other) = delete;
