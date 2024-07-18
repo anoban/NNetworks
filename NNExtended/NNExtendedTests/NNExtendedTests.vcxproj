@@ -44,7 +44,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/include/;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\$(ProjectName)\bin\</OutDir>
     <IntDir>$(SolutionDir)\$(ProjectName)\bin\</IntDir>
   </PropertyGroup>

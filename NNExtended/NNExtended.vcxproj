@@ -103,21 +103,21 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/include/;$(IncludePath)</IncludePath>
     <OutDir>.\bin\$(Configuration)\</OutDir>
     <IntDir>.\bin\$(Configuration)\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
-    <IncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/include/;$(IncludePath)</IncludePath>
     <OutDir>.\bin\$(Configuration)\</OutDir>
     <IntDir>.\bin\$(Configuration)\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\NNetworks\Fashion-MNIST\NNExtended\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/include/;$(IncludePath)</IncludePath>
     <OutDir>.\bin\$(Configuration)\</OutDir>
     <IntDir>.\bin\$(Configuration)\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
