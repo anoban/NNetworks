@@ -9,8 +9,8 @@
 
 #include <iterator.hpp>
 
-static constexpr unsigned MAX_ELEMS { 1000 };
-static constexpr unsigned NSTRIDES { 150 };
+static constexpr auto MAX_ELEMS { 1000LLU };
+static constexpr auto NSTRIDES { 150LLU };
 
 #pragma region RANDOM_NUMBERS
 
@@ -152,40 +152,49 @@ static constexpr int random_numbers[] {
 #pragma endregion
 
 void TEST_ITERATORS() noexcept {
-    auto randoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) };
-    assert(randoms.get());
+#pragma region TEST_RANDOM_ACCESS_ITERATOR
+
+    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) };
+    assert(irandoms.get());
+    ::memset(
+        irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
+    ); // memory returned by new (std::nothrow) HAD garbage in it!!
 
     float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
 
     std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
-    std::uniform_real_distribution unifreal_distr { -0.5, 0.5 }; // min, max
+    std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
 
     // test the default ctor for const iterator
-    constexpr random_access_iterator<const double> empty {};
-    assert(!empty._rsrc);
-    assert(!empty._length);
-    assert(!empty._offset);
+    constexpr random_access_iterator<const double> citerator {};
+    assert(!citerator._rsrc);
+    assert(!citerator._unwrapped());
+    assert(!citerator._length);
+    assert(!citerator._offset);
 
     // test the default ctor for mutable iterator
-    constexpr random_access_iterator<char> emp {};
-    assert(!emp._rsrc);
-    assert(!emp._length);
-    assert(!emp._offset);
+    constexpr random_access_iterator<char> miterator {};
+    assert(!miterator._rsrc);
+    assert(!miterator._unwrapped());
+    assert(!miterator._length);
+    assert(!miterator._offset);
 
-    random_access_iterator begin { randoms.get(), MAX_ELEMS };
-    random_access_iterator end { randoms.get(), MAX_ELEMS, MAX_ELEMS };
+    random_access_iterator ibegin { irandoms.get(), MAX_ELEMS };
+    random_access_iterator iend { irandoms.get(), MAX_ELEMS, MAX_ELEMS };
 
     random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
     random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
 
     // test the ctors
-    assert(begin._rsrc == randoms.get());
-    assert(begin._length == MAX_ELEMS);
-    assert(!begin._offset);
+    assert(ibegin._rsrc == irandoms.get());
+    assert(ibegin._unwrapped() == irandoms.get());
+    assert(ibegin._length == MAX_ELEMS);
+    assert(!ibegin._offset);
 
-    assert(end._rsrc == randoms.get());
-    assert(end._length == MAX_ELEMS);
-    assert(end._offset == MAX_ELEMS);
+    assert(iend._rsrc == irandoms.get());
+    assert(iend._unwrapped() == irandoms.get());
+    assert(iend._length == MAX_ELEMS);
+    assert(iend._offset == MAX_ELEMS);
 
     assert(fbegin._rsrc == frandoms);
     assert(fbegin._length == __crt_countof(frandoms));
@@ -196,92 +205,117 @@ void TEST_ITERATORS() noexcept {
     assert(fend._offset == __crt_countof(frandoms));
 
     // test the copy ctor
-    auto begin_copy { begin };
-    auto end_copy { end };
+    auto ibegin_cp { ibegin };
+    auto iend_cp { iend };
 
-    assert(begin_copy._rsrc == randoms.get());
-    assert(begin_copy._length == MAX_ELEMS);
-    assert(!begin_copy._offset);
+    assert(ibegin_cp._rsrc == irandoms.get());
+    assert(ibegin_cp._unwrapped() == irandoms.get());
+    assert(ibegin_cp._length == MAX_ELEMS);
+    assert(!ibegin_cp._offset);
 
-    assert(end_copy._rsrc == randoms.get());
-    assert(end_copy._length == MAX_ELEMS);
-    assert(end_copy._offset == MAX_ELEMS);
+    assert(ibegin._rsrc == irandoms.get());
+    assert(ibegin._unwrapped() == irandoms.get());
+    assert(ibegin._length == MAX_ELEMS);
+    assert(!ibegin._offset);
+
+    assert(iend_cp._rsrc == irandoms.get());
+    assert(iend_cp._unwrapped() == irandoms.get());
+    assert(iend_cp._length == MAX_ELEMS);
+    assert(iend_cp._offset == MAX_ELEMS);
+
+    assert(iend._rsrc == irandoms.get());
+    assert(iend._unwrapped() == irandoms.get());
+    assert(iend._length == MAX_ELEMS);
+    assert(iend._offset == MAX_ELEMS);
 
     // test the move ctor
-    auto moved_fbegin { std::move(fbegin) };
-    auto moved_fend { std::move(fend) };
+    auto fbegin_mv { std::move(fbegin) };
+    auto fend_mv { std::move(fend) };
 
-    assert(moved_fbegin._rsrc == frandoms);
-    assert(moved_fbegin._length == __crt_countof(frandoms));
-    assert(!moved_fbegin._offset);
+    assert(fbegin_mv._rsrc == frandoms);
+    assert(fbegin_mv._unwrapped() == frandoms);
+    assert(fbegin_mv._length == __crt_countof(frandoms));
+    assert(!fbegin_mv._offset);
 
-    assert(moved_fend._rsrc == frandoms);
-    assert(moved_fend._length == __crt_countof(frandoms));
-    assert(moved_fend._offset == __crt_countof(frandoms));
+    assert(fend_mv._rsrc == frandoms);
+    assert(fend_mv._unwrapped() == frandoms);
+    assert(fend_mv._length == __crt_countof(frandoms));
+    assert(fend_mv._offset == __crt_countof(frandoms));
 
-    // test the moved from object
+    // test whether the moved from objects have been invalidated
     assert(!fbegin._rsrc); // NOLINT(bugprone-use-after-move)
+    assert(!fbegin._unwrapped());
     assert(!fbegin._length);
     assert(!fbegin._offset);
 
     assert(!fend._rsrc); // NOLINT(bugprone-use-after-move)
+    assert(!fend._unwrapped());
     assert(!fend._length);
     assert(!fend._offset);
 
     // fill the array with values
-    std::iota(begin + 10, end, 11); // start filing from 11th element, first 10 will be 0s.
-    // first 200 will be between urealdistr.min() and urealdistr.max()
-    std::for_each(moved_fbegin, moved_fbegin + 200, [&unifreal_distr, &rndengine](decltype(moved_fbegin)::value_type& _) noexcept -> void {
-        _ = static_cast<decltype(moved_fbegin)::value_type>(unifreal_distr(rndengine));
-    });
+    std::iota(ibegin + 10, iend, 11); // start filing from 11th element, first 10 will be 0s.
+
+    // first 200 will be between std::uniform_real_distribution::min() and std::uniform_real_distribution::max()
     assert(MAX_ELEMS >= 200);
-    // the rest will be filled unrestricted by the random engine
-    std::for_each(moved_fbegin + 200, moved_fend, [&rndengine](decltype(moved_fbegin)::value_type& _) noexcept -> void {
-        _ = static_cast<float>(rndengine());
+    std::generate(fbegin_mv, fbegin_mv + 200, [&fgenerator, &rndengine]() noexcept -> auto {
+        return static_cast<decltype(fbegin_mv)::value_type>(fgenerator(rndengine));
     });
 
+    // the rest will be filled by the random engine without any limit constraints
+    std::generate(fbegin_mv + 200, fend_mv, [&rndengine]() noexcept -> auto { return static_cast<float>(rndengine()); });
+
+    assert(std::all_of(fbegin_mv, fbegin_mv + 200, [](const decltype(fbegin_mv)::value_type& _) noexcept -> bool {
+        return _ >= -0.5 && _ <= 0.5;
+    }));
+
+    // double check it with a raw for loop
     for (unsigned i = 0; i < 200; ++i)
         assert(frandoms[i] >= -0.5 && frandoms[i] <= 0.5); // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
 
-    assert(begin._Unwrapped() == randoms.get());
-    assert(*begin == 0);
-    assert(*(begin + 10) == 11);
-    assert(begin_copy._Unwrapped() == randoms.get());
-    assert(*begin_copy == 0);
-    assert(*(begin_copy + 10) == 11);
+    assert(ibegin._unwrapped() == irandoms.get());
+    assert(std::all_of(ibegin, ibegin + 10, [](const decltype(ibegin)::value_type& _) noexcept -> bool { return !_; }));
 
-    assert(end._Unwrapped() == randoms.get());
-    assert(end._Unwrapped() == randoms.get());
+    assert(iend._unwrapped() == irandoms.get());
 
-    random_access_iterator<const int> cbegin { randoms.get(), MAX_ELEMS };
-    random_access_iterator<const int> cend { randoms.get(), MAX_ELEMS, MAX_ELEMS };
+    // const_iterators
+    random_access_iterator<const int> cibegin { irandoms.get(), MAX_ELEMS };
+    random_access_iterator<const int> ciend { irandoms.get(), MAX_ELEMS, MAX_ELEMS };
 
-    assert(cbegin._Unwrapped() == randoms.get());
-    assert(*cbegin == 0);
-    assert(*(cbegin + 10) == 11);
-    assert(cend._Unwrapped() == randoms.get());
+    assert(cibegin._unwrapped() == irandoms.get());
+    assert(ciend._unwrapped() == irandoms.get());
+    assert(std::all_of(cibegin, cibegin + 10, [](const decltype(cibegin)::value_type& _) noexcept -> bool { return !_; }));
+    assert(*(cibegin + 10) == 11);
 
-    assert(std::accumulate(cbegin, cbegin + 10, 0) == 0); // we did not fill the first 10 spaces!
+    assert(std::accumulate(ibegin, iend, 0LL) == std::accumulate(cibegin, ciend, 0LL));
+    assert(!std::accumulate(cibegin, cibegin + 10, 0LL)); // we did this with std::all_of before!
 
-    const auto sum    = std::accumulate(begin, end, 0LL);
-    const auto csum   = std::accumulate(cbegin, cend, 0LL);
-    const auto stdsum = std::accumulate(randoms.get(), randoms.get() + MAX_ELEMS, 0LL);
-    assert(sum == stdsum);
-    assert(csum == stdsum);
+    const auto isum  = std::accumulate(ibegin, iend, 0LL);
+    const auto cisum = std::accumulate(cibegin, ciend, 0LL);
+    const auto _sum  = std::accumulate(irandoms.get(), irandoms.get() + MAX_ELEMS, 0LL);
+    assert(isum == _sum);
+    assert(cisum == _sum);
 
-    for (auto it = randoms.get(), end = randoms.get() + MAX_ELEMS; it != end; ++it, ++begin_copy) assert(*it == *begin_copy);
+    for (auto it = irandoms.get(), end = irandoms.get() + MAX_ELEMS; it != end; ++it, ++ibegin_cp) assert(*it == *ibegin_cp);
+    ibegin_cp.reset();
+    assert(ibegin == ibegin_cp);
 
-    std::vector<decltype(moved_fbegin)::value_type> from_iterators_0 { moved_fbegin, moved_fend };
+    std::vector<decltype(fbegin_mv)::value_type> from_iterators_0 { fbegin_mv, fend_mv };
     assert(from_iterators_0.size() == MAX_ELEMS);
 
-    std::vector<decltype(begin)::value_type> from_iterators_1 { begin, end };
+    std::vector<decltype(ibegin)::value_type> from_iterators_1 { ibegin, iend };
     assert(from_iterators_1.size() == MAX_ELEMS);
 
+    // iterators to a constant buffer
     random_access_iterator       randoms_begin { random_numbers, __crt_countof(random_numbers) };
     const random_access_iterator randoms_end { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
     for (const auto& i : std::ranges::views::iota(0u, __crt_countof(random_numbers))) assert(random_numbers[i] == *randoms_begin++);
     assert(randoms_begin == randoms_end);
+
+#pragma endregion
+
+#pragma region TEST_STRIDED_RANDOM_ACCESS_ITERATOR
 
     // test the strided_random_access_iterator
     uint64_t pos {};
@@ -289,7 +323,7 @@ void TEST_ITERATORS() noexcept {
     std::array<unsigned, NSTRIDES> random_strides {}; // random strides between 1 and 100
     std::uniform_int_distribution  uintdist { 1, 200 };
     std::generate(random_strides.begin(), random_strides.end(), [&uintdist, &rndengine]() noexcept -> unsigned {
-        return uintdist(rndengine);
+        return static_cast<decltype(random_strides)::value_type>(uintdist(rndengine));
     });
 
     const strided_random_access_iterator rcend {
@@ -302,6 +336,8 @@ void TEST_ITERATORS() noexcept {
         strided_random_access_iterator start { random_numbers, __crt_countof(random_numbers), stride };
         //
     }
+
+#pragma endregion
 
     ::_putws(L"TEST_ITERATORS passed :)");
 }

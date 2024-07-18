@@ -25,7 +25,7 @@ template<typename T> class random_access_iterator { // unchecked random access i
         using iterator_category = std::random_access_iterator_tag;
 
         // clang-format off
-#if !defined(_DEBUG) || !defined(__TEST__)    // for testing purposes make these members public!
+#ifndef __TEST__    // for testing purposes make the data members public!
     protected:
 #endif
         // clang-format on
@@ -95,9 +95,11 @@ template<typename T> class random_access_iterator { // unchecked random access i
 
         [[nodiscard]] constexpr inline const_reference __stdcall operator*() const noexcept { return _rsrc[_offset]; }
 
-        [[nodiscard]] constexpr inline pointer __cdecl _Unwrapped() noexcept { return _rsrc; }
+        [[nodiscard]] constexpr inline pointer __cdecl _unwrapped() noexcept { return _rsrc; }
 
-        [[nodiscard]] constexpr inline const_pointer __cdecl _Unwrapped() const noexcept { return _rsrc; }
+        [[nodiscard]] constexpr inline const_pointer __cdecl _unwrapped() const noexcept { return _rsrc; }
+
+        constexpr inline void _cdecl reset() noexcept { _offset = 0; }
 
         constexpr inline random_access_iterator& __stdcall operator++() noexcept {
             _offset++;
@@ -123,16 +125,6 @@ template<typename T> class random_access_iterator { // unchecked random access i
             return { _rsrc, _length, _offset + 1 };
         }
 
-    #ifdef __ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__ // aka "I'm not worried about performance"
-
-        // defining a custom <=> operator because we want only the _offset member to participate in the comparison
-        // we do not care about the _length member and _rsrc being identical is rather a precondition for comparison than a criteria for the pedciation
-        [[nodiscard]] constexpr inline std::strong_ordering __stdcall operator<=>(_In_ const random_access_iterator& other) noexcept {
-            return _rsrc == other._rsrc && _offset <=> other._offset; // the first subexpression is a prerequisite
-            // let the second predicate of the composition dictate the final ordering
-        }
-
-    #else
         [[nodiscard]] constexpr inline bool __stdcall operator==(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset == other._offset;
         }
@@ -156,8 +148,6 @@ template<typename T> class random_access_iterator { // unchecked random access i
         [[nodiscard]] constexpr inline bool __stdcall operator>=(_In_ const random_access_iterator& other) const noexcept {
             return _rsrc == other._rsrc && _offset >= other._offset;
         }
-
-    #endif // !__ITERATOR_USE_STARSHIP_COMPARISON_OPERATOR__
 
         template<typename T> requires std::integral<T>
         [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const T& stride) const noexcept {
@@ -209,7 +199,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         using iterator_category = typename random_access_iterator<T>::iterator_category;
 
         // clang-format off
-#if !defined(_DEBUG) && !defined(__TEST__)
+#ifndef __TEST__
     private:
 #endif
         // clang-format on
