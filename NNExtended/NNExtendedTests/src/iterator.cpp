@@ -322,6 +322,8 @@ void TEST_ITERATORS() noexcept {
 
     std::array<unsigned, NSTRIDES> random_strides {}; // random strides between 1 and 200
     std::uniform_int_distribution  uintdist { 1, 200 };
+    assert(uintdist.max() <= __crt_countof(random_numbers));
+
     std::generate(random_strides.begin(), random_strides.end(), [&uintdist, &rndengine]() noexcept -> unsigned {
         return static_cast<decltype(random_strides)::value_type>(uintdist(rndengine));
     });

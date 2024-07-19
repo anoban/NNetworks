@@ -170,7 +170,7 @@ template<typename T> class random_access_iterator { // unchecked random access i
         [[nodiscard]] constexpr inline difference_type operator-(_In_ const random_access_iterator& other) const noexcept {
             assert(_rsrc == other._rsrc && _length == other._length);
             assert(_offset + other._offset <= _length);
-            return static_cast<difference_type>(_offset) - other._offset;
+            return _offset - other._offset;
         }
 };
     #pragma endregion

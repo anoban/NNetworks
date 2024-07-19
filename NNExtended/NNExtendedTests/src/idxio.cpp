@@ -6,11 +6,11 @@
 #include <idxio.hpp>
 
 void TEST_IDXIO() noexcept {
-    idxio::idx1 train_labels { L"../../idx/train-labels-idx1-ubyte" };
-    idxio::idx1 test_labels { L"../../idx/t10k-labels-idx1-ubyte" };
+    idxio::idx1 train_labels { L"./../../Fashion-MNIST/train-labels-idx1-ubyte" };
+    idxio::idx1 test_labels { L"./../../Fashion-MNIST/t10k-labels-idx1-ubyte" };
 
-    idxio::idx3 train_images { L"../../idx/train-images-idx3-ubyte" };
-    idxio::idx3 test_images { L"../../idx/t10k-images-idx3-ubyte" };
+    idxio::idx3 train_images { L"./../../Fashion-MNIST/train-images-idx3-ubyte" };
+    idxio::idx3 test_images { L"./../../Fashion-MNIST/t10k-images-idx3-ubyte" };
 
     std::wcout << train_labels;
     std::wcout << test_labels;
