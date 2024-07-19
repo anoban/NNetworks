@@ -111,11 +111,14 @@
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <GenerateAlternateCodePaths>CORE512</GenerateAlternateCodePaths>
+      <UseProcessorExtensions>TIGERLAKE</UseProcessorExtensions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,10 +148,16 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4710;4711;4820;4514</DisableSpecificWarnings>
+      <GenerateDebugInformation>Full</GenerateDebugInformation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
+      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
+      <GenerateAlternateCodePaths>CORE512</GenerateAlternateCodePaths>
+      <UseProcessorExtensions>TIGERLAKE</UseProcessorExtensions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

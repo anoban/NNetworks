@@ -1,7 +1,6 @@
 ﻿#include <algorithm>
 #include <array>
 #include <chrono>
-#include <iostream>
 #include <memory>
 #include <numeric>
 #include <random>
@@ -154,7 +153,7 @@ static constexpr int random_numbers[] {
 void TEST_ITERATORS() noexcept {
 #pragma region TEST_RANDOM_ACCESS_ITERATOR
 
-    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) };
+    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
     assert(irandoms.get());
     ::memset(
         irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
@@ -300,10 +299,10 @@ void TEST_ITERATORS() noexcept {
     ibegin_cp.reset();
     assert(ibegin == ibegin_cp);
 
-    std::vector<decltype(fbegin_mv)::value_type> from_iterators_0 { fbegin_mv, fend_mv };
+    const std::vector<decltype(fbegin_mv)::value_type> from_iterators_0 { fbegin_mv, fend_mv }; // AddressSanitizer: stack-use-after-scope
     assert(from_iterators_0.size() == MAX_ELEMS);
 
-    std::vector<decltype(ibegin)::value_type> from_iterators_1 { ibegin, iend };
+    const std::vector<decltype(ibegin)::value_type> from_iterators_1 { ibegin, iend };
     assert(from_iterators_1.size() == MAX_ELEMS);
 
     // iterators to a constant buffer
@@ -331,8 +330,6 @@ void TEST_ITERATORS() noexcept {
     constexpr strided_random_access_iterator rcend {
         random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers), 1
     }; // _stride does not participate in comparison operations
-
-    std::wcout << std::setw(4) << std::left;
 
     for (const auto& stride : random_strides) { // test the iterator with NSTRIDES randomly generated strides
         strided_random_access_iterator start { random_numbers, __crt_countof(random_numbers), stride };

@@ -5,7 +5,7 @@
 
 #include <idxio.hpp>
 
-void TEST_IDXIO() noexcept {
+void TEST_IDXIO() {
     idxio::idx1 train_labels { L"./../../Fashion-MNIST/train-labels-idx1-ubyte" };
     idxio::idx1 test_labels { L"./../../Fashion-MNIST/t10k-labels-idx1-ubyte" };
 
