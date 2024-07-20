@@ -56,7 +56,7 @@ class NNetworkMinimal:
             else f"Trained NNetworkMinimal model object <I>: {self.__nodes_in}, <H>: {self.__nodes_hid}, <O>: {self.__nodes_hid}"
         )
 
-    def gradient_descent(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
+    def fit(self, data: NDArray[np.float64], labels: NDArray[np.float64]) -> None:
         """
         A rather complex routine that does the forward propagation and back propagation iteratively.
         Doesn't return the coefficients, but realizes the learning effects by altering the internal state of the `NNetworkMinimal` class instance.

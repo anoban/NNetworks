@@ -30,9 +30,8 @@ def ReLU(data: NDArray[np.float64]) -> NDArray[np.float64]:
 @jit(nopython=True, fastmath=True, parallel=False)
 def softmax(data: NDArray[np.float64]) -> NDArray[np.float64]:
     """
-    Softmax(X) =:
-        e is exponentiated to the elements of column vector (X), followed by an element-wise
-        division by the sum of exponentiated values.
+    Softmax(x) : e is exponentiated to the elements of column vector (x), followed by an element-wise division by the sum of exponentiated
+    values.
 
     `Parameters`:
     data: NDArray[np.float64] - image pixel matrix

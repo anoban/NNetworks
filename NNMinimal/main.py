@@ -1,40 +1,41 @@
 from NNetwork import NNetworkMinimal
 from IdxUtils import Idx1, Idx3
+import sys
 
 
 def main() -> None:
 
-    # MNIST training data
-    train_images = Idx3(r"../idx/train-images.idx3-ubyte")
-    train_labels = Idx1(r"../idx/train-labels.idx1-ubyte")
-    # MNIST test data
-    test_images = Idx3(r"../idx/t10k-images.idx3-ubyte")
-    test_labels = Idx1(r"../idx/t10k-labels.idx1-ubyte")
+    mnist_train_images = Idx3(r"../MNIST/train-images.idx3-ubyte")
+    mnist_test_images = Idx3(r"../MNIST/t10k-images.idx3-ubyte")
+    mnist_train_labels = Idx1(r"../MNIST/train-labels.idx1-ubyte")
+    mnist_test_labels = Idx1(r"../MNIST/t10k-labels.idx1-ubyte")
 
-    model = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.125, maxiterations=10_000)
-    model.gradient_descent(train_images.data, train_labels.data)
+    model_0 = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.125, maxiterations=10_000)
+    model_0.fit(mnist_train_images.data, mnist_train_labels.data)
 
-    print(f"Train-set accuracy: {model.accuracy_score(train_images.data, train_labels.data):.6f}")
-    print(f"Test-set accuracy: {model.accuracy_score(test_images.data, test_labels.data):.6f}")
+    print(
+        f"[[MNIST]] :: testset accuracy score ={model_0.accuracy_score(mnist_train_images.data, mnist_train_labels.data):.5f}"
+    )
+    print(
+        f"[[MNIST]] :: testset accuracy score = {model_0.accuracy_score(mnist_test_images.data, mnist_test_labels.data):.5f}"
+    )
 
-    # Fashion-MNIST training data
-    train_images = Idx3(r"../idx/train-images-idx3-ubyte")
-    train_labels = Idx1(r"../idx/train-labels-idx1-ubyte")
+    fashion_mnist_train_images = Idx3(r"../Fashion-MNIST/train-images-idx3-ubyte")
+    fashion_mnist_test_images = Idx3(r"../Fashion-MNIST/t10k-images-idx3-ubyte")
+    fashion_mnist_train_labels = Idx1(r"../Fashion-MNIST/train-labels-idx1-ubyte")
+    fashion_mnist_test_labels = Idx1(r"../Fashion-MNIST/t10k-labels-idx1-ubyte")
 
-    # Fashion-MNIST test data
-    test_images = Idx3(r"../idx/t10k-images-idx3-ubyte")
-    test_labels = Idx1(r"../idx/t10k-labels-idx1-ubyte")
+    mode_1 = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.1, maxiterations=10_000)
+    mode_1.fit(fashion_mnist_train_images.data, fashion_mnist_train_labels.data)
 
-    model = NNetworkMinimal(nodes_in=784, nodes_hid=10, nodes_out=10, alpha=0.1, maxiterations=10_000)
-    model.gradient_descent(train_images.data, train_labels.data)
+    print(
+        f"[[Fashion-MNIST]] :: trainset accuracy score = {mode_1.accuracy_score(fashion_mnist_train_images.data, fashion_mnist_train_labels.data):.5f}"
+    )
+    print(
+        f"[[Fashion-MNIST]] :: testset accuracy score = {mode_1.accuracy_score(fashion_mnist_test_images.data, fashion_mnist_test_labels.data):.5f}"
+    )
 
-    train_ascore: float = model.accuracy_score(train_images.data, train_labels.data)
-    test_ascore: float = model.accuracy_score(test_images.data, test_labels.data)
-
-    print(f"Accuracy score for training dataset: {train_ascore:5f}")
-    print(f"Accuracy score for test dataset:     {test_ascore:5f}")
-
-    model.save("./fmnist")
+    sys.exit(0)
 
 
 def evaluate(filepath: str) -> None:
