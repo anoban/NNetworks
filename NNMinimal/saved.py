@@ -55,17 +55,17 @@ def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
 def main() -> None:
 
     print(
-        f"[[MNIST]] :: testset accuracy score = {:.5f}"
+        f"[[MNIST]] :: train set accuracy score = {:.5f}"
     )
     print(
-        f"[[MNIST]] :: testset accuracy score = {:.5f}"
+        f"[[MNIST]] :: test set accuracy score = {:.5f}"
     )
 
     print(
-        f"[[Fashion-MNIST]] :: trainset accuracy score = {:.5f}"
+        f"[[Fashion-MNIST]] :: train set accuracy score = {:.5f}"
     )
     print(
-        f"[[Fashion-MNIST]] :: testset accuracy score = {:.5f}"
+        f"[[Fashion-MNIST]] :: test set accuracy score = {:.5f}"
     )
 
     sys.exit(0)

@@ -14,10 +14,10 @@ def main() -> None:
     model_0.fit(mnist_train_images.data, mnist_train_labels.data)
 
     print(
-        f"[[MNIST]] :: testset accuracy score = {model_0.accuracy_score(mnist_train_images.data, mnist_train_labels.data):.5f}"
+        f"[[MNIST]] :: train set accuracy score = {model_0.accuracy_score(mnist_train_images.data, mnist_train_labels.data):.5f}"
     )
     print(
-        f"[[MNIST]] :: testset accuracy score = {model_0.accuracy_score(mnist_test_images.data, mnist_test_labels.data):.5f}"
+        f"[[MNIST]] :: test set accuracy score = {model_0.accuracy_score(mnist_test_images.data, mnist_test_labels.data):.5f}"
     )
 
     model_0.save(r"./models/mnist-10000")
@@ -31,13 +31,13 @@ def main() -> None:
     model_1.fit(fashion_mnist_train_images.data, fashion_mnist_train_labels.data)
 
     print(
-        f"[[Fashion-MNIST]] :: trainset accuracy score = {model_1.accuracy_score(fashion_mnist_train_images.data, fashion_mnist_train_labels.data):.5f}"
+        f"[[Fashion-MNIST]] :: train set accuracy score = {model_1.accuracy_score(fashion_mnist_train_images.data, fashion_mnist_train_labels.data):.5f}"
     )
     print(
-        f"[[Fashion-MNIST]] :: testset accuracy score = {model_1.accuracy_score(fashion_mnist_test_images.data, fashion_mnist_test_labels.data):.5f}"
+        f"[[Fashion-MNIST]] :: test set accuracy score = {model_1.accuracy_score(fashion_mnist_test_images.data, fashion_mnist_test_labels.data):.5f}"
     )
 
-    model_1.save(r"./models/fashionmnist-10000")
+    model_1.save(r"./models/fashion-mnist-10000")
 
     sys.exit(0)
 
