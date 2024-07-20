@@ -146,7 +146,7 @@ class Idx3:
 def peek_idx(
     idx3: str,
     idx1: str,
-    idx3elem_dim: tuple[int, int] = (28, 28),
+    image_dim: tuple[int, int] = (28, 28),
     colormap: str = "binary",
 ) -> None:
     """
@@ -171,7 +171,7 @@ def peek_idx(
         images.count == labels.count
     ), f"Mismatch in the number of elements stored in idx1 and idx3 files:: idx1: {labels.count}, idx3: {images.count}"
 
-    nrows, ncols = idx3elem_dim
+    nrows, ncols = image_dim
     fig, axes = plt.subplots(nrows=1, ncols=15)
     fig.set_size_inches(20, 4)
     random_indices: NDArray[np.int64] = np.random.choice(np.arange(0, images.count), size=15, replace=False)

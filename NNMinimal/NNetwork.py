@@ -197,7 +197,7 @@ class NNetworkMinimal:
 
         `Notes`:
         Accuracy is computed based on raw idenitity checks against true labels and predictions. using sklearn.metrics.accuracy_score()
-        This mechanism disregards how close the predictions are to the true labels!
+        Hence only appropriate for classification problems!
         """
 
         if not self.__is_trained:
@@ -269,6 +269,7 @@ class NNetworkMinimal:
             ],
             dtype=np.float64,
         )
+
         with open(file=f"{filepath}.nnm", mode="wb") as fp:
             np.save(fp, coeffs, allow_pickle=False)
 
