@@ -44,3 +44,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# [[MNIST]] :: train set accuracy score = 0.93492
+# [[MNIST]] :: test set accuracy score = 0.92800
+# [[Fashion-MNIST]] :: train set accuracy score = 0.85595
+# [[Fashion-MNIST]] :: test set accuracy score = 0.83830

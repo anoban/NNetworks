@@ -1,11 +1,20 @@
 import sys
-from typing import NamedTuple
+from typing import override
 from NNetwork import NNetworkMinimal
 from IdxUtils import Idx1, Idx3
 
-class AccuracyScores(NamedTuple):
-    train: float
-    test: float
+class AccuracyScores:
+    """
+    A convenient wrapper for returning training and test set accuracy scores from routines.
+    """
+
+    def __init__(self, _train : float, _test: float) -> None:
+        self.acc_score_train: float = _train
+        self.acc_score_test: float = _test
+
+    @override
+    def __repr__(self) -> str:
+        return f"train :: {self.acc_score_train:.6f}, test :: {self.acc_score_test:.6f}"
 
 
 def evalualte_nnminimal_for_mnists(model_path: str) -> AccuracyScores:
@@ -16,10 +25,10 @@ def evalualte_nnminimal_for_mnists(model_path: str) -> AccuracyScores:
     filepath: str - path to a serialized NNetworkMinimal model object.
 
     `Returns`:
-    None
+    AccuracyScores
     """
 
-    model = NNetworkMinimal(nodes_in=1, nodes_hid=1, nodes_out=1, alpha=0.15, maxiterations=1)
+    model = NNetworkMinimal(nodes_in=1, nodes_hid=1, nodes_out=1)
     model.load(filepath=model_path)
 
     mnist_train_images = Idx3(r"../MNIST/train-images.idx3-ubyte")
@@ -38,7 +47,7 @@ def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
     filepath: str - path to a serialized NNetworkMinimal model object.
 
     `Returns`:
-    None
+    AccuracyScores
     """
 
     model = NNetworkMinimal(nodes_in=1, nodes_hid=1, nodes_out=1)
@@ -54,20 +63,8 @@ def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
 
 def main() -> None:
 
-    print(
-        f"[[MNIST]] :: train set accuracy score = {:.5f}"
-    )
-    print(
-        f"[[MNIST]] :: test set accuracy score = {:.5f}"
-    )
-
-    print(
-        f"[[Fashion-MNIST]] :: train set accuracy score = {:.5f}"
-    )
-    print(
-        f"[[Fashion-MNIST]] :: test set accuracy score = {:.5f}"
-    )
-
+    print(f"[[MNIST]]         :: {evalualte_nnminimal_for_mnists(r"./models/mnist-10000.nnm")}")
+    print(f"[[Fashion-MNIST]] :: {evalualte_nnminimal_for_fashion_mnists(r"./models/fashion-mnist-10000.nnm")}")
     sys.exit(0)
 
 
