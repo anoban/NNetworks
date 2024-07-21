@@ -1,0 +1,7 @@
+MNIST (10,000 iterations, learning rate 0.125)
+train set accuracy score = 0.93492
+test set accuracy score = 0.92800
+
+Fashion-MNIST (10,000 iterations, learning rate 0.100)
+train set accuracy score = 0.85595
+test set accuracy score = 0.83830
