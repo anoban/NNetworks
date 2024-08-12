@@ -13,7 +13,7 @@ ___MNIST___
 
 ___Outline of the `NNetworkMinimal` class training process___
 
-- The `NNetworkMinimal` class represents a very simple fully connected three layer neural network. The input layer has 784 neurons, each designated to handle one pixel from the training image.    
+- The `NNetworkMinimal` class represents a very simple fully connected three layer neural network. The input layer has 784 neurons, each designated to handle one pixel from the training image.
 - The middle (aka hidden) layer has 10 neurons, fully connected to the input and output layers.
 - The output layer has 10 neurons, each registering the probability of the given image representing the n th digit (the digits (predictions) can be 0 through 9, hence the 10 neurons).
 - The training images are arrays of 28 x 28 black and white pixels (each one byte in size, with 0 mapping to black and 255 mapping to white).
@@ -34,6 +34,7 @@ ___A matrix notation $`M_{[r,~c]}`$ indicates a matrix with `r` rows and `c` col
 ___Forward propagation___
 
 $`H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}`$
+The hidden layer is the product of weights of input layer nodes and 
 
 $`{\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}`$
 
@@ -125,10 +126,10 @@ prediction = {\begin{bmatrix}
 ___Phase 3) Simultaneous paramater updates___
 
 
-_W = W - $`\alpha`$ dW_  
-_B = B - $`\alpha`$ dB_  
-_w = w - $`\alpha`$ dw_  
-_b = b - $`\alpha`$ db_  
+_W = W - $`\alpha`$ dW_
+_B = B - $`\alpha`$ dB_
+_w = w - $`\alpha`$ dw_
+_b = b - $`\alpha`$ db_
 
 $`\alpha`$ - learning rate
 

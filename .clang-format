@@ -199,8 +199,7 @@ AllowAllParametersOfDeclarationOnNextLine: true  # If the function declaration d
   #                 int d,
   #                 int e);
 
-# Requires clang-format 18, commenting out for now.
-# AllowBreakBeforeNoexceptSpecifier: Never        # Controls if there could be a line break before a noexcept specifier.
+AllowBreakBeforeNoexceptSpecifier: OnlyWithParen        # Controls if there could be a line break before a noexcept specifier.
 
 AllowShortBlocksOnASingleLine: Always           # Always merge short blocks into a single line.
                                                 # e.g.

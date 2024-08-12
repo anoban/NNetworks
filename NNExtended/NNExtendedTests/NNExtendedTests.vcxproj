@@ -39,6 +39,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
     <SpectreMitigation>SpectreLoadCF</SpectreMitigation>
+    <EnableFuzzer>true</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PlatformToolset>v143</PlatformToolset>
@@ -47,6 +48,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <EnableASAN>true</EnableASAN>
     <SpectreMitigation>SpectreLoadCF</SpectreMitigation>
+    <EnableFuzzer>true</EnableFuzzer>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -67,6 +69,7 @@
     <LibraryPath>$(VC_LibraryPath_VC_x64_Desktop);$(LibraryPath)</LibraryPath>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\$(ProjectName)\bin\$(Configuration)\</OutDir>
@@ -75,6 +78,7 @@
     <LibraryPath>$(VC_LibraryPath_VC_x64_Desktop);$(LibraryPath)</LibraryPath>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -107,7 +111,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions512</EnableEnhancedInstructionSet>
       <FloatingPointModel>Precise</FloatingPointModel>
       <FloatingPointExceptions>true</FloatingPointExceptions>
-      <DisableSpecificWarnings>4710;4711;4820;4514</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4710;4711;4820;4514;4365</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <ControlFlowGuard>Guard</ControlFlowGuard>
@@ -118,7 +122,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,7 +151,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CompileAs>CompileAsCpp</CompileAs>
-      <DisableSpecificWarnings>4710;4711;4820;4514</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4710;4711;4820;4514;4365</DisableSpecificWarnings>
       <GenerateDebugInformation>Full</GenerateDebugInformation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
@@ -157,7 +161,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
