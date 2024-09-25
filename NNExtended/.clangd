@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-Wall, -Wextra, -pedantic, -O0, -std=c++23, -c, -I ./include/]
+  Add: [-Wall, -Wextra, -pedantic, -O0, -std=c++23, -c, -D__TEST__, -I./include/, -IC:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\UnitTest\include]
   Compiler:  clang++.exe
   CompilationDatabase: None
 

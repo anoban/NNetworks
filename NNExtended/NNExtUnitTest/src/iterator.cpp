@@ -153,7 +153,7 @@ static constexpr int random_numbers[] {
 #pragma endregion
 
 namespace NNExtUnitTest {
-    TEST_CLASS(NNExtUnitTest) {
+    TEST_CLASS(random_access_iterator) {
         public :
 
             TEST_METHOD(TestMethod1) {}

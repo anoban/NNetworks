@@ -29,33 +29,8 @@ namespace NNExtUnitTest {
             Assert::AreEqual(test_labels._labels, test_labels._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         }
 
-        idxio::idx3 train_images { LR"(./../../Fashion-MNIST/train-images-idx3-ubyte)" };
-        idxio::idx3 test_images { LR"(./../../Fashion-MNIST/t10k-images-idx3-ubyte)" };
-
         std::wcout << train_labels;
         std::wcout << test_labels;
-
-        assert(train_images._idxmagic == 2051);
-        assert(train_images.magic() == 2051);
-        assert(train_images._nimages == 60'000);
-        assert(train_images.count() == 60'000);
-        assert(train_images._raw_buffer);
-        assert(train_images._pixels == train_images._raw_buffer + 16); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        assert(train_images._ncols == 28);
-        assert(train_images._nrows == 28);
-        auto [rows, cols] = train_images.dim();
-        assert(rows == 28 && cols == 28);
-
-        assert(test_images._idxmagic == 2051);
-        assert(test_images.magic() == 2051);
-        assert(test_images._nimages == 10'000);
-        assert(test_images.count() == 10'000);
-        assert(test_images._raw_buffer);
-        assert(test_images._pixels == test_images._raw_buffer + 16); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        assert(test_images._ncols == 28);
-        assert(test_images._nrows == 28);
-        std::tie(rows, cols) = test_images.dim();
-        assert(rows == 28 && cols == 28);
 
         std::wcout << train_images;
         std::wcout << test_images;
@@ -178,4 +153,37 @@ namespace NNExtUnitTest {
 
         ::_putws(L"TEST_IDXIO passed :)");
     };
+
+    TEST_CLASS(idx3) {
+        TEST_METHOD(constructor) {
+            idxio::idx3 train_images { LR"(./../../Fashion-MNIST/train-images-idx3-ubyte)" };
+            idxio::idx3 test_images { LR"(./../../Fashion-MNIST/t10k-images-idx3-ubyte)" };
+
+            Assert::AreEqual(train_images._idxmagic, 2051U);
+            Assert::AreEqual(train_images.magic(), 2051U);
+            Assert::AreEqual(train_images._nimages, 60'000U);
+            Assert::AreEqual(train_images.count(), 60'000U);
+            Assert::IsNotNull(train_images._raw_buffer);
+            Assert::AreEqual(
+                train_images._pixels, train_images._raw_buffer + 16
+            ); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            Assert::AreEqual(train_images._ncols, 28U);
+            Assert::AreEqual(train_images._nrows, 28U);
+            auto [rows, cols] = train_images.dim();
+            Assert::AreEqual(rows, 28U);
+            Assert::AreEqual(cols, 28U);
+
+            Assert::AreEqual(test_images._idxmagic, 2051U);
+            Assert::AreEqual(test_images.magic(), 2051U);
+            Assert::AreEqual(test_images._nimages, 10'000U);
+            Assert::AreEqual(test_images.count(), 10'000U);
+            Assert::IsNotNull(test_images._raw_buffer);
+            Assert::AreEqual(test_images._pixels, test_images._raw_buffer + 16); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            Assert::AreEqual(test_images._ncols, 28U);
+            Assert::AreEqual(test_images._nrows, 28U);
+            std::tie(rows, cols) = test_images.dim();
+            Assert::AreEqual(rows, 28U);
+            Assert::AreEqual(cols, 28U);
+        }
+    }
 } // namespace NNExtUnitTest
