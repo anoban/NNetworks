@@ -29,11 +29,12 @@ namespace NNExtUnitTest {
             Assert::AreEqual(test_labels._labels, test_labels._raw_buffer + 8); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         }
 
-        std::wcout << train_labels;
-        std::wcout << test_labels;
+        TEST_METHOD(copy_constructor) { }
 
-        std::wcout << train_images;
-        std::wcout << test_images;
+        TEST_METHOD(iostream_out_operator) {
+            std::wcout << train_labels;
+            std::wcout << test_labels;
+        }
 
         std::array<unsigned, 10> frequencies {};
 
@@ -184,6 +185,11 @@ namespace NNExtUnitTest {
             std::tie(rows, cols) = test_images.dim();
             Assert::AreEqual(rows, 28U);
             Assert::AreEqual(cols, 28U);
+        }
+
+        TEST_METHOD(iostream_out_operator) {
+            std::wcout << train_images;
+            std::wcout << test_images;
         }
     }
 } // namespace NNExtUnitTest

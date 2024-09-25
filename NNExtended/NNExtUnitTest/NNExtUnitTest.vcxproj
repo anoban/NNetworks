@@ -166,7 +166,6 @@
     <ClCompile Include="src\iterator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\matrix.cpp" />
-    <ClCompile Include="src\NNExtUnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NNExtended.vcxproj">
