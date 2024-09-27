@@ -6,8 +6,7 @@
 #include <random>
 #include <ranges>
 
-#include <CppUnitTest.h>
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include <gtest/gtest.h>
 #include <iterator.hpp>
 
 static constexpr auto MAX_ELEMS { 1000LLU };
@@ -151,14 +150,6 @@ static constexpr int random_numbers[] {
 };
 
 #pragma endregion
-
-namespace NNExtUnitTest {
-    TEST_CLASS(random_access_iterator) {
-        public :
-
-            TEST_METHOD(TestMethod1) {}
-    };
-}
 
 void TEST_ITERATORS() noexcept {
 #pragma region TEST_RANDOM_ACCESS_ITERATOR
