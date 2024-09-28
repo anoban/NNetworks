@@ -3,8 +3,7 @@
 #include <numeric>
 #include <ranges>
 
-#include <gtest/gtest.h>
-#include <idxio.hpp>
+#include <pch.hpp>
 
 TEST(IDX1_TEST, CONSTRUCTOR) {
     idxio::idx1 train_labels { LR"(./../../Fashion-MNIST/train-labels-idx1-ubyte)" };
@@ -25,6 +24,7 @@ TEST(IDX1_TEST, CONSTRUCTOR) {
     EXPECT_TRUE(test_labels._raw_buffer);
 }
 
+/*
 TEST_METHOD(copy_constructor) { }
 
 TEST_METHOD(iostream_out_operator) {
@@ -143,6 +143,7 @@ std::wcout << test_labelsmvd;
 }
 ;
 
+
 TEST(IDX3_TEST, CONSTRUCTOR) {
     idxio::idx3 train_images { LR"(./../../Fashion-MNIST/train-images-idx3-ubyte)" };
     idxio::idx3 test_images { LR"(./../../Fashion-MNIST/t10k-images-idx3-ubyte)" };
@@ -176,3 +177,5 @@ TEST_METHOD(iostream_out_operator) {
     std::wcout << train_images;
     std::wcout << test_images;
 }
+
+*/

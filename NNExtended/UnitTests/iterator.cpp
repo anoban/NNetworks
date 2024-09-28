@@ -6,8 +6,7 @@
 #include <random>
 #include <ranges>
 
-#include <gtest/gtest.h>
-#include <iterator.hpp>
+#include <pch.hpp>
 
 static constexpr auto MAX_ELEMS { 1000LLU };
 static constexpr auto NSTRIDES { 150LLU };
@@ -151,58 +150,67 @@ static constexpr int random_numbers[] {
 
 #pragma endregion
 
-void TEST_ITERATORS() noexcept {
-#pragma region TEST_RANDOM_ACCESS_ITERATOR
+const float pi {};
 
-    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
-    assert(irandoms.get());
-    ::memset(
-        irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
-    ); // memory returned by new (std::nothrow) HAD garbage in it!!
+TEST(RANDOM_ACCESS_ITERATOR, DEFAULT_CONSTRUCTOR) {
+    // test the default ctor for const iterator
+    constexpr random_access_iterator<const double> const_iterator {};
+    EXPECT_FALSE(const_iterator._rsrc);
+    EXPECT_FALSE(const_iterator._unwrapped());
+    EXPECT_FALSE(const_iterator._length);
+    EXPECT_FALSE(const_iterator._offset);
 
+    // test the default ctor for mutable iterator
+    constexpr random_access_iterator<char> mutable_iterator {};
+    EXPECT_FALSE(mutable_iterator._rsrc);
+    EXPECT_FALSE(mutable_iterator._unwrapped());
+    EXPECT_FALSE(mutable_iterator._length);
+    EXPECT_FALSE(mutable_iterator._offset);
+}
+
+TEST(RANDOM_ACCESS_ITERATOR, LOCAL_PTR_CONSTRUCTOR) {
     float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
 
     std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
     std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
 
-    // test the default ctor for const iterator
-    constexpr random_access_iterator<const double> citerator {};
-    assert(!citerator._rsrc);
-    assert(!citerator._unwrapped());
-    assert(!citerator._length);
-    assert(!citerator._offset);
-
-    // test the default ctor for mutable iterator
-    constexpr random_access_iterator<char> miterator {};
-    assert(!miterator._rsrc);
-    assert(!miterator._unwrapped());
-    assert(!miterator._length);
-    assert(!miterator._offset);
-
-    random_access_iterator ibegin { irandoms.get(), MAX_ELEMS };
-    random_access_iterator iend { irandoms.get(), MAX_ELEMS, MAX_ELEMS };
-
     random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
     random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
 
-    // test the ctors
-    assert(ibegin._rsrc == irandoms.get());
-    assert(ibegin._unwrapped() == irandoms.get());
-    assert(ibegin._length == MAX_ELEMS);
-    assert(!ibegin._offset);
+    EXPECT_EQ(fbegin._rsrc, frandoms);
+    EXPECT_EQ(fbegin._length, __crt_countof(frandoms));
+    EXPECT_FALSE(fbegin._offset);
 
-    assert(iend._rsrc == irandoms.get());
-    assert(iend._unwrapped() == irandoms.get());
-    assert(iend._length == MAX_ELEMS);
-    assert(iend._offset == MAX_ELEMS);
+    EXPECT_EQ(fend._rsrc, frandoms);
+    EXPECT_EQ(fend._length, __crt_countof(frandoms));
+    EXPECT_EQ(fend._offset, __crt_countof(frandoms));
+}
 
-    assert(fbegin._rsrc == frandoms);
-    assert(fbegin._length == __crt_countof(frandoms));
-    assert(!fbegin._offset);
+TEST(RANDOM_ACCESS_ITERATOR, STATIC_CONST_PTR_CONSTRUCTOR) {
+    random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+    random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
-    assert(fend._rsrc == frandoms);
-    assert(fend._length == __crt_countof(frandoms));
-    assert(fend._offset == __crt_countof(frandoms));
+    EXPECT_EQ(ibegin._rsrc, random_numbers);
+    EXPECT_EQ(ibegin._unwrapped(), random_numbers);
+    EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
+    EXPECT_FALSE(ibegin._offset);
+
+    EXPECT_EQ(iend._rsrc, random_numbers);
+    EXPECT_EQ(iend._unwrapped(), random_numbers);
+    EXPECT_EQ(iend._length, __crt_countof(random_numbers));
+    EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
+}
+
+TEST(RANDOM_ACCESS_ITERATOR, HEAP_PTR_CONSTRUCTOR) {
+    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
+    EXPECT_TRUE(irandoms.get());
+    ::memset(
+        irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
+    ); // memory returned by new (std::nothrow) HAD garbage in it!!
+}
+
+void TEST_ITERATORS() noexcept {
+#pragma region TEST_RANDOM_ACCESS_ITERATOR
 
     // test the copy ctor
     auto ibegin_cp { ibegin };

@@ -7,7 +7,8 @@
 template<typename T> concept is_iostream_output_operator_compatible = std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
 
 // reverses the byte order of multibyte integers
-template<typename T> [[nodiscard]] constexpr typename std::enable_if_t<std::is_integral_v<T>, T> reverse_bytes(const T& integer) noexcept {
+template<typename T>
+[[nodiscard]] constexpr typename std::enable_if<std::is_integral_v<T>, T>::type reverse_bytes(const T& integer) noexcept {
     assert(sizeof(integer) > 1);
 
     T result {};
