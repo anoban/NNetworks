@@ -1,4 +1,15 @@
-﻿#include <stdafx.hpp>
+﻿#include <algorithm>
+#include <array>
+#include <chrono>
+#include <numeric>
+#include <random>
+#include <ranges>
+
+#include <iterator.hpp>
+
+// clang-format off
+    #include <gtest/gtest.h>
+// clang-format on
 
 static constexpr auto MAX_ELEMS { 1000LLU };
 static constexpr auto NSTRIDES { 150LLU };
@@ -142,8 +153,6 @@ static constexpr int random_numbers[] {
 
 #pragma endregion
 
-const float pi {};
-
 TEST(RANDOM_ACCESS_ITERATOR, DEFAULT_CONSTRUCTOR) {
     // test the default ctor for const iterator
     constexpr random_access_iterator<const double> const_iterator {};
@@ -201,6 +210,7 @@ TEST(RANDOM_ACCESS_ITERATOR, HEAP_PTR_CONSTRUCTOR) {
     ); // memory returned by new (std::nothrow) HAD garbage in it!!
 }
 
+/*
 void TEST_ITERATORS() noexcept {
 #pragma region TEST_RANDOM_ACCESS_ITERATOR
 
@@ -341,3 +351,5 @@ void TEST_ITERATORS() noexcept {
 
     ::_putws(L"TEST_ITERATORS passed :)");
 }
+
+*/

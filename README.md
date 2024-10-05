@@ -1,3 +1,6 @@
+# ___NNetworkMinimal___
+----------
+
 ___Project idea inspired from [Samson Zhang](https://www.youtube.com/watch?v=w8yWXqWQYmU). Design and implementation are quite different from the one in his [Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that___
 
 - This implementation uses `Numba` to speed up the computations
@@ -6,9 +9,10 @@ ___Project idea inspired from [Samson Zhang](https://www.youtube.com/watch?v=w8y
 - Includes separate classes for handling `Idx1`, `Idx3` IO.
 - `NNetworkMinimal` class can save a trained model's state to disk and reconstruct the trained model from the serialized model file. This prevents the need to retrain the model from scratch to make predictions again, granted that the training dataset hasn't been altered since the last training.
 
-___MNIST___
 
+## ___MNIST___
 ----------------
+
 ![MNIST](./readme/MnistExamplesModified.png)
 
 ___Outline of the `NNetworkMinimal` class training process___
@@ -34,7 +38,7 @@ ___A matrix notation $`M_{[r,~c]}`$ indicates a matrix with `r` rows and `c` col
 ___Forward propagation___
 
 $`H_{[10, ~N]} = W_{[784, ~10]} \cdot I_{[784, ~N]} + B_{[10, ~1]}`$
-The hidden layer is the product of weights of input layer nodes and 
+The hidden layer is the product of weights of input layer nodes and
 
 $`{\hat{H}}_{[10, ~N]} = {f(H_{[10, ~N]})}`$
 
@@ -141,8 +145,7 @@ After 5,000 iterations, the accuracy scores for `MNIST` datasets were:
 
 For a thorough, step by step walkthrough, refer the source code. It's comprehensively annotated!
 
-___Fashion MNIST___
-
+## ___Fashion MNIST___
 ------------------------
 
 ![Fashion-MNIST](./readme/fashion-mnist-sprite.png)
@@ -157,7 +160,7 @@ Fashion MNIST datasets was designed intentionally as a superior alternative to t
 
 As Fashion MNIST introduces more sophisticated visually similar shapes, the model now needs to capture more nuanced, granular patterns in the images to make good enough predictions (e.g. the visual differences between a woman's top and a tshirt aren't as pronounced as the differences between the digits 1 and 2, particularly in low resolution images (28 x 28 pixels to be precise)). Our `NNetworkMinimal` class design is way too simple for complex learning endeavours, hence the poor accuracy scores with Fashion MNIST datasets.
 
---------------
-___This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on Fashion MNIST datasets, but this time in C++.___
+# ___NNExtended___
+----------
 
---------------
+This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on Fashion MNIST datasets, but this time in C++.

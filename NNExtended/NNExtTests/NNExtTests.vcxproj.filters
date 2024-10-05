@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\gtest">
+      <UniqueIdentifier>{66ccd5ef-50db-4a8c-b509-4cdacc8b9fdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="idxio.cpp">
@@ -27,13 +30,32 @@
     <ClCompile Include="matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="googletest\src\gtest-all.cc">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="googletest\src\gtest.cc">
+      <Filter>Source Files\gtest</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="googletest\src\gtest-assertion-result.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-death-test.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-filepath.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-matchers.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-port.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-printers.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-test-part.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
+    <ClCompile Include="googletest\src\gtest-typed-test.cc">
+      <Filter>Source Files\gtest</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
-#include <stdafx.hpp>
+#include <matrix.hpp>
 
-void TEST_MATRIX() noexcept {
-    //
-}
+// clang-format off
+    #include <gtest/gtest.h>
+// clang-format on

@@ -8,8 +8,8 @@ template<typename T> concept is_iostream_output_operator_compatible = std::is_sa
 
 // reverses the byte order of multibyte integers
 template<typename T>
-[[nodiscard]] constexpr typename std::enable_if<std::is_integral_v<T>, T>::type reverse_bytes(const T& integer) noexcept {
-    assert(sizeof(integer) > 1);
+[[nodiscard]] constexpr typename std::enable_if<std::is_integral<T>::value, T>::type reverse_bytes(const T& integer) noexcept {
+    static_assert(sizeof(T) != 1LLU);
 
     T result {};
 }
