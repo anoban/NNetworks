@@ -18,16 +18,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="idxio.cpp">
+    <ClCompile Include="test_idxio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iterator.cpp">
+    <ClCompile Include="test_iterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="matrix.cpp">
+    <ClCompile Include="test_matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="googletest\src\gtest.cc">

@@ -8,7 +8,7 @@
     #include <gtest/gtest.h>
 // clang-format on
 
-TEST(IDX1TEST, CONSTRUCTOR) {
+TEST(IDX1_TEST, CONSTRUCTOR) {
     idxio::idx1 train_labels { LR"(./../../Fashion-MNIST/train-labels-idx1-ubyte)" };
     idxio::idx1 test_labels { LR"(./../../Fashion-MNIST/t10k-labels-idx1-ubyte)" };
 

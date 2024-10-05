@@ -153,61 +153,71 @@ static constexpr int random_numbers[] {
 
 #pragma endregion
 
-TEST(RANDOM_ACCESS_ITERATOR, DEFAULT_CONSTRUCTOR) {
-    // test the default ctor for const iterator
-    constexpr random_access_iterator<const double> const_iterator {};
-    EXPECT_FALSE(const_iterator._rsrc);
-    EXPECT_FALSE(const_iterator._unwrapped());
-    EXPECT_FALSE(const_iterator._length);
-    EXPECT_FALSE(const_iterator._offset);
+namespace _random_access_iterator {
 
-    // test the default ctor for mutable iterator
-    constexpr random_access_iterator<char> mutable_iterator {};
-    EXPECT_FALSE(mutable_iterator._rsrc);
-    EXPECT_FALSE(mutable_iterator._unwrapped());
-    EXPECT_FALSE(mutable_iterator._length);
-    EXPECT_FALSE(mutable_iterator._offset);
-}
+    TEST(RANDOM_ACCESS_ITERATOR, DEFAULT_CONSTRUCTOR) {
+        // test the default ctor for const iterator
+        constexpr random_access_iterator<const double> const_iterator {};
+        EXPECT_FALSE(const_iterator._rsrc);
+        EXPECT_FALSE(const_iterator._unwrapped());
+        EXPECT_FALSE(const_iterator._length);
+        EXPECT_FALSE(const_iterator._offset);
 
-TEST(RANDOM_ACCESS_ITERATOR, LOCAL_PTR_CONSTRUCTOR) {
-    float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
+        // test the default ctor for mutable iterator
+        constexpr random_access_iterator<char> mutable_iterator {};
+        EXPECT_FALSE(mutable_iterator._rsrc);
+        EXPECT_FALSE(mutable_iterator._unwrapped());
+        EXPECT_FALSE(mutable_iterator._length);
+        EXPECT_FALSE(mutable_iterator._offset);
+    }
 
-    std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
-    std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
+    TEST(RANDOM_ACCESS_ITERATOR, LOCAL_PTR_CONSTRUCTOR) {
+        float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
 
-    random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
-    random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
+        std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
+        std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
 
-    EXPECT_EQ(fbegin._rsrc, frandoms);
-    EXPECT_EQ(fbegin._length, __crt_countof(frandoms));
-    EXPECT_FALSE(fbegin._offset);
+        random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
+        random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
 
-    EXPECT_EQ(fend._rsrc, frandoms);
-    EXPECT_EQ(fend._length, __crt_countof(frandoms));
-    EXPECT_EQ(fend._offset, __crt_countof(frandoms));
-}
+        EXPECT_EQ(fbegin._rsrc, frandoms);
+        EXPECT_EQ(fbegin._length, __crt_countof(frandoms));
+        EXPECT_FALSE(fbegin._offset);
 
-TEST(RANDOM_ACCESS_ITERATOR, STATIC_CONST_PTR_CONSTRUCTOR) {
-    random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-    random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        EXPECT_EQ(fend._rsrc, frandoms);
+        EXPECT_EQ(fend._length, __crt_countof(frandoms));
+        EXPECT_EQ(fend._offset, __crt_countof(frandoms));
+    }
 
-    EXPECT_EQ(ibegin._rsrc, random_numbers);
-    EXPECT_EQ(ibegin._unwrapped(), random_numbers);
-    EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
-    EXPECT_FALSE(ibegin._offset);
+    TEST(RANDOM_ACCESS_ITERATOR, STATIC_CONST_PTR_CONSTRUCTOR) {
+        random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
-    EXPECT_EQ(iend._rsrc, random_numbers);
-    EXPECT_EQ(iend._unwrapped(), random_numbers);
-    EXPECT_EQ(iend._length, __crt_countof(random_numbers));
-    EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
-}
+        EXPECT_EQ(ibegin._rsrc, random_numbers);
+        EXPECT_EQ(ibegin._unwrapped(), random_numbers);
+        EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin._offset);
 
-TEST(RANDOM_ACCESS_ITERATOR, HEAP_PTR_CONSTRUCTOR) {
-    auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
-    EXPECT_TRUE(irandoms.get());
-    ::memset(
-        irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
-    ); // memory returned by new (std::nothrow) HAD garbage in it!!
+        EXPECT_EQ(iend._rsrc, random_numbers);
+        EXPECT_EQ(iend._unwrapped(), random_numbers);
+        EXPECT_EQ(iend._length, __crt_countof(random_numbers));
+        EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
+    }
+
+    TEST(RANDOM_ACCESS_ITERATOR, HEAP_PTR_CONSTRUCTOR) {
+        auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
+        EXPECT_TRUE(irandoms.get());
+        ::memset(
+            irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
+        ); // memory returned by new (std::nothrow) HAD garbage in it!!
+    }
+
+} // namespace _random_access_iterator
+
+namespace _strided_random_access_iterator {
+
+    //
+
 }
 
 /*

@@ -78,11 +78,13 @@
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Configuration)\</IntDir>
     <IncludePath>$(ProjectDir);$(SolutionDir)include;$(ProjectDir)googletest\;$(ProjectDir)googletest\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_VC_x64_Desktop);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)include;$(ProjectDir)googletest\;$(ProjectDir)googletest\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)include;$(ProjectDir)googletest\;$(ProjectDir)googletest\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_VC_x64_Desktop);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -188,10 +190,10 @@
     <ClCompile Include="googletest\src\gtest-test-part.cc" />
     <ClCompile Include="googletest\src\gtest-typed-test.cc" />
     <ClCompile Include="googletest\src\gtest.cc" />
-    <ClCompile Include="idxio.cpp" />
-    <ClCompile Include="iterator.cpp" />
+    <ClCompile Include="test_idxio.cpp" />
+    <ClCompile Include="test_iterator.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="test_matrix.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

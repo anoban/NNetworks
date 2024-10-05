@@ -29,11 +29,11 @@
 
 namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
-    [[nodiscard]] static inline std::optional<uint8_t*> __cdecl open(
+    [[nodiscard]] static inline std::optional<unsigned char*> __cdecl open(
         _In_ const wchar_t* const filename, _Inout_ unsigned long* const size
     ) noexcept {
         *size = 0;
-        uint8_t*       buffer {};
+        unsigned char* buffer {};
         LARGE_INTEGER  liFsize { .QuadPart = 0LLU };
         const HANDLE64 hFile = ::CreateFileW(filename, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
@@ -53,7 +53,7 @@ namespace internal { // routines inside this namespace aren't meant to be used o
             goto GET_FILESIZE_ERR;
         }
 
-        buffer = new (std::nothrow) uint8_t[liFsize.QuadPart];
+        buffer = new (std::nothrow) unsigned char[liFsize.QuadPart];
         if (!buffer) {
             ::fwprintf_s(stderr, L"Memory allocation failed inside %s, in call to new (std::nothrow)\n", __FUNCTIONW__);
             goto GET_FILESIZE_ERR;
@@ -75,7 +75,7 @@ INVALID_HANDLE_ERR:
     }
 
     [[nodiscard]] static inline bool __cdecl serialize(
-        _In_ const wchar_t* const filename, _In_ const uint8_t* const buffer, _In_ const unsigned long size
+        _In_ const wchar_t* const filename, _In_ const unsigned char* const buffer, _In_ const unsigned long size
     ) noexcept {
         const HANDLE64 hFile  = ::CreateFileW(filename, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         DWORD          nbytes = 0;
@@ -123,7 +123,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     template<typename T> constexpr bool is_idx_compatible_v = is_idx_compatible<T>::value;
 
     template<
-        typename scalar_t = uint8_t, // the element type of the idx1 buffer
+        typename scalar_t = unsigned char, // the element type of the idx1 buffer
         typename          = typename std::enable_if<is_idx_compatible<scalar_t>::value, bool>::type>
     class idx1 final {
             //////////////////////////
@@ -152,18 +152,18 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
         private:
     #endif
             // clang-format on
-            uint32_t _idxmagic;   // first 4 bytes
-            uint32_t _nlabels;    // next 4 bytes
-            uint8_t* _raw_buffer; // the whole file
-            pointer  _labels;     // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
+            unsigned       _idxmagic;   // first 4 bytes
+            unsigned       _nlabels;    // next 4 bytes
+            unsigned char* _raw_buffer; // the whole file
+            pointer        _labels; // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
 
         public:
             constexpr inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
             constexpr inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept :
                 _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
-                unsigned long                 sz {};
-                const std::optional<uint8_t*> option { internal::open(path, &sz) };
+                unsigned long                       sz {};
+                const std::optional<unsigned char*> option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
@@ -171,31 +171,31 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     return;
                 }
 
-                uint8_t* buffer { option.value() };
+                unsigned char* buffer { option.value() };
                 assert(buffer);
                 assert(buffer[3] == 0x01); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) must be 0x01 for idx1 objects
 
-                _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
-                _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
+                _idxmagic   = ::ntohl(*reinterpret_cast<const unsigned*>(buffer));
+                _nlabels    = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 4));
                 _raw_buffer = buffer;
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            constexpr inline explicit __cdecl idx1(_In_ uint8_t* const buffer, _In_ const size_t& size) noexcept {
+            constexpr inline explicit __cdecl idx1(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 // again, the 100 here is an arbitrary choice, when you pass a dummy buffer for testing, make sure it's longer than 100 bytes
                 assert(buffer[3] == 0x01); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-                _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
-                _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
+                _idxmagic   = ::ntohl(*reinterpret_cast<const unsigned*>(buffer));
+                _nlabels    = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 4));
                 _raw_buffer = buffer;
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
             constexpr inline __cdecl idx1(_In_ const idx1& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
-                uint8_t* temp_buff = new (std::nothrow) uint8_t[_nlabels * sizeof(value_type) + 8];
+                unsigned char* temp_buff = new (std::nothrow) unsigned char[_nlabels * sizeof(value_type) + 8];
                 // cannot just use value_type[_nlabels] because we need to accomodate the metadata which is always unsigned char
                 // 8 for the first 8 metadata bytes and the rest for the buffer downstream
                 if (!temp_buff) {
@@ -228,7 +228,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
                 } else {
                     delete[] _raw_buffer;
-                    _raw_buffer = new (std::nothrow) uint8_t[8 + other._nlabels * sizeof(value_type)];
+                    _raw_buffer = new (std::nothrow) unsigned char[8 + other._nlabels * sizeof(value_type)];
                     if (!_raw_buffer) {
                         ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
                         return *this;
@@ -289,12 +289,12 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            constexpr uint32_t __cdecl count() const noexcept { return _nlabels; }
+            constexpr unsigned __cdecl count() const noexcept { return _nlabels; }
 
-            constexpr uint32_t __cdecl magic() const noexcept { return _idxmagic; }
+            constexpr unsigned __cdecl magic() const noexcept { return _idxmagic; }
     };
 
-    template<typename scalar_t = uint8_t, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
+    template<typename scalar_t = unsigned char, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
             //////////////////////////
             //  IDX3 BINARY LAYOUT  //
             //////////////////////////
@@ -323,20 +323,20 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
         private:
     #endif
             // clang-format on
-            uint32_t _idxmagic;   // first 4 bytes
-            uint32_t _nimages;    // next 4 bytes
-            uint32_t _nrows;      // next 4 bytes
-            uint32_t _ncols;      // next 4 bytes
-            uint8_t* _raw_buffer; // the whole file
-            pointer  _pixels;     // an array of elements of a scalar type (a type casted alias to a position, 16 strides into the buffer)
+            unsigned       _idxmagic;   // first 4 bytes
+            unsigned       _nimages;    // next 4 bytes
+            unsigned       _nrows;      // next 4 bytes
+            unsigned       _ncols;      // next 4 bytes
+            unsigned char* _raw_buffer; // the whole file
+            pointer        _pixels; // an array of elements of a scalar type (a type casted alias to a position, 16 strides into the buffer)
 
         public:
             constexpr inline __cdecl idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
 
             constexpr inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
                 _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() {
-                unsigned long                 sz {};
-                const std::optional<uint8_t*> option { internal::open(path, &sz) };
+                unsigned long                       sz {};
+                const std::optional<unsigned char*> option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
@@ -344,27 +344,27 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     return;
                 }
 
-                uint8_t* buffer { option.value() };
+                unsigned char* buffer { option.value() };
                 assert(buffer);
                 assert(buffer[3] == 0x03); // // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) must be 0x03 for idx3 objects
 
-                _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
-                _nimages    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
-                _nrows      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 8));
-                _ncols      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 12));
+                _idxmagic   = ::ntohl(*reinterpret_cast<const unsigned*>(buffer));
+                _nimages    = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 4));
+                _nrows      = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 8));
+                _ncols      = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 12));
                 _raw_buffer = buffer;
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            constexpr inline explicit __cdecl idx3(_In_ uint8_t* const buffer, _In_ const size_t& size) noexcept {
+            constexpr inline explicit __cdecl idx3(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 assert(buffer[3] == 0x03); //// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-                _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
-                _nimages    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
-                _nrows      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 8));
-                _ncols      = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 12));
+                _idxmagic   = ::ntohl(*reinterpret_cast<const unsigned*>(buffer));
+                _nimages    = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 4));
+                _nrows      = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 8));
+                _ncols      = ::ntohl(*reinterpret_cast<const unsigned*>(buffer + 12));
                 _raw_buffer = buffer;
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
@@ -406,7 +406,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     );
                 } else {
                     delete[] _raw_buffer;
-                    _raw_buffer = new (std::nothrow) uint8_t[8 + other._nimages * other._nrows * other._ncols * sizeof(value_type)];
+                    _raw_buffer = new (std::nothrow) unsigned char[8 + other._nimages * other._nrows * other._ncols * sizeof(value_type)];
                     if (!_raw_buffer) {
                         ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
                         return *this;
@@ -478,16 +478,20 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            constexpr uint32_t __cdecl count() const noexcept { return _nimages; }
+            constexpr unsigned __cdecl count() const noexcept { return _nimages; }
 
-            constexpr uint32_t __cdecl magic() const noexcept { return _idxmagic; }
+            constexpr unsigned __cdecl magic() const noexcept { return _idxmagic; }
 
-            constexpr std::pair<uint32_t, uint32_t> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
+            constexpr std::pair<unsigned, unsigned> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
     };
 
 } // namespace idxio
 
-    #define internal FALSE // we do not want the functions inside namespace internal to be accessible in the source files
+    #ifndef __TEST__
+        #define internal FALSE
+    // we do not want the functions inside namespace internal to be accessible in the source files
+    // but this will wreak havoc with Google test, so do not do this while testing
+    #endif // !__TEST__
 
 #endif // __IDXIO_HPP__
 
