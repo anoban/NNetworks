@@ -116,20 +116,10 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     // - the fourth byte encodes the number of dimensions, 0x01 for vectors, 0x02 for matrices and 0x03 for tensors (presumably)
     // for the ubyte variants of idx files, the data type will be unsigned chars, hence the third byte of the magic number will be 0x08
 
-    template<typename T>
-    struct is_idx_compatible final :
-        std::bool_constant<std::_Is_any_of_v<std::remove_cv_t<T>, unsigned char, signed char, short, int, float, double>> { };
-
-    template<typename T> constexpr bool is_idx_compatible_v = is_idx_compatible<T>::value;
-
     template<
         typename scalar_t = unsigned char, // the element type of the idx1 buffer
         typename          = typename std::enable_if<is_idx_compatible<scalar_t>::value, bool>::type>
     class idx1 final {
-            //////////////////////////
-            //  IDX1 BINARY LAYOUT  //
-            //////////////////////////
-
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000801(2049) magic number (MSB first)
             // 0004     32 bit integer  60000            number of items
@@ -295,10 +285,6 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     };
 
     template<typename scalar_t = unsigned char, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
-            //////////////////////////
-            //  IDX3 BINARY LAYOUT  //
-            //////////////////////////
-
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000803(2051) magic number
             // 0004     32 bit integer  60000            number of images
@@ -489,10 +475,8 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
     #ifndef __TEST__
         #define internal FALSE
-    // we do not want the functions inside namespace internal to be accessible in the source files
-    // but this will wreak havoc with Google test, so do not do this while testing
+// we do not want the functions inside namespace internal to be accessible in the source files
+    // but this will wreak havoc with Google test, so do not do this when testing because gtest also uses "internal" an identifier
     #endif // !__TEST__
-
-#endif // __IDXIO_HPP__
-
 // NOLINTEND(cppcoreguidelines-pro-type-vararg)
+#endif // __IDXIO_HPP__

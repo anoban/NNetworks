@@ -288,36 +288,6 @@ namespace _strided_random_access_iterator {
 }
 
 /*
-void TEST_ITERATORS() noexcept {
-
-
-    // test the copy ctor
-    
-
-    // test the move ctor
-    auto fbegin_mv { std::move(fbegin) };
-    auto fend_mv { std::move(fend) };
-
-    assert(fbegin_mv._rsrc == frandoms);
-    assert(fbegin_mv._unwrapped() == frandoms);
-    assert(fbegin_mv._length == __crt_countof(frandoms));
-    assert(!fbegin_mv._offset);
-
-    assert(fend_mv._rsrc == frandoms);
-    assert(fend_mv._unwrapped() == frandoms);
-    assert(fend_mv._length == __crt_countof(frandoms));
-    assert(fend_mv._offset == __crt_countof(frandoms));
-
-    // test whether the moved from objects have been invalidated
-    assert(!fbegin._rsrc); // NOLINT(bugprone-use-after-move)
-    assert(!fbegin._unwrapped());
-    assert(!fbegin._length);
-    assert(!fbegin._offset);
-
-    assert(!fend._rsrc); // NOLINT(bugprone-use-after-move)
-    assert(!fend._unwrapped());
-    assert(!fend._length);
-    assert(!fend._offset);
 
     // fill the array with values
     std::iota(ibegin + 10, iend, 11); // start filing from 11th element, first 10 will be 0s.
@@ -402,10 +372,5 @@ void TEST_ITERATORS() noexcept {
         strided_random_access_iterator start { random_numbers, __crt_countof(random_numbers), stride };
         //
     }
-
-#pragma endregion
-
-    ::_putws(L"TEST_ITERATORS passed :)");
-}
 
 */
