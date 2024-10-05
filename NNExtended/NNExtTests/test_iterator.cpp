@@ -190,8 +190,8 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, STATIC_CONST_PTR_CONSTRUCTOR) {
-        random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
         EXPECT_EQ(ibegin._unwrapped(), random_numbers);
@@ -206,10 +206,77 @@ namespace _random_access_iterator {
 
     TEST(RANDOM_ACCESS_ITERATOR, HEAP_PTR_CONSTRUCTOR) {
         auto irandoms { std::unique_ptr<int[]>(new (std::nothrow) int[MAX_ELEMS]) }; // NOLINT(modernize-avoid-c-arrays)
-        EXPECT_TRUE(irandoms.get());
+        ASSERT_TRUE(irandoms.get());
         ::memset(
             irandoms.get(), 0, MAX_ELEMS * sizeof(decltype(irandoms)::element_type)
         ); // memory returned by new (std::nothrow) HAD garbage in it!!
+
+        random_access_iterator ibegin { irandoms.get(), MAX_ELEMS };
+        random_access_iterator iend { irandoms.get(), MAX_ELEMS, MAX_ELEMS };
+
+        EXPECT_EQ(ibegin._rsrc, irandoms.get());
+        EXPECT_EQ(ibegin._unwrapped(), irandoms.get());
+        EXPECT_EQ(ibegin._length, MAX_ELEMS);
+        EXPECT_FALSE(ibegin._offset);
+
+        EXPECT_EQ(iend._rsrc, irandoms.get());
+        EXPECT_EQ(iend._unwrapped(), irandoms.get());
+        EXPECT_EQ(iend._length, MAX_ELEMS);
+        EXPECT_EQ(iend._offset, MAX_ELEMS);
+    }
+
+    TEST(RANDOM_ACCESS_ITERATOR, COPY_CONSTRUCTOR) {
+        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        constexpr auto                   ibegin_cp { ibegin };
+        constexpr auto                   iend_cp { iend };
+
+        EXPECT_EQ(ibegin._rsrc, random_numbers);
+        EXPECT_EQ(ibegin._unwrapped(), random_numbers);
+        EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin._offset);
+
+        EXPECT_EQ(ibegin_cp._rsrc, random_numbers);
+        EXPECT_EQ(ibegin_cp._unwrapped(), random_numbers);
+        EXPECT_EQ(ibegin_cp._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin_cp._offset);
+
+        EXPECT_EQ(iend._rsrc, random_numbers);
+        EXPECT_EQ(iend._unwrapped(), random_numbers);
+        EXPECT_EQ(iend._length, __crt_countof(random_numbers));
+        EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
+
+        EXPECT_EQ(iend_cp._rsrc, random_numbers);
+        EXPECT_EQ(iend_cp._unwrapped(), random_numbers);
+        EXPECT_EQ(iend_cp._length, __crt_countof(random_numbers));
+        EXPECT_EQ(iend_cp._offset, __crt_countof(random_numbers));
+    }
+
+    TEST(RANDOM_ACCESS_ITERATOR, MOVE_CONSTRUCTOR) {
+        random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        const auto             ibegin_mvd { std::move(ibegin) };
+        const auto             iend_mvd { std::move(iend) };
+
+        EXPECT_FALSE(ibegin._rsrc, random_numbers);
+        EXPECT_FALSE(ibegin._unwrapped(), random_numbers);
+        EXPECT_FALSE(ibegin._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin._offset);
+
+        EXPECT_EQ(ibegin_mvd._rsrc, random_numbers);
+        EXPECT_EQ(ibegin_mvd._unwrapped(), random_numbers);
+        EXPECT_EQ(ibegin_mvd._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin_mvd._offset);
+
+        EXPECT_FALSE(iend._rsrc);
+        EXPECT_FALSE(iend._unwrapped());
+        EXPECT_FALSE(iend._length);
+        EXPECT_FALSE(iend._offset);
+
+        EXPECT_EQ(iend_mvd._rsrc, random_numbers);
+        EXPECT_EQ(iend_mvd._unwrapped(), random_numbers);
+        EXPECT_EQ(iend_mvd._length, __crt_countof(random_numbers));
+        EXPECT_EQ(iend_mvd._offset, __crt_countof(random_numbers));
     }
 
 } // namespace _random_access_iterator
@@ -222,31 +289,10 @@ namespace _strided_random_access_iterator {
 
 /*
 void TEST_ITERATORS() noexcept {
-#pragma region TEST_RANDOM_ACCESS_ITERATOR
+
 
     // test the copy ctor
-    auto ibegin_cp { ibegin };
-    auto iend_cp { iend };
-
-    assert(ibegin_cp._rsrc == irandoms.get());
-    assert(ibegin_cp._unwrapped() == irandoms.get());
-    assert(ibegin_cp._length == MAX_ELEMS);
-    assert(!ibegin_cp._offset);
-
-    assert(ibegin._rsrc == irandoms.get());
-    assert(ibegin._unwrapped() == irandoms.get());
-    assert(ibegin._length == MAX_ELEMS);
-    assert(!ibegin._offset);
-
-    assert(iend_cp._rsrc == irandoms.get());
-    assert(iend_cp._unwrapped() == irandoms.get());
-    assert(iend_cp._length == MAX_ELEMS);
-    assert(iend_cp._offset == MAX_ELEMS);
-
-    assert(iend._rsrc == irandoms.get());
-    assert(iend._unwrapped() == irandoms.get());
-    assert(iend._length == MAX_ELEMS);
-    assert(iend._offset == MAX_ELEMS);
+    
 
     // test the move ctor
     auto fbegin_mv { std::move(fbegin) };
