@@ -25,6 +25,8 @@
     #include <iterator.hpp>
     #include <misc.hpp>
 
+// NOLINTBEGIN(cppcoreguidelines-pro-type-vararg)
+
 namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
     [[nodiscard]] static inline std::optional<uint8_t*> __cdecl open(
@@ -171,7 +173,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
                 uint8_t* buffer { option.value() };
                 assert(buffer);
-                assert(buffer[3] == 0x01); // must be 0x01 for idx1 objects
+                assert(buffer[3] == 0x01); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) must be 0x01 for idx1 objects
 
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
@@ -183,7 +185,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 assert(buffer);
                 assert(size >= 100);
                 // again, the 100 here is an arbitrary choice, when you pass a dummy buffer for testing, make sure it's longer than 100 bytes
-                assert(buffer[3] == 0x01);
+                assert(buffer[3] == 0x01); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nlabels    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
@@ -344,7 +346,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
                 uint8_t* buffer { option.value() };
                 assert(buffer);
-                assert(buffer[3] == 0x03); // must be 0x03 for idx3 objects
+                assert(buffer[3] == 0x03); // // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) must be 0x03 for idx3 objects
 
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nimages    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
@@ -357,7 +359,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             constexpr inline explicit __cdecl idx3(_In_ uint8_t* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
-                assert(buffer[3] == 0x03); // must be 0x03 for idx3 objects
+                assert(buffer[3] == 0x03); //// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
                 _idxmagic   = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer));
                 _nimages    = ::ntohl(*reinterpret_cast<const uint32_t*>(buffer + 4));
@@ -488,3 +490,5 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     #define internal FALSE // we do not want the functions inside namespace internal to be accessible in the source files
 
 #endif // __IDXIO_HPP__
+
+// NOLINTEND(cppcoreguidelines-pro-type-vararg)

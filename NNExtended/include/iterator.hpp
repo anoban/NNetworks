@@ -3,7 +3,6 @@
     #define __ITERATOR_HPP__
     #include <cassert>
     #include <iterator>
-    #include <type_traits>
 
     #pragma region __RANDOM_ACCESS_ITERATOR__
 template<typename T> class random_access_iterator { // unchecked random access iterator
@@ -114,7 +113,7 @@ template<typename T> class random_access_iterator { // unchecked random access i
 
         constexpr inline random_access_iterator& __stdcall operator--() noexcept {
             _offset--;
-            assert(_offset <= _length); // assert(_offset >= 0); won't help because _offset is unsigned, so instead check for wraparounds
+            assert(_offset <= _length); // assert(_offset >= 0); won't help because _offset is unsigned so instead, check for wraparounds
             return *this;
         }
 
@@ -148,14 +147,14 @@ template<typename T> class random_access_iterator { // unchecked random access i
             return _rsrc == other._rsrc && _offset >= other._offset;
         }
 
-        template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const T& stride) const noexcept {
+        template<typename U> requires std::integral<U>
+        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const U& stride) const noexcept {
             assert(_length >= _offset + stride);
             return { _rsrc, _length, _offset + stride };
         }
 
-        template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const T& stride) const noexcept {
+        template<typename U> requires std::integral<U>
+        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const U& stride) const noexcept {
             assert(_length >= _offset - stride);
             return { _rsrc, _length, _offset - stride };
         }

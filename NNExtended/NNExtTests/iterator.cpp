@@ -1,12 +1,4 @@
-﻿#include <algorithm>
-#include <array>
-#include <chrono>
-#include <memory>
-#include <numeric>
-#include <random>
-#include <ranges>
-
-#include <pch.hpp>
+﻿#include <stdafx.hpp>
 
 static constexpr auto MAX_ELEMS { 1000LLU };
 static constexpr auto NSTRIDES { 150LLU };

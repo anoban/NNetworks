@@ -1,9 +1,4 @@
-﻿#include <algorithm>
-#include <array>
-#include <numeric>
-#include <ranges>
-
-#include <pch.hpp>
+﻿#include <stdafx.hpp>
 
 TEST(IDX1_TEST, CONSTRUCTOR) {
     idxio::idx1 train_labels { LR"(./../../Fashion-MNIST/train-labels-idx1-ubyte)" };
