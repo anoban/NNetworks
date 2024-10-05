@@ -7,9 +7,9 @@
     #include <iterator.hpp>
     #include <misc.hpp>
 
-// handrolling the matrix class because I want utmost control over memory management
+// handrolling the matrix class because we want utmost control over memory management
 // if many allocations happened at every iteration of gradient descent, this won't perform any better than the python implementation
-// Eigen is too messy for my taste, I cba with BLAS and it's fortran dependency and oneMKL requires about 6 GiBs of space on disk
+// Eigen is too messy for my taste, cba with BLAS and it's fortran dependencies and oneMKL requires about 6 GiBs of space on disk
 // so yes we will be rolling our own!
 
 template<typename T = float> requires std::is_arithmetic_v<T> class matrix final { // not interested in supporting complex types
@@ -26,7 +26,11 @@ template<typename T = float> requires std::is_arithmetic_v<T> class matrix final
         using column_iterator       = strided_random_access_iterator<T>;
         using const_column_iterator = strided_random_access_iterator<const T>;
 
+        // clang-format off
+    #ifndef __TEST__
     private:
+    #endif //
+        // clang-format on
         T*        _buffer;
         size_type _nrows;
         size_type _ncols;

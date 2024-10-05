@@ -194,6 +194,7 @@
     <ClCompile Include="test_iterator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="test_matrix.cpp" />
+    <ClCompile Include="test_misc.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
