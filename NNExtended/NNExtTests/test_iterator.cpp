@@ -258,9 +258,9 @@ namespace _random_access_iterator {
         const auto             ibegin_mvd { std::move(ibegin) };
         const auto             iend_mvd { std::move(iend) };
 
-        EXPECT_FALSE(ibegin._rsrc, random_numbers);
-        EXPECT_FALSE(ibegin._unwrapped(), random_numbers);
-        EXPECT_FALSE(ibegin._length, __crt_countof(random_numbers));
+        EXPECT_FALSE(ibegin._rsrc);
+        EXPECT_FALSE(ibegin._unwrapped());
+        EXPECT_FALSE(ibegin._length);
         EXPECT_FALSE(ibegin._offset);
 
         EXPECT_EQ(ibegin_mvd._rsrc, random_numbers);
