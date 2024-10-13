@@ -5,19 +5,18 @@
     #include <iterator>
 
     #pragma region __RANDOM_ACCESS_ITERATOR__
-template<typename T> class random_access_iterator { // unchecked random access iterator
+template<typename _Ty> class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
     public:
-        using value_type        = T;
-        // T preserves constness of the resource pointer, typename std::remove_cv_t<T> would have removed the qualifiers
+        using value_type        = _Ty;
+        // _Ty preserves constness of the resource pointer, typename std::remove_cv_t<_Ty> would have removed the qualifiers
         // we would end up with a unqualified pointer even if the passed resource is a const iterable
-        using pointer           = T*;
-        // T* preserves const correctness if T is a const qualified type, value_type* would have removed that const qualifier
-        using const_pointer     = const T*;
-        using reference         = T&; // T& instead of value_type& for the sake of const correctness
-        using const_reference   = const T&;
+        using pointer           = _Ty*;
+        using const_pointer     = const _Ty*;
+        using reference         = _Ty&;
+        using const_reference   = const _Ty&;
         using difference_type   = signed long long;   // aka ptrdiff_t
         using size_type         = unsigned long long; // aka size_t
         using iterator_category = std::random_access_iterator_tag;
@@ -37,19 +36,19 @@ template<typename T> class random_access_iterator { // unchecked random access i
         // will require an explicit template type specification
         constexpr inline __cdecl random_access_iterator() noexcept : _rsrc(), _length(), _offset() { }
 
-        // resource pointer and length of the iterable
-        constexpr inline __cdecl random_access_iterator(_In_ T* const _res, _In_ const size_t& _sz) noexcept :
-            _rsrc(_res), _length(_sz), _offset() {
-            assert(_res);
-            assert(_sz);
+        template<size_type _size>
+        constexpr inline explicit __cdecl random_access_iterator(_In_ const _Ty (&_array)[_size]) noexcept :
+            _rsrc(_array), _length(_size), _offset() {
+            assert(_array);
+            assert(_size);
         }
 
-        // resource pointer, length of the iterable and the current iterator position, will need this for .end() methods
-        constexpr inline __cdecl random_access_iterator(_In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _pos) noexcept :
-            _rsrc(_res), _length(_sz), _offset(_pos) {
-            assert(_res);
-            assert(_sz);
-            assert(_sz >= _pos);
+        template<size_type _size>
+        constexpr inline explicit __cdecl random_access_iterator(_In_ const _Ty (&_array)[_size], _In_ const size_type& _pos) noexcept :
+            _rsrc(_array), _length(_size), _offset(_pos) {
+            assert(_array);
+            assert(_size);
+            assert(_size >= _pos);
         }
 
         constexpr inline __cdecl random_access_iterator(_In_ const random_access_iterator& other) noexcept :
@@ -174,8 +173,8 @@ template<typename T> class random_access_iterator { // unchecked random access i
     #pragma endregion
 
     #pragma region __STRIDED_ITERATOR__
-template<typename T>
-class strided_random_access_iterator final : public random_access_iterator<T> { // an iterator to capture matrix column elements
+template<typename _Ty>
+class strided_random_access_iterator final : public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
         // because random_access_iterator cannot be used here as it uses a non modifiable default stride of 1
         // since our matrix class is row major, the vanilla random_access_iterator is unsuitable to iterate over elements of a given column
         // hence it would require a custom stride (number of columns) to get to the next element instead of 1!
@@ -189,14 +188,14 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         using strided_random_access_iterator::random_access_iterator::_rsrc;
 
     public:
-        using value_type        = typename random_access_iterator<T>::value_type;
-        using pointer           = typename random_access_iterator<T>::pointer;
-        using const_pointer     = typename random_access_iterator<T>::const_pointer;
-        using reference         = typename random_access_iterator<T>::reference;
-        using const_reference   = typename random_access_iterator<T>::const_reference;
-        using difference_type   = typename random_access_iterator<T>::difference_type;
-        using size_type         = typename random_access_iterator<T>::size_type;
-        using iterator_category = typename random_access_iterator<T>::iterator_category;
+        using value_type        = typename random_access_iterator<_Ty>::value_type;
+        using pointer           = typename random_access_iterator<_Ty>::pointer;
+        using const_pointer     = typename random_access_iterator<_Ty>::const_pointer;
+        using reference         = typename random_access_iterator<_Ty>::reference;
+        using const_reference   = typename random_access_iterator<_Ty>::const_reference;
+        using difference_type   = typename random_access_iterator<_Ty>::difference_type;
+        using size_type         = typename random_access_iterator<_Ty>::size_type;
+        using iterator_category = typename random_access_iterator<_Ty>::iterator_category;
 
         // clang-format off
 #ifndef __TEST__
@@ -212,7 +211,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
             strided_random_access_iterator::random_access_iterator(), _stride() { }
 
         constexpr inline __cdecl strided_random_access_iterator(
-            _In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _str
+            _In_ _Ty* const _res, _In_ const size_t& _sz, _In_ const size_t& _str
         ) noexcept :
             strided_random_access_iterator::random_access_iterator { _res, _sz }, _stride { _str } {
             assert(_res);
@@ -221,7 +220,7 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
         }
 
         constexpr inline __cdecl strided_random_access_iterator(
-            _In_ T* const _res, _In_ const size_t& _sz, _In_ const size_t& _pos, _In_ const size_t& _str
+            _In_ _Ty* const _res, _In_ const size_t& _sz, _In_ const size_t& _pos, _In_ const size_t& _str
         ) noexcept :
             strided_random_access_iterator::random_access_iterator { _res, _sz, _pos }, _stride { _str } {
             assert(_res);
@@ -299,14 +298,14 @@ class strided_random_access_iterator final : public random_access_iterator<T> { 
 
         bool operator!=(const strided_random_access_iterator& other) { }
 
-        template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const T& distance) const noexcept {
+        template<typename _Ty> requires std::integral<_Ty>
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const _Ty& distance) const noexcept {
             assert(_length >= _offset + distance);
             return { _rsrc, _length, _offset + distance, _stride };
         }
 
-        template<typename T> requires std::integral<T>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const T& distance) const noexcept {
+        template<typename _Ty> requires std::integral<_Ty>
+        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const _Ty& distance) const noexcept {
             assert(_length >= _offset - distance);
             return { _rsrc, _length, _offset - distance, _stride };
         }

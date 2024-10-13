@@ -1,5 +1,4 @@
 ﻿#include <algorithm>
-#include <array>
 #include <chrono>
 #include <numeric>
 #include <random>
@@ -171,14 +170,14 @@ namespace _random_access_iterator {
         EXPECT_FALSE(mutable_iterator._offset);
     }
 
-    TEST(RANDOM_ACCESS_ITERATOR, LOCAL_PTR_CONSTRUCTOR) {
+    TEST(RANDOM_ACCESS_ITERATOR, PTR_CONSTRUCTOR) {
         float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
 
-        std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
-        std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
+        // std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
+        // std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
 
-        random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
-        random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
+        random_access_iterator fbegin { frandoms };
+        random_access_iterator fend { frandoms, __crt_countof(frandoms) };
 
         EXPECT_EQ(fbegin._rsrc, frandoms);
         EXPECT_EQ(fbegin._length, __crt_countof(frandoms));
@@ -189,9 +188,9 @@ namespace _random_access_iterator {
         EXPECT_EQ(fend._offset, __crt_countof(frandoms));
     }
 
-    TEST(RANDOM_ACCESS_ITERATOR, STATIC_CONST_PTR_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+    TEST(RANDOM_ACCESS_ITERATOR, CONST_PTR_CONSTRUCTOR) {
+        constexpr random_access_iterator ibegin { random_numbers };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
         EXPECT_EQ(ibegin._unwrapped(), random_numbers);

@@ -12,26 +12,26 @@
 // Eigen is too messy for my taste, cba with BLAS and it's fortran dependencies and oneMKL requires about 6 GiBs of space on disk
 // so yes we will be rolling our own!
 
-template<typename T = float> requires std::is_arithmetic_v<T> class matrix final { // not interested in supporting complex types
+template<typename _Ty = float> requires std::is_arithmetic_v<_Ty> class matrix final { // not interested in supporting complex types
     public:
-        using value_type            = T;
-        using pointer               = T*;
-        using const_pointer         = const T*;
-        using refernce              = T&;
-        using const_refernce        = const T&;
+        using value_type            = _Ty;
+        using pointer               = _Ty*;
+        using const_pointer         = const _Ty*;
+        using refernce              = _Ty&;
+        using const_refernce        = const _Ty&;
         using size_type             = unsigned long long;
         using difference_type       = long long;
-        using iterator              = random_access_iterator<T>;
-        using const_iterator        = random_access_iterator<const T>;
-        using column_iterator       = strided_random_access_iterator<T>;
-        using const_column_iterator = strided_random_access_iterator<const T>;
+        using iterator              = random_access_iterator<_Ty>;
+        using const_iterator        = random_access_iterator<const _Ty>;
+        using column_iterator       = strided_random_access_iterator<_Ty>;
+        using const_column_iterator = strided_random_access_iterator<const _Ty>;
 
         // clang-format off
     #ifndef __TEST__
     private:
     #endif //
         // clang-format on
-        T*        _buffer;
+        _Ty*        _buffer;
         size_type _nrows;
         size_type _ncols;
 
