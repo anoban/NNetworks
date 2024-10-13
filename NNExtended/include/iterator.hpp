@@ -1,10 +1,10 @@
 #pragma once
-#ifndef __ITERATOR_HPP__
-    #define __ITERATOR_HPP__
-    #include <cassert>
-    #include <iterator>
+#include <cassert>
+#include <iterator>
 
-    #pragma region __RANDOM_ACCESS_ITERATOR__
+// NOLINTBEGIN(readability-redundant-inline-specifier)
+
+#pragma region __RANDOM_ACCESS_ITERATOR__
 template<typename _Ty> class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
@@ -32,7 +32,7 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
         size_type _length; // number of elements in the iterable
         size_type _offset; // current position in the iterable
 
-    public:
+    public: // NOLINT(readability-redundant-access-specifiers)
         // will require an explicit template type specification
         constexpr inline __cdecl random_access_iterator() noexcept : _rsrc(), _length(), _offset() { }
 
@@ -96,7 +96,7 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
 
         [[nodiscard]] constexpr inline const_pointer __cdecl _unwrapped() const noexcept { return _rsrc; }
 
-        constexpr inline void _cdecl reset() noexcept { _offset = 0; }
+        constexpr inline void __cdecl reset() noexcept { _offset = 0; }
 
         constexpr inline random_access_iterator& __stdcall operator++() noexcept {
             _offset++;
@@ -170,9 +170,9 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
             return _offset - other._offset;
         }
 };
-    #pragma endregion
+#pragma endregion
 
-    #pragma region __STRIDED_ITERATOR__
+#pragma region __STRIDED_ITERATOR__
 template<typename _Ty>
 class strided_random_access_iterator final : public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
         // because random_access_iterator cannot be used here as it uses a non modifiable default stride of 1
@@ -206,7 +206,7 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
         size_type _stride; // stride size
         // data member _stride does not participate in comparison operations between strided_random_access_iterator s
 
-    public:
+    public: // NOLINT(readability-redundant-access-specifiers)
         constexpr inline __cdecl strided_random_access_iterator() noexcept :
             strided_random_access_iterator::random_access_iterator(), _stride() { }
 
@@ -294,9 +294,13 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
             return { _rsrc, _length, _offset + _stride };
         }
 
-        bool operator==(const strided_random_access_iterator& other) { }
+        bool operator==(const strided_random_access_iterator& other) {
+            //
+        }
 
-        bool operator!=(const strided_random_access_iterator& other) { }
+        bool operator!=(const strided_random_access_iterator& other) {
+            //
+        }
 
         template<typename _Ty> requires std::integral<_Ty>
         [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const _Ty& distance) const noexcept {
@@ -322,6 +326,6 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
             return _offset - other._offset;
         }
 };
-    #pragma endregion
+#pragma endregion
 
-#endif // !__ITERATOR_HPP__
+// NOLINTEND(readability-redundant-inline-specifier)

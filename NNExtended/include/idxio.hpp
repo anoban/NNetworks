@@ -1,6 +1,4 @@
 #pragma once
-#ifndef __IDXIO_HPP__
-    #define __IDXIO_HPP__
 
 // clang-format off
     #define _AMD64_ // architecture
@@ -16,16 +14,15 @@
     #pragma comment(lib, "Ws2_32.lib")
 // clang-format on
 
-    #include <cstdint>
-    #include <cstdio>
-    #include <iostream>
-    #include <optional>
-    #include <vector>
+#include <cstdio>
+#include <iostream>
+#include <optional>
+#include <vector>
 
-    #include <iterator.hpp>
-    #include <misc.hpp>
+#include <iterator.hpp>
+#include <misc.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-pro-type-vararg)
+// NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,readability-redundant-inline-specifier,cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
@@ -473,10 +470,10 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
 } // namespace idxio
 
-    #ifndef __TEST__
-        #define internal FALSE
+#ifndef __TEST__
+    #define internal FALSE
 // we do not want the functions inside namespace internal to be accessible in the source files
-    // but this will wreak havoc with Google test, so do not do this when testing because gtest also uses "internal" an identifier
-    #endif // !__TEST__
-// NOLINTEND(cppcoreguidelines-pro-type-vararg)
-#endif // __IDXIO_HPP__
+// but this will wreak havoc with Google test, so do not do this when testing because gtest also uses "internal" an identifier
+#endif // !__TEST__
+
+// NOLINTEND(cppcoreguidelines-pro-type-vararg,readability-redundant-inline-specifier,cppcoreguidelines-pro-bounds-pointer-arithmetic)
