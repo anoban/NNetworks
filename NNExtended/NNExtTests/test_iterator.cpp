@@ -225,8 +225,8 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, COPY_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        constexpr random_access_iterator ibegin { random_numbers };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
         constexpr auto                   ibegin_cp { ibegin };
         constexpr auto                   iend_cp { iend };
 
@@ -252,8 +252,8 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, MOVE_CONSTRUCTOR) {
-        random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        random_access_iterator ibegin { random_numbers };
+        random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
         const auto             ibegin_mvd { std::move(ibegin) };
         const auto             iend_mvd { std::move(iend) };
 

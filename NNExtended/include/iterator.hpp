@@ -10,13 +10,11 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
     public:
-        using value_type        = _Ty;
-        // _Ty preserves constness of the resource pointer, typename std::remove_cv_t<_Ty> would have removed the qualifiers
-        // we would end up with a unqualified pointer even if the passed resource is a const iterable
-        using pointer           = _Ty*;
-        using const_pointer     = const _Ty*;
-        using reference         = _Ty&;
-        using const_reference   = const _Ty&;
+        using value_type        = _Ty; //typename std::remove_reference<typename std::remove_all_extents<_Ty>::type>::type;
+        using pointer           = value_type*;
+        using const_pointer     = const value_type*;
+        using reference         = value_type&;
+        using const_reference   = const value_type&;
         using difference_type   = signed long long;   // aka ptrdiff_t
         using size_type         = unsigned long long; // aka size_t
         using iterator_category = std::random_access_iterator_tag;
@@ -33,22 +31,34 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
         size_type _offset; // current position in the iterable
 
     public: // NOLINT(readability-redundant-access-specifiers)
-        // will require an explicit template type specification
         constexpr inline __cdecl random_access_iterator() noexcept : _rsrc(), _length(), _offset() { }
 
         template<size_type _size>
-        constexpr inline explicit __cdecl random_access_iterator(_In_ const _Ty (&_array)[_size]) noexcept :
+        constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size]) noexcept :
             _rsrc(_array), _length(_size), _offset() {
             assert(_array);
             assert(_size);
         }
 
         template<size_type _size>
-        constexpr inline explicit __cdecl random_access_iterator(_In_ const _Ty (&_array)[_size], _In_ const size_type& _pos) noexcept :
+        constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size], _In_ const size_type& _pos) noexcept :
             _rsrc(_array), _length(_size), _offset(_pos) {
             assert(_array);
             assert(_size);
             assert(_size >= _pos);
+        }
+
+        constexpr inline random_access_iterator(_In_ _Ty* const _res, _In_ const size_type& _len) noexcept :
+            _rsrc(_res), _length(_len), _offset() {
+            assert(_res);
+            assert(_len);
+        }
+
+        constexpr inline random_access_iterator(_In_ _Ty* const _res, _In_ const size_type& _len, _In_ const size_type& _pos) noexcept :
+            _rsrc(_res), _length(_len), _offset(_pos) {
+            assert(_res);
+            assert(_len);
+            assert(_len >= _pos);
         }
 
         constexpr inline __cdecl random_access_iterator(_In_ const random_access_iterator& other) noexcept :

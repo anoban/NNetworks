@@ -113,9 +113,8 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
     // - the fourth byte encodes the number of dimensions, 0x01 for vectors, 0x02 for matrices and 0x03 for tensors (presumably)
     // for the ubyte variants of idx files, the data type will be unsigned chars, hence the third byte of the magic number will be 0x08
 
-    template<
-        typename scalar_t = unsigned char, // the element type of the idx1 buffer
-        typename          = typename std::enable_if<is_idx_compatible<scalar_t>::value, bool>::type>
+    // since most idx datasets use 8 bit unsigned integers as the value type, we'll opt to use that type
+
     class idx1 final {
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000801(2049) magic number (MSB first)
@@ -126,13 +125,13 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             // xxxx     unsigned byte   ??               label
 
         public:
-            using value_type      = scalar_t;
-            using pointer         = scalar_t*;
-            using const_pointer   = const scalar_t*;
-            using reference       = scalar_t&;
-            using const_reference = const scalar_t&;
-            using iterator        = random_access_iterator<scalar_t>;
-            using const_iterator  = random_access_iterator<const scalar_t>;
+            using value_type      = unsigned char;
+            using pointer         = value_type*;
+            using const_pointer   = const value_type*;
+            using reference       = value_type&;
+            using const_reference = const value_type&;
+            using iterator        = random_access_iterator<value_type>;
+            using const_iterator  = random_access_iterator<const value_type>;
 
             // clang-format off
     #ifndef __TEST__
@@ -281,7 +280,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             constexpr unsigned __cdecl magic() const noexcept { return _idxmagic; }
     };
 
-    template<typename scalar_t = unsigned char, typename = std::enable_if<std::is_arithmetic_v<scalar_t>, bool>::type> class idx3 final {
+    class idx3 final {
             // [offset] [type]          [value]          [description]
             // 0000     32 bit integer  0x00000803(2051) magic number
             // 0004     32 bit integer  60000            number of images
@@ -293,13 +292,13 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             // xxxx     unsigned byte   ??               pixel
 
         public:
-            using value_type      = scalar_t;
-            using pointer         = scalar_t*;
-            using const_pointer   = const scalar_t*;
-            using reference       = scalar_t&;
-            using const_reference = const scalar_t&;
-            using iterator        = random_access_iterator<scalar_t>;
-            using const_iterator  = random_access_iterator<const scalar_t>;
+            using value_type      = unsigned char;
+            using pointer         = value_type*;
+            using const_pointer   = const value_type*;
+            using reference       = value_type&;
+            using const_reference = const value_type&;
+            using iterator        = random_access_iterator<value_type>;
+            using const_iterator  = random_access_iterator<const value_type>;
 
             // clang-format off
     #ifndef __TEST__
