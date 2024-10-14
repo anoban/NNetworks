@@ -258,10 +258,10 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
             [[nodiscard]] constexpr const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
-            template<typename other_t>
-            requires std::is_arithmetic_v<other_t> // this will discard the first 8 bytes of idx1 object used to store the metadata
-            [[nodiscard("very expensive")]] std::vector<other_t> __cdecl labels_astype() const noexcept {
-                std::vector<other_t> temp(_nlabels);
+            template<typename _Ty>
+            requires std::is_arithmetic_v<_Ty> // this will discard the first 8 bytes of idx1 object used to store the metadata
+            [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl labels_astype() const noexcept {
+                std::vector<_Ty> temp(_nlabels);
                 std::copy(_labels, _labels + _nlabels, temp.data());
                 return temp;
             }
@@ -379,7 +379,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 // if the existing buffer can hold the other object, reuse the old buffer
                 if (_nimages * _nrows * _ncols > other._nimages * other._nrows * other._ncols) { // just copy the data
                     ::memset(_raw_buffer, 0, 8LL + _nimages * _nrows * _ncols * sizeof(value_type));
-                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
+                    std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nimages * sizeof(value_type), _raw_buffer);
                 } else if (_nimages * _nrows * _ncols == other._nimages * other._nrows * other._ncols) { // don't bother the memset
                     std::copy(
                         other._raw_buffer,
@@ -442,9 +442,9 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
             }
 
-            template<typename other_t> requires std::is_arithmetic_v<other_t>
-            [[nodiscard("very expensive")]] std::vector<other_t> __cdecl pixels_astype() const noexcept {
-                std::vector<other_t> temp(_ncols * _nrows * _nimages);
+            template<typename _Ty> requires std::is_arithmetic_v<_Ty>
+            [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl pixels_astype() const noexcept {
+                std::vector<_Ty> temp(_ncols * _nrows * _nimages);
                 std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
                 return temp;
             }
