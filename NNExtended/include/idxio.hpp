@@ -144,10 +144,9 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             pointer        _labels; // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
 
         public:
-            constexpr inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
+            inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
-            constexpr inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept :
-                _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
+            inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
                 unsigned long                       sz {};
                 const std::optional<unsigned char*> option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
@@ -167,7 +166,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            constexpr inline explicit __cdecl idx1(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
+            inline explicit __cdecl idx1(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 // again, the 100 here is an arbitrary choice, when you pass a dummy buffer for testing, make sure it's longer than 100 bytes
@@ -179,7 +178,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            constexpr inline __cdecl idx1(_In_ const idx1& other) noexcept :
+            inline __cdecl idx1(_In_ const idx1& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
                 unsigned char* temp_buff = new (std::nothrow) unsigned char[_nlabels * sizeof(value_type) + 8];
                 // cannot just use value_type[_nlabels] because we need to accomodate the metadata which is always unsigned char
@@ -194,13 +193,13 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(_raw_buffer + 8);
             }
 
-            constexpr inline __cdecl idx1(_In_ idx1&& other) noexcept :
+            inline __cdecl idx1(_In_ idx1&& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(other._raw_buffer), _labels(other._labels) {
                 other._idxmagic = other._nlabels = 0;
                 other._raw_buffer = other._labels = nullptr;
             }
 
-            constexpr inline idx1& __cdecl operator=(const idx1& other) noexcept {
+            inline idx1& __cdecl operator=(const idx1& other) noexcept {
                 if (this == &other) return *this;
 
                 _idxmagic = other._idxmagic;
@@ -225,7 +224,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            constexpr inline idx1& __cdecl operator=(idx1&& other) noexcept {
+            inline idx1& __cdecl operator=(idx1&& other) noexcept {
                 if (this == &other) return *this;
 
                 delete[] _raw_buffer; // discard the old buffer and take ownership of the stolen buffer
@@ -240,23 +239,23 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            constexpr inline __cdecl ~idx1() noexcept {
+            inline __cdecl ~idx1() noexcept {
                 delete[] _raw_buffer;
                 _raw_buffer = _labels = nullptr;
                 _idxmagic = _nlabels = 0;
             }
 
-            [[nodiscard]] constexpr iterator __cdecl begin() noexcept { return { _labels, _nlabels }; }
+            [[nodiscard]] inline iterator __cdecl begin() noexcept { return { _labels, _nlabels }; }
 
-            [[nodiscard]] constexpr const_iterator __cdecl begin() const noexcept { return { _labels, _nlabels }; }
+            [[nodiscard]] inline const_iterator __cdecl begin() const noexcept { return { _labels, _nlabels }; }
 
-            [[nodiscard]] constexpr const_iterator __cdecl cbegin() const noexcept { return { _labels, _nlabels }; }
+            [[nodiscard]] inline const_iterator __cdecl cbegin() const noexcept { return { _labels, _nlabels }; }
 
-            [[nodiscard]] constexpr iterator __cdecl end() noexcept { return { _labels, _nlabels, _nlabels }; }
+            [[nodiscard]] inline iterator __cdecl end() noexcept { return { _labels, _nlabels, _nlabels }; }
 
-            [[nodiscard]] constexpr const_iterator __cdecl end() const noexcept { return { _labels, _nlabels, _nlabels }; }
+            [[nodiscard]] inline const_iterator __cdecl end() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
-            [[nodiscard]] constexpr const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
+            [[nodiscard]] inline const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
             template<typename _Ty>
             requires std::is_arithmetic_v<_Ty> // this will discard the first 8 bytes of idx1 object used to store the metadata
@@ -275,9 +274,9 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            constexpr unsigned __cdecl count() const noexcept { return _nlabels; }
+            unsigned __cdecl count() const noexcept { return _nlabels; }
 
-            constexpr unsigned __cdecl magic() const noexcept { return _idxmagic; }
+            unsigned __cdecl magic() const noexcept { return _idxmagic; }
     };
 
     class idx3 final {
@@ -313,9 +312,9 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             pointer        _pixels; // an array of elements of a scalar type (a type casted alias to a position, 16 strides into the buffer)
 
         public:
-            constexpr inline __cdecl idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
+            inline __cdecl idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
 
-            constexpr inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
+            inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
                 _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() {
                 unsigned long                       sz {};
                 const std::optional<unsigned char*> option { internal::open(path, &sz) };
@@ -338,7 +337,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            constexpr inline explicit __cdecl idx3(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
+            inline explicit __cdecl idx3(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 assert(buffer[3] == 0x03); //// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -351,12 +350,12 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            constexpr inline __cdecl idx3(_In_ const idx3& other) noexcept :
+            inline __cdecl idx3(_In_ const idx3& other) noexcept :
                 _idxmagic(other._idxmagic), _nimages(other._nimages), _nrows(other._nrows), _ncols(other._ncols), _raw_buffer(), _pixels() {
                 // handle copying
             }
 
-            constexpr inline __cdecl idx3(_In_ idx3&& other) noexcept :
+            inline __cdecl idx3(_In_ idx3&& other) noexcept :
                 _idxmagic(other._idxmagic),
                 _nimages(other._nimages),
                 _nrows(other._nrows),
@@ -368,7 +367,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 other._raw_buffer = other._pixels = nullptr;
             }
 
-            constexpr inline idx3& __cdecl operator=(const idx3& other) noexcept {
+            inline idx3& __cdecl operator=(const idx3& other) noexcept {
                 if (this == &other) return *this;
 
                 _idxmagic = other._idxmagic;
@@ -403,7 +402,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            constexpr inline idx3& __cdecl operator=(idx3&& other) noexcept {
+            inline idx3& __cdecl operator=(idx3&& other) noexcept {
                 if (this == &other) return *this;
                 delete[] _raw_buffer; // lose the old buffer
 
@@ -420,37 +419,37 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            constexpr inline __cdecl ~idx3() noexcept {
+            inline __cdecl ~idx3() noexcept {
                 delete[] _raw_buffer;
                 _idxmagic = _nimages = _nrows = _ncols = 0;
                 _raw_buffer = _pixels = nullptr;
             }
 
-            constexpr iterator __cdecl begin() noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            inline iterator __cdecl begin() noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl begin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            inline const_iterator __cdecl begin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl cbegin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            inline const_iterator __cdecl cbegin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            constexpr iterator __cdecl end() noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
+            inline iterator __cdecl end() noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
 
-            constexpr const_iterator __cdecl end() const noexcept {
+            inline const_iterator __cdecl end() const noexcept {
                 return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
             }
 
-            constexpr const_iterator __cdecl cend() const noexcept {
+            inline const_iterator __cdecl cend() const noexcept {
                 return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
             }
 
             template<typename _Ty> requires std::is_arithmetic_v<_Ty>
-            [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl pixels_astype() const noexcept {
+            inline [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl pixels_astype() const noexcept {
                 std::vector<_Ty> temp(_ncols * _nrows * _nimages);
                 std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
                 return temp;
             }
 
             template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
+            inline friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
                 if constexpr (std::is_same_v<char, char_t>)
                     ostr << "idxio::idx3 [ " << object._idxmagic << ' ' << object._nimages << " (" << object._nrows << ", " << object._ncols
                          << ") ]\n";
@@ -460,11 +459,11 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            constexpr unsigned __cdecl count() const noexcept { return _nimages; }
+            inline unsigned __cdecl count() const noexcept { return _nimages; }
 
-            constexpr unsigned __cdecl magic() const noexcept { return _idxmagic; }
+            inline unsigned __cdecl magic() const noexcept { return _idxmagic; }
 
-            constexpr std::pair<unsigned, unsigned> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
+            inline std::pair<unsigned, unsigned> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
     };
 
 } // namespace idxio

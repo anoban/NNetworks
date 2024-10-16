@@ -158,14 +158,12 @@ namespace _random_access_iterator {
         // test the default ctor for const iterator
         constexpr random_access_iterator<const double> const_iterator {};
         EXPECT_FALSE(const_iterator._rsrc);
-        EXPECT_FALSE(const_iterator._unwrapped());
         EXPECT_FALSE(const_iterator._length);
         EXPECT_FALSE(const_iterator._offset);
 
         // test the default ctor for mutable iterator
         constexpr random_access_iterator<char> mutable_iterator {};
         EXPECT_FALSE(mutable_iterator._rsrc);
-        EXPECT_FALSE(mutable_iterator._unwrapped());
         EXPECT_FALSE(mutable_iterator._length);
         EXPECT_FALSE(mutable_iterator._offset);
     }
@@ -173,11 +171,8 @@ namespace _random_access_iterator {
     TEST(RANDOM_ACCESS_ITERATOR, PTR_CONSTRUCTOR) {
         float frandoms[MAX_ELEMS] { 0.00 }; // NOLINT(modernize-avoid-c-arrays)
 
-        // std::mt19937_64 rndengine { static_cast<unsigned long long>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
-        // std::uniform_real_distribution fgenerator { -0.5, 0.5 }; // min, max
-
-        random_access_iterator fbegin { frandoms };
-        random_access_iterator fend { frandoms, __crt_countof(frandoms) };
+        random_access_iterator fbegin { frandoms, __crt_countof(frandoms) };
+        random_access_iterator fend { frandoms, __crt_countof(frandoms), __crt_countof(frandoms) };
 
         EXPECT_EQ(fbegin._rsrc, frandoms);
         EXPECT_EQ(fbegin._length, __crt_countof(frandoms));
@@ -189,16 +184,14 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, CONST_PTR_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
-        EXPECT_EQ(ibegin._unwrapped(), random_numbers);
         EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
         EXPECT_FALSE(ibegin._offset);
 
         EXPECT_EQ(iend._rsrc, random_numbers);
-        EXPECT_EQ(iend._unwrapped(), random_numbers);
         EXPECT_EQ(iend._length, __crt_countof(random_numbers));
         EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
     }
@@ -214,69 +207,61 @@ namespace _random_access_iterator {
         random_access_iterator iend { irandoms.get(), MAX_ELEMS, MAX_ELEMS };
 
         EXPECT_EQ(ibegin._rsrc, irandoms.get());
-        EXPECT_EQ(ibegin._unwrapped(), irandoms.get());
         EXPECT_EQ(ibegin._length, MAX_ELEMS);
         EXPECT_FALSE(ibegin._offset);
 
         EXPECT_EQ(iend._rsrc, irandoms.get());
-        EXPECT_EQ(iend._unwrapped(), irandoms.get());
         EXPECT_EQ(iend._length, MAX_ELEMS);
         EXPECT_EQ(iend._offset, MAX_ELEMS);
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, COPY_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
         constexpr auto                   ibegin_cp { ibegin };
         constexpr auto                   iend_cp { iend };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
-        EXPECT_EQ(ibegin._unwrapped(), random_numbers);
         EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
         EXPECT_FALSE(ibegin._offset);
 
         EXPECT_EQ(ibegin_cp._rsrc, random_numbers);
-        EXPECT_EQ(ibegin_cp._unwrapped(), random_numbers);
         EXPECT_EQ(ibegin_cp._length, __crt_countof(random_numbers));
         EXPECT_FALSE(ibegin_cp._offset);
 
         EXPECT_EQ(iend._rsrc, random_numbers);
-        EXPECT_EQ(iend._unwrapped(), random_numbers);
         EXPECT_EQ(iend._length, __crt_countof(random_numbers));
         EXPECT_EQ(iend._offset, __crt_countof(random_numbers));
 
         EXPECT_EQ(iend_cp._rsrc, random_numbers);
-        EXPECT_EQ(iend_cp._unwrapped(), random_numbers);
         EXPECT_EQ(iend_cp._length, __crt_countof(random_numbers));
         EXPECT_EQ(iend_cp._offset, __crt_countof(random_numbers));
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, MOVE_CONSTRUCTOR) {
-        random_access_iterator ibegin { random_numbers };
-        random_access_iterator iend { random_numbers, __crt_countof(random_numbers) };
+        random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
         const auto             ibegin_mvd { std::move(ibegin) };
         const auto             iend_mvd { std::move(iend) };
 
         EXPECT_FALSE(ibegin._rsrc);
-        EXPECT_FALSE(ibegin._unwrapped());
         EXPECT_FALSE(ibegin._length);
         EXPECT_FALSE(ibegin._offset);
 
         EXPECT_EQ(ibegin_mvd._rsrc, random_numbers);
-        EXPECT_EQ(ibegin_mvd._unwrapped(), random_numbers);
         EXPECT_EQ(ibegin_mvd._length, __crt_countof(random_numbers));
         EXPECT_FALSE(ibegin_mvd._offset);
 
         EXPECT_FALSE(iend._rsrc);
-        EXPECT_FALSE(iend._unwrapped());
         EXPECT_FALSE(iend._length);
         EXPECT_FALSE(iend._offset);
 
         EXPECT_EQ(iend_mvd._rsrc, random_numbers);
-        EXPECT_EQ(iend_mvd._unwrapped(), random_numbers);
         EXPECT_EQ(iend_mvd._length, __crt_countof(random_numbers));
         EXPECT_EQ(iend_mvd._offset, __crt_countof(random_numbers));
     }
+
+    TEST(RANDOM_ACCESS_ITERATOR, ARITHMETICS) { }
 
 } // namespace _random_access_iterator
 

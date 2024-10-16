@@ -33,20 +33,20 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
     public: // NOLINT(readability-redundant-access-specifiers)
         constexpr inline __cdecl random_access_iterator() noexcept : _rsrc(), _length(), _offset() { }
 
-        template<size_type _size>
-        constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size]) noexcept :
-            _rsrc(_array), _length(_size), _offset() {
-            assert(_array);
-            assert(_size);
-        }
+        // template<size_type _size>
+        // constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size]) noexcept :
+        //     _rsrc(_array), _length(_size), _offset() {
+        //     assert(_array);
+        //     assert(_size);
+        // }
 
-        template<size_type _size>
-        constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size], _In_ const size_type& _pos) noexcept :
-            _rsrc(_array), _length(_size), _offset(_pos) {
-            assert(_array);
-            assert(_size);
-            assert(_size >= _pos);
-        }
+        // template<size_type _size>
+        // constexpr inline explicit __cdecl random_access_iterator(_In_ _Ty (&_array)[_size], _In_ const size_type& _pos) noexcept :
+        //     _rsrc(_array), _length(_size), _offset(_pos) {
+        //     assert(_array);
+        //     assert(_size);
+        //     assert(_size >= _pos);
+        // }
 
         constexpr inline random_access_iterator(_In_ _Ty* const _res, _In_ const size_type& _len) noexcept :
             _rsrc(_res), _length(_len), _offset() {
