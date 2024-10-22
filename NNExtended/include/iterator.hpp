@@ -5,7 +5,7 @@
 // NOLINTBEGIN(readability-redundant-inline-specifier)
 
 #pragma region __RANDOM_ACCESS_ITERATOR__
-template<typename _Ty> class random_access_iterator { // unchecked random access iterator
+template<typename _Ty> requires std::is_arithmetic_v<_Ty> class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
@@ -182,7 +182,7 @@ template<typename _Ty> class random_access_iterator { // unchecked random access
 };
 #pragma endregion
 
-#pragma region __STRIDED_ITERATOR__
+#pragma region __STRIDED_RANDOM_ACCESS_ITERATOR__
 template<typename _Ty>
 class strided_random_access_iterator final : public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
         // because random_access_iterator cannot be used here as it uses a non modifiable default stride of 1

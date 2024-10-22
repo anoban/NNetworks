@@ -1,6 +1,6 @@
 #include <idxio.hpp>
 
-auto wmain() -> int {
+int wmain() {
     //
 
     return EXIT_SUCCESS;

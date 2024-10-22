@@ -261,7 +261,32 @@ namespace _random_access_iterator {
         EXPECT_EQ(iend_mvd._offset, __crt_countof(random_numbers));
     }
 
-    TEST(RANDOM_ACCESS_ITERATOR, ARITHMETICS) { }
+    TEST(RANDOM_ACCESS_ITERATOR, ARITHMETICS_INCREMENT) {
+        auto            randoms { std::vector<unsigned>(MAX_ELEMS) };
+        std::mt19937_64 rndeng { std::random_device {}() };
+        std::ranges::generate(randoms, rndeng);
+
+        const auto expected = std::accumulate(randoms.cbegin(), randoms.cend(), 0LLU);
+        const auto got      = std::accumulate(
+            random_access_iterator { randoms.data(), randoms.size() },
+            random_access_iterator { randoms.data(), randoms.size(), randoms.size() },
+            0LLU
+        );
+        EXPECT_EQ(expected, got);
+
+        auto                                  numbers { std::make_unique_for_overwrite<float[]>(MAX_ELEMS) };
+        std::uniform_real_distribution<float> runif {};
+        auto                                  start {
+            random_access_iterator { numbers.get(), MAX_ELEMS }
+        };
+        auto stop {
+            random_access_iterator { numbers.get(), MAX_ELEMS, MAX_ELEMS }
+        };
+        std::generate(start, stop, [&rndeng, &runif]() noexcept -> float { return runif(rndeng); });
+        const auto _got { std::accumulate(start, stop, 0.0) };
+        const auto _expected { std::accumulate(numbers.get(), numbers.get() + MAX_ELEMS, 0.0) };
+        EXPECT_EQ(_expected, _got);
+    }
 
 } // namespace _random_access_iterator
 

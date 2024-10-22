@@ -1,5 +1,5 @@
 #pragma once
-#ifndef __UTILITIES_HPP__
-    #define __UTILITIES_HPP__
+#include <type_traits>
 
-#endif // !__UTILITIES_HPP__
+// use this to constrain the template arguments to overloaded std::basic_ostream<T>::operator<<()
+template<typename _Ty> concept is_iostream_output_operator_compatible = std::is_same_v<_Ty, char> || std::is_same_v<_Ty, wchar_t>;

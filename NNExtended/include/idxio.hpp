@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma comment(lib, "Ws2_32.lib")
 // clang-format off
     #define _AMD64_ // architecture
     #define WIN32_LEAN_AND_MEAN
@@ -10,23 +10,20 @@
     #include <fileapi.h>
     #include <handleapi.h>
     #include <Winsock2.h>
-
-    #pragma comment(lib, "Ws2_32.lib")
 // clang-format on
-
 #include <cstdio>
 #include <iostream>
 #include <optional>
 #include <vector>
 
 #include <iterator.hpp>
-#include <misc.hpp>
+#include <utilities.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,readability-redundant-inline-specifier,cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
-    [[nodiscard]] static inline std::optional<unsigned char*> __cdecl open(
+    [[nodiscard("io syscalls inbound")]] static inline std::optional<unsigned char*> __cdecl open(
         _In_ const wchar_t* const filename, _Inout_ unsigned long* const size
     ) noexcept {
         *size = 0;
@@ -62,7 +59,7 @@ namespace internal { // routines inside this namespace aren't meant to be used o
         }
 
         ::CloseHandle(hFile);
-        return buffer;
+        [[likely]] return buffer;
 
 GET_FILESIZE_ERR:
         delete[] buffer;
@@ -71,7 +68,7 @@ INVALID_HANDLE_ERR:
         return std::nullopt;
     }
 
-    [[nodiscard]] static inline bool __cdecl serialize(
+    [[nodiscard("io syscalls inbound")]] static inline bool __cdecl serialize(
         _In_ const wchar_t* const filename, _In_ const unsigned char* const buffer, _In_ const unsigned long size
     ) noexcept {
         const HANDLE64 hFile  = ::CreateFileW(filename, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -88,7 +85,7 @@ INVALID_HANDLE_ERR:
         }
 
         ::CloseHandle(hFile);
-        return true;
+        [[likely]] return true;
 
 PREMATURE_RETURN:
         ::CloseHandle(hFile);
@@ -143,6 +140,24 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             unsigned char* _raw_buffer; // the whole file
             pointer        _labels; // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
 
+            inline void __stdcall __shallow_copy_members(_In_ const idx1& other) noexcept {
+                _idxmagic   = other._idxmagic;
+                _nlabels    = other._nlabels;
+                _raw_buffer = other._raw_buffer;
+                _labels     = other._labels;
+            }
+
+            inline void __stdcall __cleanup() noexcept { // self cleanup
+                _idxmagic = _nlabels = 0;
+                delete[] _raw_buffer;
+                _raw_buffer = _labels = nullptr;
+            }
+
+            inline void __stdcall __cleanup(_Inout_ idx1& other) noexcept { // cleanp up moved from idx1 objects
+                other._idxmagic = other._nlabels = 0;
+                other._raw_buffer = other._labels = nullptr;
+            }
+
         public:
             inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
@@ -195,8 +210,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 
             inline __cdecl idx1(_In_ idx1&& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(other._raw_buffer), _labels(other._labels) {
-                other._idxmagic = other._nlabels = 0;
-                other._raw_buffer = other._labels = nullptr;
+                __cleanup(other);
             }
 
             inline idx1& __cdecl operator=(const idx1& other) noexcept {
@@ -228,13 +242,8 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 if (this == &other) return *this;
 
                 delete[] _raw_buffer; // discard the old buffer and take ownership of the stolen buffer
-                _idxmagic       = other._idxmagic;
-                _nlabels        = other._nlabels;
-                _raw_buffer     = other._raw_buffer;
-                _labels         = other._labels;
-
-                other._idxmagic = other._nlabels = 0;
-                other._raw_buffer = other._labels = nullptr;
+                __shallow_copy_members(other);
+                __cleanup(other);
 
                 return *this;
             }
@@ -442,7 +451,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             }
 
             template<typename _Ty> requires std::is_arithmetic_v<_Ty>
-            inline [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl pixels_astype() const noexcept {
+            [[nodiscard("very expensive")]] inline std::vector<_Ty> __cdecl pixels_astype() const noexcept {
                 std::vector<_Ty> temp(_ncols * _nrows * _nimages);
                 std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
                 return temp;
