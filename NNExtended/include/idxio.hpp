@@ -19,16 +19,16 @@
 #include <iterator.hpp>
 #include <utilities.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,readability-redundant-inline-specifier,cppcoreguidelines-pro-bounds-pointer-arithmetic)
+// NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 namespace internal { // routines inside this namespace aren't meant to be used outside this header
 
-    [[nodiscard("io syscalls inbound")]] static inline std::optional<unsigned char*> __cdecl open(
-        _In_ const wchar_t* const filename, _Inout_ unsigned long* const size
-    ) noexcept {
+    static std::optional<unsigned char*> open(_In_ const wchar_t* const filename, _Inout_ unsigned long* const size) noexcept {
         *size = 0;
         unsigned char* buffer {};
-        LARGE_INTEGER  liFsize { 0LLU };
+        LARGE_INTEGER  liFsize {
+             { 0LLU, 0LLU }
+        };
         const HANDLE64 hFile = ::CreateFileW(filename, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
         if (hFile == INVALID_HANDLE_VALUE) {
@@ -68,7 +68,7 @@ INVALID_HANDLE_ERR:
         return std::nullopt;
     }
 
-    [[nodiscard("io syscalls inbound")]] static inline bool __cdecl serialize(
+    static bool serialize(
         _In_ const wchar_t* const filename, _In_ const unsigned char* const buffer, _In_ const unsigned long size
     ) noexcept {
         const HANDLE64 hFile  = ::CreateFileW(filename, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -137,37 +137,37 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             // clang-format on
             unsigned       _idxmagic;   // first 4 bytes
             unsigned       _nlabels;    // next 4 bytes
-            unsigned char* _raw_buffer; // the whole file
+            unsigned char* _raw_buffer; // the whole file buffer
             pointer        _labels; // an array of elements of a scalar type (a type casted alias to a position, 8 strides into the buffer)
 
-            inline void __stdcall __shallow_copy_members(_In_ const idx1& other) noexcept {
+            void __stdcall __shallow_copy_members(_In_ const idx1& other) noexcept {
                 _idxmagic   = other._idxmagic;
                 _nlabels    = other._nlabels;
                 _raw_buffer = other._raw_buffer;
                 _labels     = other._labels;
             }
 
-            inline void __stdcall __cleanup() noexcept { // self cleanup
+            void __stdcall __cleanup() noexcept { // self cleanup
                 _idxmagic = _nlabels = 0;
                 delete[] _raw_buffer;
                 _raw_buffer = _labels = nullptr;
             }
 
-            inline void __stdcall __cleanup(_Inout_ idx1& other) noexcept { // cleanp up moved from idx1 objects
+            static void __stdcall __cleanup(_Inout_ idx1& other) noexcept { // cleanp up moved from idx1 objects
                 other._idxmagic = other._nlabels = 0;
                 other._raw_buffer = other._labels = nullptr;
             }
 
-        public:
-            inline __cdecl idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
+        public: // NOLINT(readability-redundant-access-specifiers)
+            idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
-            inline explicit __cdecl idx1(_In_ const wchar_t* const path) noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
-                unsigned long                       sz {};
-                const std::optional<unsigned char*> option { internal::open(path, &sz) };
+            explicit idx1(_In_ const wchar_t* const path) noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
+                unsigned long sz {};
+                const auto    option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
-                    ::fputws(L"idx1(_In_ const wchar_t* const path) constructor failed!, object is left default initialized!\n", stderr);
+                    ::fputws(L"" __FUNCSIG__ " failed!, object is left default initialized!\n", stderr);
                     return;
                 }
 
@@ -181,7 +181,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            inline explicit __cdecl idx1(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
+            explicit idx1(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 // again, the 100 here is an arbitrary choice, when you pass a dummy buffer for testing, make sure it's longer than 100 bytes
@@ -193,13 +193,12 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(buffer + 8);
             }
 
-            inline __cdecl idx1(_In_ const idx1& other) noexcept :
-                _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
+            idx1(_In_ const idx1& other) noexcept : _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(), _labels() {
                 unsigned char* temp_buff = new (std::nothrow) unsigned char[_nlabels * sizeof(value_type) + 8];
                 // cannot just use value_type[_nlabels] because we need to accomodate the metadata which is always unsigned char
                 // 8 for the first 8 metadata bytes and the rest for the buffer downstream
                 if (!temp_buff) {
-                    ::fputws(L"idx1(_In_ const idx1& other) copy constructor failed!, object is in unusable state!\n", stderr);
+                    ::fputws(L"" __FUNCSIG__ " failed!, object is in unusable state!\n", stderr);
                     return;
                 }
 
@@ -208,12 +207,12 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _labels     = reinterpret_cast<pointer>(_raw_buffer + 8);
             }
 
-            inline __cdecl idx1(_In_ idx1&& other) noexcept :
+            idx1(_In_ idx1&& other) noexcept :
                 _idxmagic(other._idxmagic), _nlabels(other._nlabels), _raw_buffer(other._raw_buffer), _labels(other._labels) {
                 __cleanup(other);
             }
 
-            inline idx1& __cdecl operator=(const idx1& other) noexcept {
+            idx1& operator=(const idx1& other) noexcept {
                 if (this == &other) return *this;
 
                 _idxmagic = other._idxmagic;
@@ -229,7 +228,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     delete[] _raw_buffer;
                     _raw_buffer = new (std::nothrow) unsigned char[8 + other._nlabels * sizeof(value_type)];
                     if (!_raw_buffer) {
-                        ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
+                        ::fputws(L"" __FUNCSIG__ " failed!, object is left in unusable state!\n", stderr);
                         return *this;
                     }
                     std::copy(other._raw_buffer, other._raw_buffer + 8 + other._nlabels * sizeof(value_type), _raw_buffer);
@@ -238,7 +237,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            inline idx1& __cdecl operator=(idx1&& other) noexcept {
+            idx1& operator=(idx1&& other) noexcept {
                 if (this == &other) return *this;
 
                 delete[] _raw_buffer; // discard the old buffer and take ownership of the stolen buffer
@@ -248,36 +247,40 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            inline __cdecl ~idx1() noexcept {
+            ~idx1() noexcept {
                 delete[] _raw_buffer;
                 _raw_buffer = _labels = nullptr;
                 _idxmagic = _nlabels = 0;
             }
 
-            [[nodiscard]] inline iterator __cdecl begin() noexcept { return { _labels, _nlabels }; }
+            iterator begin() noexcept { // NOLINT(readability-make-member-function-const)
+                return { _labels, _nlabels };
+            }
 
-            [[nodiscard]] inline const_iterator __cdecl begin() const noexcept { return { _labels, _nlabels }; }
+            const_iterator begin() const noexcept { return { _labels, _nlabels }; }
 
-            [[nodiscard]] inline const_iterator __cdecl cbegin() const noexcept { return { _labels, _nlabels }; }
+            const_iterator cbegin() const noexcept { return { _labels, _nlabels }; }
 
-            [[nodiscard]] inline iterator __cdecl end() noexcept { return { _labels, _nlabels, _nlabels }; }
+            iterator end() noexcept { // NOLINT(readability-make-member-function-const)
+                return { _labels, _nlabels, _nlabels };
+            }
 
-            [[nodiscard]] inline const_iterator __cdecl end() const noexcept { return { _labels, _nlabels, _nlabels }; }
+            const_iterator end() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
-            [[nodiscard]] inline const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
+            const_iterator cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
             template<typename _Ty>
-            [[nodiscard("very expensive"
-            )]] // this will trim off the first 8 bytes of idx1 object used to store the metadata and return the label buffer
-            typename std::enable_if<std::is_arithmetic_v<_Ty>, std::vector<_Ty>>::type __cdecl labels_astype() const noexcept {
+            // this will trim off the first 8 bytes of idx1 object used to store the metadata and return the label buffer
+            typename std::enable_if<std::is_arithmetic_v<_Ty>, std::vector<_Ty>>::type labels_astype() const noexcept {
                 std::vector<_Ty> temp(_nlabels);
                 std::copy(_labels, _labels + _nlabels, temp.data());
                 return temp;
             }
 
             template<typename char_t>
-            friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type __cdecl
-            operator<<(std::basic_ostream<char_t>& ostr, const idx1& object) {
+            friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type operator<<(
+                std::basic_ostream<char_t>& ostr, const idx1& object
+            ) {
                 if constexpr (std::is_same_v<char, char_t>)
                     ostr << "idxio::idx1 [ " << object._idxmagic << ' ' << object._nlabels << " ]\n";
                 else if constexpr (std::is_same_v<wchar_t, char_t>)
@@ -285,9 +288,9 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            unsigned __cdecl count() const noexcept { return _nlabels; }
+            unsigned count() const noexcept { return _nlabels; }
 
-            unsigned __cdecl magic() const noexcept { return _idxmagic; }
+            unsigned magic() const noexcept { return _idxmagic; }
     };
 
     class idx3 final {
@@ -322,17 +325,36 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             unsigned char* _raw_buffer; // the whole file
             pointer        _pixels; // an array of elements of a scalar type (a type casted alias to a position, 16 strides into the buffer)
 
-        public:
-            inline __cdecl idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
+            void __stdcall __shallow_copy_members(_In_ const idx3& other) noexcept {
+                _idxmagic   = other._idxmagic;
+                _nimages    = other._nimages;
+                _nrows      = other._nrows;
+                _ncols      = other._ncols;
+                _raw_buffer = other._raw_buffer;
+                _pixels     = other._pixels;
+            }
 
-            inline explicit __cdecl idx3(_In_ const wchar_t* const path) noexcept :
-                _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() {
-                unsigned long                       sz {};
-                const std::optional<unsigned char*> option { internal::open(path, &sz) };
+            void __stdcall __cleanup() noexcept { // self cleanup
+                delete[] _raw_buffer;
+                _idxmagic = _nimages = _nrows = _ncols = 0;
+                _raw_buffer = _pixels = nullptr;
+            }
+
+            void __stdcall __cleanup(_Inout_ idx3& other) noexcept { // cleanp up moved from idx1 objects
+                other._idxmagic = other._nimages = _nrows = _ncols = 0;
+                other._raw_buffer = other._pixels = nullptr;
+            }
+
+        public:
+            idx3() noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() { }
+
+            explicit idx3(_In_ const wchar_t* const path) noexcept : _idxmagic(), _nimages(), _nrows(), _ncols(), _raw_buffer(), _pixels() {
+                unsigned long sz {};
+                const auto    option { internal::open(path, &sz) };
                 assert(sz >= 100); // the 100 here is an arbitrary choice
 
                 if (!option.has_value()) {
-                    ::fputws(L"idx3(_In_ const wchar_t* const path) constructor failed!, object is left default initialized!\n", stderr);
+                    ::fputws(L"" __FUNCSIG__ " failed!, object is left default initialized!\n", stderr);
                     return;
                 }
 
@@ -348,7 +370,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            inline explicit __cdecl idx3(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
+            explicit idx3(_In_ unsigned char* const buffer, _In_ const size_t& size) noexcept {
                 assert(buffer);
                 assert(size >= 100);
                 assert(buffer[3] == 0x03); //// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -361,24 +383,22 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 _pixels     = reinterpret_cast<pointer>(buffer + 16);
             }
 
-            inline __cdecl idx3(_In_ const idx3& other) noexcept :
+            idx3(_In_ const idx3& other) noexcept :
                 _idxmagic(other._idxmagic), _nimages(other._nimages), _nrows(other._nrows), _ncols(other._ncols), _raw_buffer(), _pixels() {
                 // handle copying
             }
 
-            inline __cdecl idx3(_In_ idx3&& other) noexcept :
+            idx3(_In_ idx3&& other) noexcept :
                 _idxmagic(other._idxmagic),
                 _nimages(other._nimages),
                 _nrows(other._nrows),
                 _ncols(other._ncols),
                 _raw_buffer(other._raw_buffer),
                 _pixels(other._pixels) {
-                // handle the cleanup
-                other._idxmagic = other._nimages = other._nrows = other._ncols = 0;
-                other._raw_buffer = other._pixels = nullptr;
+                __cleanup(other);
             }
 
-            inline idx3& __cdecl operator=(const idx3& other) noexcept {
+            idx3& operator=(const idx3& other) noexcept {
                 if (this == &other) return *this;
 
                 _idxmagic = other._idxmagic;
@@ -400,7 +420,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                     delete[] _raw_buffer;
                     _raw_buffer = new (std::nothrow) unsigned char[8 + other._nimages * other._nrows * other._ncols * sizeof(value_type)];
                     if (!_raw_buffer) {
-                        ::fputws(L"operator=(const idx1& other) copy assignment operator failed!, object is in unusable state!\n", stderr);
+                        ::fputws(L"" __FUNCSIG__ " failed!, object is left in unusable state!\n", stderr);
                         return *this;
                     }
                     std::copy(
@@ -413,56 +433,41 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return *this;
             }
 
-            inline idx3& __cdecl operator=(idx3&& other) noexcept {
+            idx3& operator=(idx3&& other) noexcept {
                 if (this == &other) return *this;
+
                 delete[] _raw_buffer; // lose the old buffer
-
-                _idxmagic       = other._idxmagic;
-                _nimages        = other._nimages;
-                _nrows          = other._nrows;
-                _ncols          = other._ncols;
-                _raw_buffer     = other._raw_buffer;
-                _pixels         = other._pixels;
-
-                other._idxmagic = other._nimages = other._nrows = other._ncols = 0;
-                other._raw_buffer = other._pixels = nullptr;
+                __shallow_copy_members(other);
+                __cleanup(other);
 
                 return *this;
             }
 
-            inline __cdecl ~idx3() noexcept {
-                delete[] _raw_buffer;
-                _idxmagic = _nimages = _nrows = _ncols = 0;
-                _raw_buffer = _pixels = nullptr;
-            }
+            ~idx3() noexcept { __cleanup(); }
 
-            inline iterator __cdecl begin() noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            iterator begin() noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            inline const_iterator __cdecl begin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            const_iterator begin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            inline const_iterator __cdecl cbegin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
+            const_iterator cbegin() const noexcept { return { _pixels, _nimages * _nrows * _ncols }; }
 
-            inline iterator __cdecl end() noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
+            iterator end() noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
 
-            inline const_iterator __cdecl end() const noexcept {
-                return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
-            }
+            const_iterator end() const noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
 
-            inline const_iterator __cdecl cend() const noexcept {
-                return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
-            }
+            const_iterator cend() const noexcept { return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols }; }
 
             template<typename _Ty> //requires std::is_arithmetic_v<_Ty>
-            [[nodiscard("very expensive")]] inline std::vector<_Ty> __cdecl pixels_astype() const noexcept {
+            std::vector<_Ty> pixels_astype() const noexcept {
                 std::vector<_Ty> temp(_ncols * _nrows * _nimages);
                 std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
                 return temp;
             }
 
             template<typename char_t>
-            inline friend
-                typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type __cdecl
-                operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
+            friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type operator<<(
+                std::basic_ostream<char_t>& ostr, const idx3& object
+            ) {
                 if constexpr (std::is_same_v<char, char_t>)
                     ostr << "idxio::idx3 [ " << object._idxmagic << ' ' << object._nimages << " (" << object._nrows << ", " << object._ncols
                          << ") ]\n";
@@ -472,11 +477,11 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return ostr;
             }
 
-            inline unsigned __cdecl count() const noexcept { return _nimages; }
+            unsigned count() const noexcept { return _nimages; }
 
-            inline unsigned __cdecl magic() const noexcept { return _idxmagic; }
+            unsigned magic() const noexcept { return _idxmagic; }
 
-            inline std::pair<unsigned, unsigned> __cdecl dim() const noexcept { return { _nrows, _ncols }; }
+            std::pair<unsigned, unsigned> dim() const noexcept { return { _nrows, _ncols }; }
     };
 
 } // namespace idxio
@@ -487,4 +492,4 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
 // but this will wreak havoc with Google test, so do not do this when testing because gtest also uses "internal" an identifier
 #endif // !__TEST__
 
-// NOLINTEND(cppcoreguidelines-pro-type-vararg,readability-redundant-inline-specifier,cppcoreguidelines-pro-bounds-pointer-arithmetic)
+// NOLINTEND(cppcoreguidelines-pro-type-vararg,cppcoreguidelines-pro-bounds-pointer-arithmetic)

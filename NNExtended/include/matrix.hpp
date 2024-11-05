@@ -1,5 +1,4 @@
 #pragma once
-#include <utility>
 
 #include <immintrin.h>
 
@@ -34,21 +33,21 @@ class matrix final {
         size_type _nrows;
         size_type _ncols;
 
-        inline void __stdcall __cleanup() noexcept { // a convenient private routine to do self cleanups
+        void __stdcall __cleanup() noexcept { // a convenient private routine to do self cleanups
             delete[] _buffer;
             _nrows = _ncols = 0;
         }
 
-        inline void __stdcall __cleanup(_Inout_ matrix& _matrix) noexcept { // a convenient private routine to cleanup moved from matrices
+        static void __stdcall __cleanup(_Inout_ matrix& _matrix) noexcept { // a convenient private routine to cleanup moved from matrices
             _matrix._buffer = nullptr;
             _matrix._nrows = _matrix._ncols = 0;
         }
 
     public:
-        inline matrix() = delete; // will an empty matrix ever be useful?
+        matrix() = delete; // will an empty matrix ever be useful?
 
         // construct an empty matrix with specified dimensions
-        inline matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) noexcept :
+        matrix(_In_ const size_type& nrows, _In_ const size_type& ncols) noexcept :
             _buffer { new (std::nothrow) value_type[nrows * ncols] }, _nrows { nrows }, _ncols { ncols } {
             assert(nrows);
             assert(ncols);
@@ -58,7 +57,7 @@ class matrix final {
             }
         }
 
-        inline matrix(_In_ const matrix& other) noexcept :
+        matrix(_In_ const matrix& other) noexcept :
             _buffer { new (std::nothrow) value_type[other._nrows * other._ncols] }, _nrows { other._nrows }, _ncols { other._ncols } {
             if (!_buffer) {
                 _nrows = _ncols = 0;
@@ -68,17 +67,17 @@ class matrix final {
             std::copy(other._buffer, other._buffer + (other._nrows * other._ncols), _buffer);
         }
 
-        inline matrix(_In_ matrix&& other) noexcept : _buffer { other._buffer }, _nrows { other._nrows }, _ncols { other._ncols } {
+        matrix(_In_ matrix&& other) noexcept : _buffer { other._buffer }, _nrows { other._nrows }, _ncols { other._ncols } {
             __cleanup(other);
         }
 
-        inline matrix& operator=(_In_ const matrix& other) noexcept {
+        matrix& operator=(_In_ const matrix& other) noexcept {
             if (this == &other) return *this;
 
             return *this;
         }
 
-        inline matrix& operator=(_In_ matrix&& other) noexcept {
+        matrix& operator=(_In_ matrix&& other) noexcept {
             if (this == &other) return *this;
 
             _buffer = other._buffer;
@@ -89,11 +88,11 @@ class matrix final {
             return *this;
         }
 
-        inline ~matrix() noexcept { __cleanup(); }
+        ~matrix() noexcept { __cleanup(); }
 
-        inline size_type rows() const noexcept { return _nrows; }
+        size_type rows() const noexcept { return _nrows; }
 
-        inline size_type columns() const noexcept { return _ncols; }
+        size_type columns() const noexcept { return _ncols; }
 
         template<typename char_t>
         friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type operator<<(
@@ -102,15 +101,15 @@ class matrix final {
             // TODO
         }
 
-        inline const_iterator cbegin() const noexcept { return { _buffer /* resource pointer */, _nrows * _ncols /* length */ }; }
+        const_iterator cbegin() const noexcept { return { _buffer /* resource pointer */, _nrows * _ncols /* length */ }; }
 
-        inline const_iterator cend() const noexcept {
+        const_iterator cend() const noexcept {
             return { _buffer /* resource pointer */, _nrows * _ncols /* length */, _nrows * _ncols /* offset */ };
         }
 
-        inline pointer data() noexcept { return _buffer; }
+        pointer data() noexcept { return _buffer; }
 
-        inline const_pointer data() const noexcept { return _buffer; }
+        const_pointer data() const noexcept { return _buffer; }
 
         // choosing to implement matrix multiplication as a non-member function instead of overloading operator*() or
         // operator*=() because these approaches will compromise on performance
@@ -122,7 +121,7 @@ class matrix final {
         // by using a friend function, we can use a third argument as an in-out parameter where the multiplication product can be
         // materialized, so once all the matrices have been allocated with memory, we could reuse the same buffers throughout all the
         // iterations
-        friend inline bool dotprod(_In_ const matrix& left, _In_ const matrix& right, _Inout_ matrix& prod) noexcept {
+        friend bool dotprod(_In_ const matrix& left, _In_ const matrix& right, _Inout_ matrix& prod) noexcept {
             // VALIDATE THE PRECONDITIONS
 
             // number of columns in the left matrix must be equal to the number of rows in the right matrix
