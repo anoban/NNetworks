@@ -5,7 +5,8 @@
 // NOLINTBEGIN(readability-redundant-inline-specifier)
 
 #pragma region __RANDOM_ACCESS_ITERATOR__
-template<typename _Ty> requires std::is_arithmetic_v<_Ty> class random_access_iterator { // unchecked random access iterator
+template<typename _Ty, typename = typename std::enable_if<std::is_arithmetic_v<_Ty>, _Ty>::type>
+class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
         // in debug mode, certain preventative asserts may fail, indicating where things went wrong
 
@@ -91,7 +92,7 @@ template<typename _Ty> requires std::is_arithmetic_v<_Ty> class random_access_it
             return *this;
         }
 
-        constexpr inline __cdecl ~random_access_iterator() noexcept {
+        inline __cdecl ~random_access_iterator() noexcept {
             _rsrc   = nullptr;
             _length = _offset = 0;
         }
@@ -156,14 +157,18 @@ template<typename _Ty> requires std::is_arithmetic_v<_Ty> class random_access_it
             return _rsrc == other._rsrc && _offset >= other._offset;
         }
 
-        template<typename U> requires std::integral<U>
-        [[nodiscard]] constexpr inline random_access_iterator operator+(_In_ const U& stride) const noexcept {
+        template<typename _TyOth>
+        [[nodiscard]] constexpr inline typename std::enable_if<std::is_integral_v<_TyOth>, random_access_iterator>::type operator+(
+            _In_ const _TyOth& stride
+        ) const noexcept {
             assert(_length >= _offset + stride);
             return { _rsrc, _length, _offset + stride };
         }
 
-        template<typename U> requires std::integral<U>
-        [[nodiscard]] constexpr inline random_access_iterator operator-(_In_ const U& stride) const noexcept {
+        template<typename _TyOth>
+        [[nodiscard]] constexpr inline typename std::enable_if<std::is_integral<_TyOth>::value, random_access_iterator>::type operator-(
+            _In_ const _TyOth& stride
+        ) const noexcept {
             assert(_length >= _offset - stride);
             return { _rsrc, _length, _offset - stride };
         }
@@ -185,7 +190,7 @@ template<typename _Ty> requires std::is_arithmetic_v<_Ty> class random_access_it
 #pragma region __STRIDED_RANDOM_ACCESS_ITERATOR__
 template<typename _Ty>
 class strided_random_access_iterator final : public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
-        // because random_access_iterator cannot be used here as it uses a non modifiable default stride of 1
+        // random_access_iterator cannot be used here as it uses a non modifiable default stride of 1
         // since our matrix class is row major, the vanilla random_access_iterator is unsuitable to iterate over elements of a given column
         // hence it would require a custom stride (number of columns) to get to the next element instead of 1!
         // iterating over rows can be accomplished with an aptly customized random_access_iterator
@@ -271,7 +276,7 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
             return *this;
         }
 
-        constexpr inline __cdecl ~strided_random_access_iterator() noexcept {
+        inline __cdecl ~strided_random_access_iterator() noexcept {
             _rsrc   = nullptr;
             _length = _offset = _stride = 0;
         }
@@ -312,14 +317,15 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
             //
         }
 
-        template<typename _Ty> requires std::integral<_Ty>
+        template<typename _Ty> // requires std::integral<_Ty>
         [[nodiscard]] constexpr inline strided_random_access_iterator operator+(_In_ const _Ty& distance) const noexcept {
             assert(_length >= _offset + distance);
             return { _rsrc, _length, _offset + distance, _stride };
         }
 
-        template<typename _Ty> requires std::integral<_Ty>
-        [[nodiscard]] constexpr inline strided_random_access_iterator operator-(_In_ const _Ty& distance) const noexcept {
+        template<typename _TyOth>
+        [[nodiscard]] constexpr inline typename std::enable_if<std::is_integral<_TyOth>::value, strided_random_access_iterator>::type
+        operator-(_In_ const _Ty& distance) const noexcept {
             assert(_length >= _offset - distance);
             return { _rsrc, _length, _offset - distance, _stride };
         }

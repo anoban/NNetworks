@@ -28,7 +28,7 @@ namespace internal { // routines inside this namespace aren't meant to be used o
     ) noexcept {
         *size = 0;
         unsigned char* buffer {};
-        LARGE_INTEGER  liFsize { .QuadPart = 0LLU };
+        LARGE_INTEGER  liFsize { 0LLU };
         const HANDLE64 hFile = ::CreateFileW(filename, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
         if (hFile == INVALID_HANDLE_VALUE) {
@@ -59,7 +59,7 @@ namespace internal { // routines inside this namespace aren't meant to be used o
         }
 
         ::CloseHandle(hFile);
-        [[likely]] return buffer;
+        return buffer;
 
 GET_FILESIZE_ERR:
         delete[] buffer;
@@ -85,7 +85,7 @@ INVALID_HANDLE_ERR:
         }
 
         ::CloseHandle(hFile);
-        [[likely]] return true;
+        return true;
 
 PREMATURE_RETURN:
         ::CloseHandle(hFile);
@@ -267,15 +267,17 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             [[nodiscard]] inline const_iterator __cdecl cend() const noexcept { return { _labels, _nlabels, _nlabels }; }
 
             template<typename _Ty>
-            requires std::is_arithmetic_v<_Ty> // this will discard the first 8 bytes of idx1 object used to store the metadata
-            [[nodiscard("very expensive")]] std::vector<_Ty> __cdecl labels_astype() const noexcept {
+            [[nodiscard("very expensive"
+            )]] // this will trim off the first 8 bytes of idx1 object used to store the metadata and return the label buffer
+            typename std::enable_if<std::is_arithmetic_v<_Ty>, std::vector<_Ty>>::type __cdecl labels_astype() const noexcept {
                 std::vector<_Ty> temp(_nlabels);
                 std::copy(_labels, _labels + _nlabels, temp.data());
                 return temp;
             }
 
-            template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-            friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx1& object) {
+            template<typename char_t>
+            friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type __cdecl
+            operator<<(std::basic_ostream<char_t>& ostr, const idx1& object) {
                 if constexpr (std::is_same_v<char, char_t>)
                     ostr << "idxio::idx1 [ " << object._idxmagic << ' ' << object._nlabels << " ]\n";
                 else if constexpr (std::is_same_v<wchar_t, char_t>)
@@ -450,15 +452,17 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 return { _pixels, _nimages * _nrows * _ncols, _nimages * _nrows * _ncols };
             }
 
-            template<typename _Ty> requires std::is_arithmetic_v<_Ty>
+            template<typename _Ty> //requires std::is_arithmetic_v<_Ty>
             [[nodiscard("very expensive")]] inline std::vector<_Ty> __cdecl pixels_astype() const noexcept {
                 std::vector<_Ty> temp(_ncols * _nrows * _nimages);
                 std::copy(_pixels, _pixels + _ncols * _nrows * _nimages, temp.data());
                 return temp;
             }
 
-            template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-            inline friend std::basic_ostream<char_t>& __cdecl operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
+            template<typename char_t>
+            inline friend
+                typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type __cdecl
+                operator<<(std::basic_ostream<char_t>& ostr, const idx3& object) {
                 if constexpr (std::is_same_v<char, char_t>)
                     ostr << "idxio::idx3 [ " << object._idxmagic << ' ' << object._nimages << " (" << object._nrows << ", " << object._ncols
                          << ") ]\n";

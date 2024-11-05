@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>Intel C++ Compiler 2024</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <InstrumentInteloneTBB>false</InstrumentInteloneTBB>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
@@ -130,8 +130,8 @@
       <UseProcessorExtensions>COMMON512</UseProcessorExtensions>
       <GenerateAlternateCodePaths>COMMON512</GenerateAlternateCodePaths>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <CCppSupport>Cpp20Support</CCppSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <Optimization>Disabled</Optimization>
@@ -168,8 +168,8 @@
       <UseProcessorExtensions>COMMON512</UseProcessorExtensions>
       <GenerateAlternateCodePaths>COMMON512</GenerateAlternateCodePaths>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <CCppSupport>Cpp20Support</CCppSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>None</DebugInformationFormat>

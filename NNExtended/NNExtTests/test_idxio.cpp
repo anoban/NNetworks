@@ -1,7 +1,6 @@
 ﻿#include <algorithm>
 #include <array>
 #include <numeric>
-#include <ranges>
 
 #include <idxio.hpp>
 
@@ -51,11 +50,11 @@ TEST(IDX1, ITERATORS) {
     std::array<unsigned, 10> labfreqs {}; // frequencies of each unique labels
 
     for (idxio::idx1::const_iterator it = ltrain.cbegin(), end = ltrain.cend(); it != end; ++it) labfreqs.at(*it)++;
-    EXPECT_TRUE(std::ranges::all_of(labfreqs, [](const auto& count) noexcept -> bool { return count == 6'000U; }));
+    EXPECT_TRUE(std::all_of(labfreqs.cbegin(), labfreqs.cend(), [](const auto& count) noexcept -> bool { return count == 6'000U; }));
 
     std::fill(labfreqs.begin(), labfreqs.end(), 0);
     for (idxio::idx1::const_iterator it = ltest.cbegin(), end = ltest.cend(); it != end; ++it) labfreqs.at(*it)++;
-    EXPECT_TRUE(std::ranges::all_of(labfreqs, [](const auto& count) noexcept -> bool { return count == 1'000U; }));
+    EXPECT_TRUE(std::all_of(labfreqs.cbegin(), labfreqs.cend(), [](const auto& count) noexcept -> bool { return count == 1'000U; }));
 }
 
 TEST(IDX1, AS_TYPE) {

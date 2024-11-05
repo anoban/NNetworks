@@ -1,5 +1,4 @@
 #pragma once
-#include <concepts>
 #include <utility>
 
 #include <immintrin.h>
@@ -96,8 +95,10 @@ class matrix final {
 
         inline size_type columns() const noexcept { return _ncols; }
 
-        template<typename char_t> requires ::is_iostream_output_operator_compatible<char_t>
-        friend std::basic_ostream<char_t>& operator<<(_In_ std::basic_ostream<char_t>& ostream, _In_ const matrix& matrix) {
+        template<typename char_t>
+        friend typename std::enable_if<::is_iostream_output_operator_compatible<char_t>, std::basic_ostream<char_t>&>::type operator<<(
+            _In_ std::basic_ostream<char_t>& ostream, _In_ const matrix& matrix
+        ) noexcept {
             // TODO
         }
 
@@ -130,7 +131,7 @@ class matrix final {
                 return false;
             }
 
-            [[likely]] // because we ain't that stupid
+            // because we ain't that stupid
             // if the result does not have enough memory to store the dot prduct, do a reallocation
             // hopefully this newly allocated buffer can be reused throughout all the iterations
             // the dot product will have the same number of rows as the left matrix and same number of columns as the right matrix
@@ -145,8 +146,8 @@ class matrix final {
                     return false;
                 }
 
-                [[likely]] prod._nrows = left._nrows;
-                prod._ncols            = right._ncols;
+                prod._nrows = left._nrows;
+                prod._ncols = right._ncols;
             }
 
             // NOW TO THE ACTUAL MATRIX MULTIPLICATION

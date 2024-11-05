@@ -2,7 +2,6 @@
 #include <chrono>
 #include <numeric>
 #include <random>
-#include <ranges>
 
 #include <iterator.hpp>
 
@@ -156,13 +155,13 @@ namespace _random_access_iterator {
 
     TEST(RANDOM_ACCESS_ITERATOR, DEFAULT_CONSTRUCTOR) {
         // test the default ctor for const iterator
-        constexpr random_access_iterator<const double> const_iterator {};
+        const random_access_iterator<const double> const_iterator {};
         EXPECT_FALSE(const_iterator._rsrc);
         EXPECT_FALSE(const_iterator._length);
         EXPECT_FALSE(const_iterator._offset);
 
         // test the default ctor for mutable iterator
-        constexpr random_access_iterator<char> mutable_iterator {};
+        const random_access_iterator<char> mutable_iterator {};
         EXPECT_FALSE(mutable_iterator._rsrc);
         EXPECT_FALSE(mutable_iterator._length);
         EXPECT_FALSE(mutable_iterator._offset);
@@ -184,8 +183,8 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, CONST_PTR_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        const random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        const random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
         EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
@@ -216,10 +215,10 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, COPY_CONSTRUCTOR) {
-        constexpr random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
-        constexpr random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
-        constexpr auto                   ibegin_cp { ibegin };
-        constexpr auto                   iend_cp { iend };
+        const random_access_iterator ibegin { random_numbers, __crt_countof(random_numbers) };
+        const random_access_iterator iend { random_numbers, __crt_countof(random_numbers), __crt_countof(random_numbers) };
+        const auto                   ibegin_cp { ibegin };
+        const auto                   iend_cp { iend };
 
         EXPECT_EQ(ibegin._rsrc, random_numbers);
         EXPECT_EQ(ibegin._length, __crt_countof(random_numbers));
@@ -264,7 +263,7 @@ namespace _random_access_iterator {
     TEST(RANDOM_ACCESS_ITERATOR, ARITHMETICS_INCREMENT) {
         auto            randoms { std::vector<unsigned>(MAX_ELEMS) };
         std::mt19937_64 rndeng { std::random_device {}() };
-        std::ranges::generate(randoms, rndeng);
+        std::generate(randoms.begin(), randoms.end(), rndeng);
 
         const auto expected = std::accumulate(randoms.cbegin(), randoms.cend(), 0LLU);
         const auto got      = std::accumulate(
@@ -274,7 +273,7 @@ namespace _random_access_iterator {
         );
         EXPECT_EQ(expected, got);
 
-        auto                                  numbers { std::make_unique_for_overwrite<float[]>(MAX_ELEMS) };
+        auto                                  numbers { std::make_unique<float[]>(MAX_ELEMS) };
         std::uniform_real_distribution<float> runif {};
         auto                                  start {
             random_access_iterator { numbers.get(), MAX_ELEMS }
