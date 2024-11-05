@@ -1,5 +1,4 @@
 #pragma once
-
 #include <immintrin.h>
 
 #include <iterator.hpp>

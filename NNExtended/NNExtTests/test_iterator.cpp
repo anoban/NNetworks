@@ -1,5 +1,4 @@
 ﻿#include <algorithm>
-#include <chrono>
 #include <numeric>
 #include <random>
 
@@ -261,8 +260,8 @@ namespace _random_access_iterator {
     }
 
     TEST(RANDOM_ACCESS_ITERATOR, ARITHMETICS_INCREMENT) {
-        auto            randoms { std::vector<unsigned>(MAX_ELEMS) };
-        std::mt19937_64 rndeng { std::random_device {}() };
+        std::vector<unsigned> randoms(MAX_ELEMS);
+        std::mt19937_64       rndeng { std::random_device {}() };
         std::generate(randoms.begin(), randoms.end(), rndeng);
 
         const auto expected = std::accumulate(randoms.cbegin(), randoms.cend(), 0LLU);
