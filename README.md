@@ -3,15 +3,15 @@
 
 ___Project idea inspired from [Samson Zhang](https://www.youtube.com/watch?v=w8yWXqWQYmU). Design and implementation are quite different from the one in his [Kaggle Notebook](https://www.kaggle.com/code/wwsalmon/simple-mnist-nn-from-scratch-numpy-no-tf-keras/notebook) that___
 
-- This implementation uses `Numba` to speed up the computations
-- Uses OOP to modularize code.
-- Uses the real `MNIST` Idx data sets, instead of the Kaggle provided `.csv` files.
-- Includes separate classes for handling `Idx1`, `Idx3` IO.
-- `NNetworkMinimal` class can save a trained model's state to disk and reconstruct the trained model from the serialized model file. This prevents the need to retrain the model from scratch to make predictions again, granted that the training dataset hasn't been altered since the last training.
+- Uses `Numba` to speed up the computations
+- Uses OOP to modularize code
+- Uses the real `MNIST` Idx data sets, instead of the Kaggle provided `.csv` files
+- Includes separate classes for handling `Idx1`, `Idx3` IO
+- `NNetworkMinimal` class can save a trained model's state to disk and reconstruct the __trained__ model from the serialized model file. This prevents the need to retrain the model from scratch to make predictions again, granted that the training dataset hasn't been altered since the last training.
 
 
 ## ___MNIST___
-----------------
+----------
 
 ![MNIST](./readme/MnistExamplesModified.png)
 
@@ -30,10 +30,10 @@ ___The matrix can also be reimagined as a tensor with (28, 28, N) dimensions___
 ----------------
 $`I_{[784, ~N]} \Longrightarrow H_{[10, ~N]} \Longrightarrow O_{[10, ~N]}`$
 
------------------
+----------------
 ___A matrix notation $`M_{[r,~c]}`$ indicates a matrix with `r` rows and `c` columns, not the matrix element at `r` th row and `c` th column!.___
 
------------------
+----------------
 
 ___Forward propagation___
 
@@ -137,30 +137,36 @@ _b = b - $`\alpha`$ db_
 
 $`\alpha`$ - learning rate
 
---------------
-After 5,000 iterations, the accuracy scores for `MNIST` datasets were:
-- Training dataset - 0.935367 (93.54%)
-- Test dataset - 0.928800 (92.88%)
---------------
+----------------
+After $5,000$ iterations, the accuracy scores for `MNIST` datasets were:
+- Training dataset - $0.935367$
+- Test dataset - $0.928800$
+----------------
 
 For a thorough, step by step walkthrough, refer the source code. It's comprehensively annotated!
 
 ## ___Fashion MNIST___
-------------------------
+----------------
 
 ![Fashion-MNIST](./readme/fashion-mnist-sprite.png)
 
---------------
+----------------
 Using the same `NNetworkMinimal` class used for `MNIST` datasets with 5000 iterations, the accuracy scores for `Fashion MNIST` datasets were:
-- Training dataset - 0.262367 (26.24%)
-- Test dataset - 0.263800 (26.38%)
---------------
+- Training dataset - $0.262367$
+- Test dataset     - $0.263800$
+----------------
 
-Fashion MNIST datasets was designed intentionally as a superior alternative to the MNIST datasets as the former is too simple that even a naive network could make decent predictions using it. The problem with MNIST is that the information encoded in the image pixels are not that complex to easily materialize a good enough digit classifier.
+`Fashion MNIST` datasets was designed intentionally as a superior alternative to the `MNIST` datasets since the former is too
+trivial that even a naive network could make decent predictions using it. The problem with `MNIST` is that the information encoded in the
+image pixels are not that complex to easily materialize a good enough digit classifier model.
 
-As Fashion MNIST introduces more sophisticated visually similar shapes, the model now needs to capture more nuanced, granular patterns in the images to make good enough predictions (e.g. the visual differences between a woman's top and a tshirt aren't as pronounced as the differences between the digits 1 and 2, particularly in low resolution images (28 x 28 pixels to be precise)). Our `NNetworkMinimal` class design is way too simple for complex learning endeavours, hence the poor accuracy scores with Fashion MNIST datasets.
+As `Fashion MNIST` introduces diverse yet visually similar shapes, the model now needs to capture more nuanced, granular details in the images
+to make accurate predictions (e.g. the visual differences between a women's top and a men's tshirt aren't as pronounced as the differences
+between the digits $1$ and $2$, such fine grained differences are particularly hard to capture in low resolution images ($28 \times 28$ pixels, to be precise)).
+Our `NNetworkMinimal` class design is way too naive for complex learning endeavours, hence the poor accuracy scores with `Fashion MNIST` datasets.
 
 # ___NNExtended___
-----------
+----------------
 
-This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on Fashion MNIST datasets, but this time in C++.
+This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on `Fashion MNIST`
+ datasets, but this time in Bjarne's monster AKA `C++`.
