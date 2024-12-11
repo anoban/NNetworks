@@ -1,8 +1,8 @@
 import numpy as np
+from numba import jit
 from numpy.typing import NDArray
 
 np.seterr(all="raise")
-from numba import jit
 
 
 @jit(nopython=True, fastmath=True, parallel=False)

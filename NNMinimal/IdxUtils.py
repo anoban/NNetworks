@@ -1,9 +1,10 @@
 from typing import override
+
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
 np.seterr(all="raise")
-import matplotlib.pyplot as plt
 
 
 class Idx1:
@@ -111,9 +112,7 @@ class Idx3:
 
         # supposed to be 28 x 28 for MNIST inspired datasets.
         self.__ppimage: int = self.shape[0] * self.shape[1]  # pixels per image (28 x 28)
-        assert (self.count * self.__ppimage) == (
-            tmp.size - 16
-        ), "There seems to be a parsing error or the binary file is corrupted!"
+        assert (self.count * self.__ppimage) == (tmp.size - 16), "There seems to be a parsing error or the binary file is corrupted!"
 
         # the actual data
         # idx3 file stores data as bytes but we'll load in each byte as a 64 bit double

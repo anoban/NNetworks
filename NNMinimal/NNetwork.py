@@ -1,10 +1,11 @@
 from typing import override
+
 import numpy as np
 from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
 
 np.seterr(all="raise")
-from NNSUtils import onehot, softmax, ReLU, undoReLU
+from NNSUtils import ReLU, onehot, softmax, undoReLU
 
 
 class NNetworkMinimal:
@@ -179,9 +180,7 @@ class NNetworkMinimal:
         H_hat: NDArray[np.float64] = ReLU(H)
         O: NDArray[np.float64] = self.__whidout.dot(H_hat) + self.__bout
         O_hat: NDArray[np.float64] = softmax(O)
-        return np.argmax(
-            O_hat, axis=0
-        )  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
+        return np.argmax(O_hat, axis=0)  # O_hat is 10 x N shaped. the offset of the max value in each column will be the model's prediction
 
     def accuracy_score(self, data: NDArray[np.float64], true_labels: NDArray[np.float64]) -> float:
         """
@@ -291,9 +290,7 @@ class NNetworkMinimal:
             raise TypeError("Only models serialized with .save() method with an .nnm extension are supported!")
 
         with open(file=filepath, mode="rb") as fp:
-            coeffs: NDArray[np.float64] = np.load(
-                fp
-            )  # np.load() is used to load in binary files serialized with np.save() method.
+            coeffs: NDArray[np.float64] = np.load(fp)  # np.load() is used to load in binary files serialized with np.save() method.
         # np.fromfile() assumes that the binary file contains only raw bytes. But np.save() encodes metadata in the .npy file format.
         # .npy format is the file format used by np.save() to serialize Numpy array objects.
         caret: int = 0  # use this as a moving caret that points to the offset where the next subscriting should begin.

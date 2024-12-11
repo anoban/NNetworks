@@ -1,14 +1,16 @@
 import sys
 from typing import override
-from NNetwork import NNetworkMinimal
+
 from IdxUtils import Idx1, Idx3
+from NNetwork import NNetworkMinimal
+
 
 class AccuracyScores:
     """
     A convenient wrapper for returning training and test set accuracy scores from routines.
     """
 
-    def __init__(self, _train : float, _test: float) -> None:
+    def __init__(self, _train: float, _test: float) -> None:
         self.acc_score_train: float = _train
         self.acc_score_test: float = _test
 
@@ -36,7 +38,10 @@ def evalualte_nnminimal_for_mnists(model_path: str) -> AccuracyScores:
     mnist_train_labels = Idx1(r"../MNIST/train-labels.idx1-ubyte")
     mnist_test_labels = Idx1(r"../MNIST/t10k-labels.idx1-ubyte")
 
-    return AccuracyScores(model.accuracy_score(mnist_train_images.data, mnist_train_labels.data),model.accuracy_score(mnist_test_images.data, mnist_test_labels.data))
+    return AccuracyScores(
+        model.accuracy_score(mnist_train_images.data, mnist_train_labels.data),
+        model.accuracy_score(mnist_test_images.data, mnist_test_labels.data),
+    )
 
 
 def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
@@ -58,11 +63,13 @@ def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
     fashion_mnist_train_labels = Idx1(r"../Fashion-MNIST/train-labels-idx1-ubyte")
     fashion_mnist_test_labels = Idx1(r"../Fashion-MNIST/t10k-labels-idx1-ubyte")
 
-    return AccuracyScores(model.accuracy_score(fashion_mnist_train_images.data, fashion_mnist_train_labels.data),model.accuracy_score(fashion_mnist_test_images.data, fashion_mnist_test_labels.data))
+    return AccuracyScores(
+        model.accuracy_score(fashion_mnist_train_images.data, fashion_mnist_train_labels.data),
+        model.accuracy_score(fashion_mnist_test_images.data, fashion_mnist_test_labels.data),
+    )
 
 
 def main() -> None:
-
     print(f"[[MNIST]]         :: {evalualte_nnminimal_for_mnists(r"./models/mnist-10000.nnm")}")
     print(f"[[Fashion-MNIST]] :: {evalualte_nnminimal_for_fashion_mnists(r"./models/fashion-mnist-10000.nnm")}")
     sys.exit(0)
