@@ -169,4 +169,4 @@ Our `NNetworkMinimal` class design is way too naive for complex learning endeavo
 ----------------
 
 This is the rationale for the `NNExtended` subproject, to implement a model sophisticated enough to make decent predictions on `Fashion MNIST`
- datasets, but this time in Bjarne's monster AKA `C++`.
+ datasets, but this time in Bjarne's monster.

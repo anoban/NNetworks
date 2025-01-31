@@ -70,8 +70,8 @@ def evalualte_nnminimal_for_fashion_mnists(model_path: str) -> AccuracyScores:
 
 
 def main() -> None:
-    print(f"[[MNIST]]         :: {evalualte_nnminimal_for_mnists(r"./models/mnist-10000.nnm")}")
-    print(f"[[Fashion-MNIST]] :: {evalualte_nnminimal_for_fashion_mnists(r"./models/fashion-mnist-10000.nnm")}")
+    print(f"[[MNIST]]         :: {evalualte_nnminimal_for_mnists(r'./models/mnist-10000.nnm')}")
+    print(f"[[Fashion-MNIST]] :: {evalualte_nnminimal_for_fashion_mnists(r'./models/fashion-mnist-10000.nnm')}")
     sys.exit(0)
 
 

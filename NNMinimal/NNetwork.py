@@ -13,14 +13,7 @@ class NNetworkMinimal:
     A class representing a bare minimum neural network with one input layer, one hidden layer and an output layer
     """
 
-    def __init__(
-        self,
-        nodes_in: int,
-        nodes_hid: int,
-        nodes_out: int,
-        alpha: float = 0.1,
-        maxiterations: int = 2500,
-    ) -> None:
+    def __init__(self, nodes_in: int, nodes_hid: int, nodes_out: int, alpha: float = 0.1, maxiterations: int = 2500) -> None:
         """
         `Parameters`:
         nodes_in: np.uint64 - number of nodes in the input layer
@@ -230,12 +223,7 @@ class NNetworkMinimal:
         }
         """
 
-        return {
-            "IHW": self.__winhid,
-            "HB": self.__bhid,
-            "HOW": self.__whidout,
-            "OB": self.__bout,
-        }
+        return {"IHW": self.__winhid, "HB": self.__bhid, "HOW": self.__whidout, "OB": self.__bout}
 
     def save(self, filepath: str) -> None:
         """

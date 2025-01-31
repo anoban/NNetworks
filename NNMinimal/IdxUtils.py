@@ -105,10 +105,7 @@ class Idx3:
         self.count: int = int.from_bytes(tmp[4:8], byteorder="big")  # count of the data elements (images)
 
         # shape is shape of each element NOT the shape of the overall data
-        self.shape: tuple[int, int] = (
-            int.from_bytes(tmp[8:12], byteorder="big"),
-            int.from_bytes(tmp[12:16], byteorder="big"),
-        )
+        self.shape: tuple[int, int] = (int.from_bytes(tmp[8:12], byteorder="big"), int.from_bytes(tmp[12:16], byteorder="big"))
 
         # supposed to be 28 x 28 for MNIST inspired datasets.
         self.__ppimage: int = self.shape[0] * self.shape[1]  # pixels per image (28 x 28)
@@ -142,12 +139,7 @@ class Idx3:
         raise PermissionError("<Idx3> class objects aren't modifiable!")
 
 
-def peek_idx(
-    idx3: str,
-    idx1: str,
-    image_dim: tuple[int, int] = (28, 28),
-    colormap: str = "binary",
-) -> None:
+def peek_idx(idx3: str, idx1: str, image_dim: tuple[int, int] = (28, 28), colormap: str = "binary") -> None:
     """
     Samples 15 randomly choosen pairs of images and labels from the provided idx resources and plots them.
 
@@ -166,9 +158,9 @@ def peek_idx(
 
     images = Idx3(idx3)
     labels = Idx1(idx1)
-    assert (
-        images.count == labels.count
-    ), f"Mismatch in the number of elements stored in idx1 and idx3 files:: idx1: {labels.count}, idx3: {images.count}"
+    assert images.count == labels.count, (
+        f"Mismatch in the number of elements stored in idx1 and idx3 files:: idx1: {labels.count}, idx3: {images.count}"
+    )
 
     nrows, ncols = image_dim
     fig, axes = plt.subplots(nrows=1, ncols=15)
