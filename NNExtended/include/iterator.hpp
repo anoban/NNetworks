@@ -1,8 +1,14 @@
 #pragma once
 #include <cassert>
 #include <iterator>
+#include <sal.h>
+#include <type_traits>
+#include <type_traits>
+
+#include <sal.h>
 
 #pragma region __RANDOM_ACCESS_ITERATOR__
+
 template<typename _Ty, typename = typename std::enable_if<std::is_arithmetic_v<_Ty>, bool>::type>
 class random_access_iterator { // unchecked random access iterator
         // if invalid memory access happens, the OS may raise an access violation exception, the iterator won't do anything about this in release mode
@@ -179,11 +185,13 @@ class random_access_iterator { // unchecked random access iterator
             return _offset - other._offset;
         }
 };
+
 #pragma endregion
 
 #pragma region __STRIDED_RANDOM_ACCESS_ITERATOR__
-template<typename _Ty>
-class strided_random_access_iterator final : public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
+
+template<typename _Ty> class strided_random_access_iterator final :
+    public random_access_iterator<_Ty> { // an iterator to capture matrix column elements
         // random_access_iterator cannot be used here as it uses a non modifiable default stride of 1
         // since our matrix class is row major, the vanilla random_access_iterator is unsuitable to iterate over elements of a given column
         // as it would require a custom stride (number of columns) to get to the next element instead of 1!
@@ -334,6 +342,7 @@ class strided_random_access_iterator final : public random_access_iterator<_Ty> 
             return _offset - other._offset;
         }
 };
+
 #pragma endregion
 
 // NOLINTEND(readability-redundant--specifier)
