@@ -9,7 +9,7 @@ np.seterr(all="raise")
 
 class Idx1:
     """
-    A minimal class to handle IO operations using idx1 files
+    A minimal class to handle IO operations using Idx1 files
 
     IDX1 file format:
     [offset] [type]          [value]          [description]
@@ -24,7 +24,7 @@ class Idx1:
     def __init__(self, filepath: str) -> None:
         """
         `Parameters`:
-        filepath: str - path to unzipped idx1 resource
+        filepath: str - path to unzipped Idx1 resource
 
         `Returns`:
         None
@@ -39,7 +39,7 @@ class Idx1:
         except FileNotFoundError as fnf_error:
             raise RuntimeError("") from fnf_error
 
-        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # idx1 magic number
+        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # Idx1 magic number
         self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (labels)
 
         assert self.count == ubytes.size - 8, "There seems to be a parsing error or the binary file is corrupted!"
@@ -49,7 +49,7 @@ class Idx1:
 
     @override
     def __repr__(self) -> str:
-        return f"idx1 object(magic: {self.magic}, count: {self.count:,})"
+        return f"Idx1 object(magic: {self.magic}, count: {self.count:,})"
 
     def __getitem__(self, index: int) -> np.float64:  #
         """
@@ -71,7 +71,7 @@ class Idx1:
 
 class Idx3:
     """
-    A minimal class to handle IO operations using idx3 files
+    A minimal class to handle IO operations using Idx3 files
 
     IDX3 file format:
     [offset] [type]          [value]          [description]
@@ -88,7 +88,7 @@ class Idx3:
     def __init__(self, filepath: str) -> None:
         """
         `Parameters`:
-        filepath: str - path to unzipped idx3 resource
+        filepath: str - path to unzipped Idx3 resource
 
         `Returns`:
         None
@@ -103,7 +103,7 @@ class Idx3:
         except FileNotFoundError as fnf_error:
             raise RuntimeError("") from fnf_error
 
-        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # idx3 magic number
+        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # Idx3 magic number
         self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (images)
 
         # shape is shape of each element NOT the shape of the overall data
@@ -114,13 +114,13 @@ class Idx3:
         assert (self.count * pixels_per_image) == (ubytes.size - 16), "There seems to be a parsing error or the binary file is corrupted!"
 
         # the actual data
-        # idx3 file stores data as bytes but we'll load in each byte as a 64 bit double
+        # Idx3 file stores data as bytes but we'll load in each byte as a 64 bit double
         # because np.exp() raises a FloatingPointError with np.uint8 type arrays
         self.data: NDArray[np.float64] = ubytes[16:].reshape(self.count, pixels_per_image).T.astype(np.float64)
 
     @override
     def __repr__(self) -> str:
-        return f"idx3 object(magic: {self.magic}, shape: {self.shape}, count: {self.count:,})"
+        return f"Idx3 object (magic: {self.magic}, shape: {self.shape}, count: {self.count:,})"
 
     def __getitem__(self, index: int) -> NDArray[np.float64]:
         """
@@ -140,14 +140,14 @@ class Idx3:
         raise PermissionError("<Idx3> class objects aren't modifiable!")
 
 
-def peek_idx(idx3: str, idx1: str, image_dim: tuple[int, int] = (28, 28), colormap: str = "binary") -> None:
+def peek_Idx(idx3: str, idx1: str, image_dim: tuple[int, int] = (28, 28), colormap: str = "binary") -> None:
     """
-    Samples 15 randomly choosen pairs of images and labels from the provided idx resources and plots them.
+    Samples 15 randomly choosen pairs of images and labels from the provided Idx resources and plots them.
 
     `Parameters`:
-    idx3: str - the path to the idx3 resource
-    idx1: str - path to corresponding idx1 resource
-    idx3elem_dim: typing.Tuple[int, int] - shape of the image matrices in the idx3 file
+    Idx3: str - the path to the Idx3 resource
+    Idx1: str - path to corresponding Idx1 resource
+    Idx3elem_dim: typing.Tuple[int, int] - shape of the image matrices in the Idx3 file
     colormap: str - matplotlib cmap specification to use, when plotting the images
 
     `Returns`:
@@ -160,7 +160,7 @@ def peek_idx(idx3: str, idx1: str, image_dim: tuple[int, int] = (28, 28), colorm
     images = Idx3(idx3)
     labels = Idx1(idx1)
     assert images.count == labels.count, (
-        f"Mismatch in the number of elements stored in idx1 and idx3 files:: idx1: {labels.count}, idx3: {images.count}"
+        f"Mismatch in the number of elements stored in Idx1 and Idx3 files:: Idx1: {labels.count}, Idx3: {images.count}"
     )
 
     nrows, ncols = image_dim
