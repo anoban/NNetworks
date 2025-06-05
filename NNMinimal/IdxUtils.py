@@ -34,18 +34,15 @@ class Idx1:
         """
 
         with open(file=filepath, mode="rb") as fp:  # let open() handle IO errors.
-            tmp: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)  # private
+            ubytes: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)  # private
 
-        self.type: str = "idx1"
-        self.magic: int = int.from_bytes(tmp[:4], byteorder="big")  # idx magic number
-        self.count: int = int.from_bytes(tmp[4:8], byteorder="big")  # count of the data elements (labels)
+        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # idx magic number
+        self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (labels)
 
-        assert self.count == tmp.size - 8, "There seems to be a parsing error or the binary file is corrupted!"
+        assert self.count == ubytes.size - 8, "There seems to be a parsing error or the binary file is corrupted!"
         # the actual data
         # type casting the data from np.uint8 to np.float64 since np.exp() raises FloatingPointError with np.uint8 arrays
-        self.data: NDArray[np.float64] = tmp[8:].astype(np.float64)
-        # get rid of the original data
-        del tmp
+        self.data: NDArray[np.float64] = ubytes[8:].astype(np.float64)
 
     @override
     def __repr__(self) -> str:
@@ -98,24 +95,22 @@ class Idx3:
         """
 
         with open(file=filepath, mode="rb") as fp:
-            tmp: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)  # private
+            ubytes: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)  # private
 
-        self.__type: str = "idx3"
-        self.magic: int = int.from_bytes(tmp[:4], byteorder="big")  # idx magic number
-        self.count: int = int.from_bytes(tmp[4:8], byteorder="big")  # count of the data elements (images)
+        self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # idx magic number
+        self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (images)
 
         # shape is shape of each element NOT the shape of the overall data
-        self.shape: tuple[int, int] = (int.from_bytes(tmp[8:12], byteorder="big"), int.from_bytes(tmp[12:16], byteorder="big"))
+        self.shape: tuple[int, int] = (int.from_bytes(ubytes[8:12], byteorder="big"), int.from_bytes(ubytes[12:16], byteorder="big"))
 
         # supposed to be 28 x 28 for MNIST inspired datasets.
         self.__ppimage: int = self.shape[0] * self.shape[1]  # pixels per image (28 x 28)
-        assert (self.count * self.__ppimage) == (tmp.size - 16), "There seems to be a parsing error or the binary file is corrupted!"
+        assert (self.count * self.__ppimage) == (ubytes.size - 16), "There seems to be a parsing error or the binary file is corrupted!"
 
         # the actual data
         # idx3 file stores data as bytes but we'll load in each byte as a 64 bit double
         # because np.exp() raises a FloatingPointError with np.uint8 type arrays
-        self.data: NDArray[np.float64] = tmp[16:].reshape(self.count, self.__ppimage).T.astype(np.float64)
-        del tmp  # don't need this anymore.
+        self.data: NDArray[np.float64] = ubytes[16:].reshape(self.count, self.__ppimage).T.astype(np.float64)
 
     @override
     def __repr__(self) -> str:
