@@ -37,7 +37,7 @@ class Idx1:
             with open(file=filepath, mode="rb") as fp:
                 ubytes: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)
         except FileNotFoundError as fnf_error:
-            raise RuntimeError("") from fnf_error
+            raise RuntimeError(f"Creation of Idx1 object from file {filepath} failed!") from fnf_error
 
         self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # Idx1 magic number
         self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (labels)
@@ -66,7 +66,7 @@ class Idx1:
         return self.data[index]
 
     def __setitem__(self, index: int) -> None:
-        raise PermissionError("<Idx1> class objects aren't modifiable!")
+        raise PermissionError("Idx1 objects are immutable!")
 
 
 class Idx3:
@@ -101,7 +101,7 @@ class Idx3:
             with open(file=filepath, mode="rb") as fp:
                 ubytes: NDArray[np.uint8] = np.fromfile(fp, dtype=np.uint8)
         except FileNotFoundError as fnf_error:
-            raise RuntimeError("") from fnf_error
+            raise RuntimeError(f"Creation of Idx3 object from file {filepath} failed!") from fnf_error
 
         self.magic: int = int.from_bytes(ubytes[:4], byteorder="big")  # Idx3 magic number
         self.count: int = int.from_bytes(ubytes[4:8], byteorder="big")  # count of the data elements (images)
@@ -137,7 +137,7 @@ class Idx3:
         return self.data[:, index]
 
     def __setitem__(self, index: int) -> None:
-        raise PermissionError("<Idx3> class objects aren't modifiable!")
+        raise PermissionError("Idx3 objects are immutable!")
 
 
 def peek_Idx(idx3: str, idx1: str, image_dim: tuple[int, int] = (28, 28), colormap: str = "binary") -> None:
