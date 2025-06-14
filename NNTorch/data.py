@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, override
 
 from torch.utils.data import Dataset
 
@@ -15,5 +15,5 @@ class Idx1(Dataset):
         return 5
 
     @override
-    def __getitem__(self, index) -> Any:
-        return super().__getitem__(index)
+    def __getitem__(self, index: int) -> Any:
+        pass
