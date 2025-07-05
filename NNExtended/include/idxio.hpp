@@ -5,16 +5,25 @@
     #define WIN32_LEAN_AND_MEAN
     #define WIN32_EXTRA_MEAN
     #define NOMINMAX
-    #include <windef.h>
-    #include <errhandlingapi.h>
+        #include <errhandlingapi.h>
     #include <fileapi.h>
     #include <handleapi.h>
     #include <Winsock2.h>
 // clang-format on
+#include <algorithm>
+#include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
+#include <new>
 #include <optional>
+#include <type_traits>
+#include <utility>
 #include <vector>
+
+#include <corecrt.h>
+#include <sal.h>
+#include <Windows.h>
 
 #include <iterator.hpp>
 #include <utilities.hpp>
@@ -161,6 +170,7 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
         public: // NOLINT(readability-redundant-access-specifiers)
             idx1() noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() { }
 
+            // NOLINTNEXTLINE(bugprone-exception-escape)
             explicit idx1(_In_ const wchar_t* const path) noexcept : _idxmagic(), _nlabels(), _raw_buffer(), _labels() {
                 unsigned long sz {};
                 const auto    option { internal::open(path, &sz) };
@@ -172,6 +182,8 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
                 }
 
                 unsigned char* buffer { option.value() };
+                // std::optional::value() could call _Throw_bad_optional_access() and throw std::bad_optional_access
+                // but we have already enasured that our option actually has a value, so this won't affect the noexcept of the parent function
                 assert(buffer);
                 assert(buffer[3] == 0x01); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) must be 0x01 for idx1 objects
 

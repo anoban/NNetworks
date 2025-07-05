@@ -1,8 +1,6 @@
 #pragma once
 #include <cassert>
 #include <iterator>
-#include <sal.h>
-#include <type_traits>
 #include <type_traits>
 
 #include <sal.h>
