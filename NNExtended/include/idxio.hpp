@@ -496,6 +496,8 @@ namespace idxio { // we will not be using exceptions here! caller will have to m
             std::pair<unsigned, unsigned> dim() const noexcept { return { _nrows, _ncols }; }
     };
 
+    class idx_data_loader final { };
+
 } // namespace idxio
 
 #ifndef __TEST__
