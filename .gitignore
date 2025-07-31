@@ -227,3 +227,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# the idx files
+MNIST/*
+Fashion-MNIST/*
