@@ -1,11 +1,13 @@
 from typing import override
 
 import numpy as np
+from nnutils import ReLU, onehot, softmax, undoReLU
 from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
 
 np.seterr(all="raise")
-from NNSUtils import ReLU, onehot, softmax, undoReLU
+
+__all__ = ["NNetworkMinimal"]
 
 
 class NNetworkMinimal:

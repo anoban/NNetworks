@@ -1,7 +1,7 @@
 import sys
 
-from idxutils import Idx1, Idx3
-from nnet import NNetworkMinimal
+from base.idxutils import Idx1, Idx3
+from base.nnet import NNetworkMinimal
 
 
 def main() -> None:

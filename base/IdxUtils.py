@@ -6,6 +6,8 @@ from numpy.typing import NDArray
 
 np.seterr(all="raise")
 
+__all__ = ["Idx1", "Idx3"]
+
 
 class Idx1:
     """

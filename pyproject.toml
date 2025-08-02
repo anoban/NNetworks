@@ -1,8 +1,17 @@
-# PEP 518 defines pyproject.toml as a configuration file to store build system requirements for Python projects.
-# pyproject.toml can be used to configure the BLACK, by explicitly overriding its defaults!
-# since pyproject.toml is versatile (used by multiple tools), configuration options for BLACK should be grouped under [tool.black] section.
+[project]
+name = "mnist"
+version = "0.0.1"
+authors = [
+  { name="Anoban", email="anoban97atgmaildotcom" },
+]
 
-[tool.black]
-line-length = 120
-target-version = ['py312']
-unstable = false
+description = "a cocktail of neural networks for classifying MNIST style images"
+readme = "README.md"
+requires-python = ">=3.13"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+license = "MIT"

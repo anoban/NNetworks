@@ -1,8 +1,8 @@
 import sys
 from typing import override
 
-from IdxUtils import Idx1, Idx3
-from NNetwork import NNetworkMinimal
+from base.idxutils import Idx1, Idx3
+from base.nnet import NNetworkMinimal
 
 
 class AccuracyScores:
